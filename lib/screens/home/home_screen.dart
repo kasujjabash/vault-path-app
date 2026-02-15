@@ -1,0 +1,474 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../../services/auth_service.dart';
+import '../../providers/expense_provider.dart';
+import '../../utils/format_utils.dart';
+import '../../utils/custom_snackbar.dart';
+import '../../components/expense_donut_chart.dart';
+import '../../components/swipeable_transaction_item.dart';
+import '../../components/home_drawer.dart';
+import '../notifications/notifications_screen.dart';
+
+/// Home screen with clean layout: Balance card, transactions, expense chart, and premium card
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isBalanceHidden = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadMonthlyData();
+      }
+    });
+  }
+
+  Future<void> _loadMonthlyData() async {
+    final provider = Provider.of<ExpenseProvider>(context, listen: false);
+    try {
+      await provider.getCurrentMonthExpenses();
+      await provider.getCurrentMonthIncome();
+    } catch (e) {
+      debugPrint('Error loading monthly data: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthService>(
+      builder: (context, authService, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8F9FA),
+          drawer: const HomeDrawer(),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF006E1F), // Dark green
+            elevation: 0,
+            centerTitle: false,
+            titleSpacing: 0,
+            title: const Text(
+              'Vault Path',
+              style: TextStyle(
+                color: Colors.white,
+                // fontSize: 12,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationsScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: RefreshIndicator(
+            onRefresh: () async {
+              await Provider.of<ExpenseProvider>(
+                context,
+                listen: false,
+              ).initialize();
+              await _loadMonthlyData();
+            },
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      // Balance Card
+                      _buildBalanceCard(),
+                      const SizedBox(height: 24),
+
+                      // Recent Transactions
+                      _buildSectionHeader(
+                        'Recent Transactions',
+                        onViewAll: () {
+                          context.push('/transactions');
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildRecentTransactions(),
+                      const SizedBox(height: 24),
+
+                      // Expense Chart
+                      _buildSectionHeader('Expense Overview'),
+                      const SizedBox(height: 12),
+                      _buildExpenseStructure(),
+                      const SizedBox(height: 24),
+
+                      // Premium Card
+                      _buildPremiumCard(),
+                      const SizedBox(height: 100), // Space for FAB
+                    ]),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSectionHeader(String title, {VoidCallback? onViewAll}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF006E1F), // Green color
+          ),
+        ),
+        if (onViewAll != null)
+          TextButton(
+            onPressed: onViewAll,
+            child: Text(
+              'View All',
+              style: TextStyle(
+                color: const Color(0xFF006E1F), // Dark green
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildBalanceCard() {
+    return Consumer<ExpenseProvider>(
+      builder: (context, provider, child) {
+        return FutureBuilder<List<double>>(
+          future: Future.wait([
+            provider.getCurrentMonthIncome(),
+            provider.getCurrentMonthExpenses(),
+          ]),
+          builder: (context, snapshot) {
+            final totalIncome = snapshot.data?[0] ?? 0.0;
+            final totalExpense = snapshot.data?[1] ?? 0.0;
+            final balance = totalIncome - totalExpense;
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                height: 180,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD4E5D3), // Light green background
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF006E1F).withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF006E1F), // Updated dark green
+                  ),
+                ),
+              );
+            }
+
+            return Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD4E5D3), // Light green background
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF006E1F).withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Balance',
+                        style: TextStyle(
+                          color: Color(0xFF006E1F), // Updated dark green
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isBalanceHidden = !_isBalanceHidden;
+                          });
+                        },
+                        icon: Icon(
+                          _isBalanceHidden
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: const Color(0xFF006E1F), // Updated dark green
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _isBalanceHidden
+                        ? '• • • • •'
+                        : balance < 0
+                        ? '- ${FormatUtils.formatCurrency(balance.abs())}'
+                        : FormatUtils.formatCurrency(balance),
+                    style: TextStyle(
+                      color:
+                          balance < 0
+                              ? Colors.red.shade700
+                              : const Color(0xFF006E1F),
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Total Income',
+                              style: TextStyle(
+                                color: Color(
+                                  0xFF006E1F,
+                                ), // Updated dark green for labels
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _isBalanceHidden
+                                  ? '• • • •'
+                                  : FormatUtils.formatCurrency(totalIncome),
+                              style: const TextStyle(
+                                color: Color(
+                                  0xFF2E7D32,
+                                ), // Darker green for income
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Total Expense',
+                              style: TextStyle(
+                                color: Color(
+                                  0xFF006E1F,
+                                ), // Updated dark green for labels
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _isBalanceHidden
+                                  ? '• • • •'
+                                  : '- ${FormatUtils.formatCurrency(totalExpense)}',
+                              style: const TextStyle(
+                                color: Color(0xFFD32F2F), // Darker red
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildRecentTransactions() {
+    return Consumer<ExpenseProvider>(
+      builder: (context, provider, child) {
+        final transactions = provider.transactions.take(5).toList();
+
+        if (transactions.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.receipt_long_outlined,
+                  size: 48,
+                  color: Colors.grey.shade400,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No transactions yet',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Add your first transaction to get started',
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Column(
+          children:
+              transactions.map((transaction) {
+                return SwipeableTransactionItem(
+                  key: Key(transaction.id),
+                  transaction: transaction,
+                  onDeleted: () {
+                    // Transaction will be automatically removed from provider
+                    setState(() {});
+                  },
+                );
+              }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildExpenseStructure() {
+    return const ExpenseDonutChart(
+      size: 250,
+      showLegend: true,
+      showCenterText: true,
+    );
+  }
+
+  Widget _buildPremiumCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF006E1F), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF006E1F).withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF006E1F).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.diamond,
+                      color: Color(0xFF006E1F),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Get Premium',
+                    style: TextStyle(
+                      color: Color(0xFF006E1F),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF006E1F),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'PREMIUM',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Get Access to all feature & insights.\nUnlimited possibilities. No ads, more\nfeatures',
+            style: TextStyle(
+              color: Color(0xFF006E1F),
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
