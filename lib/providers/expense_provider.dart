@@ -50,10 +50,6 @@ class ExpenseProvider extends ChangeNotifier {
       // Initialize repository (chooses appropriate database implementation)
       await _repository.initialize();
 
-      // Create default categories and accounts if needed (must be first)
-      await createDefaultCategoriesIfNeeded();
-      await createDefaultAccountIfNeeded();
-
       // Load essential data first, then load secondary data
       await loadAccounts();
       await loadCategories();
@@ -183,176 +179,6 @@ class ExpenseProvider extends ChangeNotifier {
     }
   }
 
-  /// Create default categories if none exist
-  Future<void> createDefaultCategoriesIfNeeded() async {
-    try {
-      final existingCategories = await _repository.getCategories();
-      if (existingCategories.isNotEmpty) {
-        // Clean up any miscategorized transport/clothing categories in income
-        await _cleanupMiscategorizedCategories();
-        return;
-      }
-
-      // Default expense categories
-      final expenseCategories = [
-        _createCategory('Food & Dining', 'expense', '#FF5722', 'restaurant'),
-        _createCategory(
-          'Transportation',
-          'expense',
-          '#2196F3',
-          'directions_car',
-        ),
-        _createCategory('Shopping', 'expense', '#9C27B0', 'shopping_bag'),
-        _createCategory('Entertainment', 'expense', '#FF9800', 'movie'),
-        _createCategory('Bills & Utilities', 'expense', '#F44336', 'receipt'),
-        _createCategory('Healthcare', 'expense', '#4CAF50', 'local_hospital'),
-        _createCategory('Education', 'expense', '#607D8B', 'school'),
-        _createCategory('Travel', 'expense', '#3F51B5', 'flight'),
-        _createCategory('Personal Care', 'expense', '#E91E63', 'spa'),
-        _createCategory('Other', 'expense', '#795548', 'category'),
-      ];
-
-      // Default income categories
-      final incomeCategories = [
-        _createCategory('Borrowing', 'income', '#8B4513', 'handshake'),
-        _createCategory('Dividend', 'income', '#4CAF50', 'attach_money'),
-        _createCategory('Freelance', 'income', '#2196F3', 'work_outline'),
-        _createCategory('Passive Income', 'income', '#FF9800', 'savings'),
-        _createCategory('Pension', 'income', '#9C27B0', 'elderly'),
-        _createCategory('Profit', 'income', '#CDDC39', 'trending_up'),
-        _createCategory('Salary', 'income', '#009688', 'payment'),
-        _createCategory('Stocks', 'income', '#6A1B9A', 'show_chart'),
-      ];
-
-      // Insert all default categories
-      for (final category in [...expenseCategories, ...incomeCategories]) {
-        await _repository.insertCategory(category);
-      }
-
-      debugPrint('Default categories created successfully');
-    } catch (e) {
-      debugPrint('Error creating default categories: $e');
-    }
-  }
-
-  /// Clean up any miscategorized categories and ensure proper categorization
-  Future<void> _cleanupMiscategorizedCategories() async {
-    try {
-      final existingCategories = await _repository.getCategories();
-      bool needsUpdate = false;
-
-      // List of category names that should ONLY be expense categories
-      final expenseOnlyCategories = [
-        'Transport',
-        'Transportation', 
-        'Clothing',
-        'Clothes'
-      ];
-
-      // Fix any transport/clothing categories that are incorrectly marked as income
-      for (final category in existingCategories) {
-        if (category.type == 'income' && 
-            expenseOnlyCategories.any((name) => 
-              category.name.toLowerCase().contains(name.toLowerCase()))) {
-          
-          // Update this category to be expense type
-          final updatedCategory = models.Category(
-            id: category.id,
-            name: category.name,
-            type: 'expense', // Fix the type
-            color: category.color,
-            icon: category.icon,
-            isDefault: category.isDefault,
-            createdAt: category.createdAt,
-            updatedAt: DateTime.now(),
-          );
-          
-          await _repository.updateCategory(updatedCategory);
-          needsUpdate = true;
-          debugPrint('Fixed category: ${category.name} changed from income to expense');
-        }
-      }
-
-      // Add missing income categories if they don't exist
-      final incomeNames = existingCategories
-          .where((c) => c.type == 'income')
-          .map((c) => c.name.toLowerCase())
-          .toList();
-
-      if (!incomeNames.contains('borrowing') && !incomeNames.contains('borrow')) {
-        await _repository.insertCategory(
-          _createCategory('Borrowing', 'income', '#8B4513', 'handshake')
-        );
-        needsUpdate = true;
-      }
-
-      if (!incomeNames.contains('stocks') && !incomeNames.contains('stock')) {
-        await _repository.insertCategory(
-          _createCategory('Stocks', 'income', '#6A1B9A', 'show_chart')
-        );
-        needsUpdate = true;
-      }
-
-      if (needsUpdate) {
-        final categories = await _repository.getCategories();
-        _categories = categories;
-        notifyListeners();
-        debugPrint('Categories cleaned up and updated successfully');
-      }
-
-    } catch (e) {
-      debugPrint('Error cleaning up categories: $e');
-    }
-  }
-
-  /// Helper to create a category
-  models.Category _createCategory(
-    String name,
-    String type,
-    String color,
-    String icon,
-  ) {
-    final now = DateTime.now();
-    return models.Category(
-      id:
-          '${DateTime.now().millisecondsSinceEpoch}_${name.replaceAll(' ', '_').toLowerCase()}',
-      name: name,
-      type: type,
-      color: color,
-      icon: icon,
-      isDefault: true,
-      createdAt: now,
-      updatedAt: now,
-    );
-  }
-
-  /// Create default account if none exist
-  Future<void> createDefaultAccountIfNeeded() async {
-    try {
-      final existingAccounts = await _repository.getAccounts();
-      if (existingAccounts.isNotEmpty) return;
-
-      // Create default main account
-      final defaultAccount = Account(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: 'Main Account',
-        type: 'cash',
-        balance: 0.0,
-        color: '#006E1F',
-        icon: 'account_balance_wallet',
-        isPrimary: true,
-        description: 'Your primary account for tracking expenses',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      await _repository.insertAccount(defaultAccount);
-      debugPrint('Default account created successfully');
-    } catch (e) {
-      debugPrint('Error creating default account: $e');
-    }
-  }
-
   // TRANSACTION OPERATIONS
 
   /// Load transactions from database
@@ -452,62 +278,36 @@ class ExpenseProvider extends ChangeNotifier {
 
   /// Update account balance after transaction
   Future<void> _updateAccountBalance(Transaction transaction) async {
-    try {
-      final accountIndex = _accounts.indexWhere(
-        (acc) => acc.id == transaction.accountId,
-      );
-      if (accountIndex == -1) {
-        debugPrint(
-          'Account not found for transaction: ${transaction.accountId}',
-        );
-        return; // Silently return instead of throwing error
-      }
+    final account = _accounts.firstWhere(
+      (acc) => acc.id == transaction.accountId,
+    );
+    double newBalance = account.balance;
 
-      final account = _accounts[accountIndex];
-      double newBalance = account.balance;
-
-      if (transaction.type == 'income') {
-        newBalance += transaction.amount;
-      } else if (transaction.type == 'expense') {
-        newBalance -= transaction.amount;
-      }
-
-      final updatedAccount = account.copyWith(balance: newBalance);
-      await _repository.updateAccount(updatedAccount);
-    } catch (e) {
-      debugPrint('Error updating account balance: $e');
-      // Don't rethrow to prevent app crashes
+    if (transaction.type == 'income') {
+      newBalance += transaction.amount;
+    } else if (transaction.type == 'expense') {
+      newBalance -= transaction.amount;
     }
+
+    final updatedAccount = account.copyWith(balance: newBalance);
+    await _repository.updateAccount(updatedAccount);
   }
 
   /// Reverse account balance changes from a transaction
   Future<void> _reverseAccountBalance(Transaction transaction) async {
-    try {
-      final accountIndex = _accounts.indexWhere(
-        (acc) => acc.id == transaction.accountId,
-      );
-      if (accountIndex == -1) {
-        debugPrint(
-          'Account not found for transaction reversal: ${transaction.accountId}',
-        );
-        return; // Silently return instead of throwing error
-      }
+    final account = _accounts.firstWhere(
+      (acc) => acc.id == transaction.accountId,
+    );
+    double newBalance = account.balance;
 
-      final account = _accounts[accountIndex];
-      double newBalance = account.balance;
-
-      if (transaction.type == 'income') {
-        newBalance -= transaction.amount;
-      } else if (transaction.type == 'expense') {
-        newBalance += transaction.amount;
-      }
-
-      final updatedAccount = account.copyWith(balance: newBalance);
-      await _repository.updateAccount(updatedAccount);
-    } catch (e) {
-      debugPrint('Error reversing account balance: $e');
-      // Don't rethrow to prevent app crashes
+    if (transaction.type == 'income') {
+      newBalance -= transaction.amount;
+    } else if (transaction.type == 'expense') {
+      newBalance += transaction.amount;
     }
+
+    final updatedAccount = account.copyWith(balance: newBalance);
+    await _repository.updateAccount(updatedAccount);
   }
 
   // BUDGET OPERATIONS
@@ -606,7 +406,7 @@ class ExpenseProvider extends ChangeNotifier {
   Future<List<CategorySpendingData>>
   getCategorySpendingWithPercentages() async {
     try {
-      // Get all expense transactions, not just current month
+      // Get all expense transactions
       final expenseTransactions =
           _transactions.where((t) => t.type == 'expense').toList();
 
@@ -626,11 +426,9 @@ class ExpenseProvider extends ChangeNotifier {
         0.0,
         (sum, amount) => sum + amount,
       );
-
       if (totalSpending == 0) return [];
 
       List<CategorySpendingData> result = [];
-
       for (var entry in spendingByCategory.entries) {
         final category = findCategoryById(entry.key);
         if (category != null) {
@@ -668,24 +466,6 @@ class ExpenseProvider extends ChangeNotifier {
     }
   }
 
-  /// Find account by ID
-  Account? findAccountById(String id) {
-    try {
-      return _accounts.firstWhere((account) => account.id == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Find category by ID
-  models.Category? findCategoryById(String id) {
-    try {
-      return _categories.firstWhere((category) => category.id == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
   /// Clear all data for testing
   Future<void> clearAllData() async {
     try {
@@ -703,31 +483,36 @@ class ExpenseProvider extends ChangeNotifier {
         await _repository.deleteBudget(budget.id);
       }
 
-      final nonDefaultCategories =
-          _categories.where((c) => !c.isDefault).toList();
-      for (final category in nonDefaultCategories) {
-        await _repository.deleteCategory(category.id);
-      }
-
-      final allAccounts = await _repository.getAccounts();
-      for (final account in allAccounts) {
-        // Reset balance instead of deleting accounts
-        final resetAccount = account.copyWith(balance: 0.0);
-        await _repository.updateAccount(resetAccount);
-      }
-
-      // Reload all data
+      // Reload data
       await loadAccounts();
       await loadCategories();
       await loadTransactions();
       await loadBudgets();
 
-      debugPrint('All data cleared successfully');
-    } catch (e) {
-      debugPrint('Error clearing all data: $e');
-    } finally {
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      debugPrint('Error clearing all data: $e');
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Find account by ID
+  Account? findAccountById(String id) {
+    try {
+      return _accounts.firstWhere((account) => account.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Find category by ID
+  models.Category? findCategoryById(String id) {
+    try {
+      return _categories.firstWhere((category) => category.id == id);
+    } catch (e) {
+      return null;
     }
   }
 

@@ -1,4 +1,4 @@
-# Budjar - Modern Expense Tracker 💰
+# Vault Path - Modern Expense Tracker 💰
 
 A beautiful and modern expense tracking application built with Flutter. Track your expenses, manage budgets, and gain insights into your spending habits with elegant charts and analytics.
 

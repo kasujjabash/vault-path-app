@@ -128,7 +128,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
         name: _nameController.text.trim(),
         type: _selectedAccountType,
         balance: double.tryParse(_balanceController.text.trim()) ?? 0.0,
-        color: '0x${_selectedColor.value.toRadixString(16).toUpperCase()}',
+        color: '0x${_selectedColor.toARGB32().toRadixString(16).toUpperCase()}',
         description: _descriptionController.text.trim(),
         icon: _getIconForAccountType(_selectedAccountType),
         isPrimary: false,

@@ -29,7 +29,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     NotificationItem(
       id: '3',
       title: 'Welcome!',
-      message: 'Welcome to Budjar! Start tracking your expenses today.',
+      message: 'Welcome to Vault Path! Start tracking your expenses today.',
       timestamp: DateTime.now().subtract(const Duration(days: 1)),
       type: NotificationType.success,
       isRead: true,
@@ -118,10 +118,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           const SizedBox(height: 8),
           Text(
             'You\'re all caught up! New notifications will appear here.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             textAlign: TextAlign.center,
           ),
         ],
@@ -133,14 +130,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: notification.isRead
-            ? Colors.white
-            : const Color(0xFF006E1F).withValues(alpha: 0.02),
+        color:
+            notification.isRead
+                ? Colors.white
+                : const Color(0xFF006E1F).withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: notification.isRead
-              ? Colors.grey.shade200
-              : const Color(0xFF006E1F).withValues(alpha: 0.1),
+          color:
+              notification.isRead
+                  ? Colors.grey.shade200
+                  : const Color(0xFF006E1F).withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
@@ -166,8 +165,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _getNotificationColor(notification.type)
-                        .withValues(alpha: 0.1),
+                    color: _getNotificationColor(
+                      notification.type,
+                    ).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
@@ -177,7 +177,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 // Content
                 Expanded(
                   child: Column(
@@ -190,9 +190,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               notification.title,
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: notification.isRead
-                                    ? FontWeight.w500
-                                    : FontWeight.w600,
+                                fontWeight:
+                                    notification.isRead
+                                        ? FontWeight.w500
+                                        : FontWeight.w600,
                                 color: Colors.black87,
                               ),
                             ),
@@ -245,7 +246,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case NotificationType.error:
         return Colors.red;
       case NotificationType.info:
-      default:
         return const Color(0xFF006E1F);
     }
   }
@@ -259,7 +259,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case NotificationType.error:
         return Icons.error_outline;
       case NotificationType.info:
-      default:
         return Icons.info_outline;
     }
   }
@@ -314,9 +313,4 @@ class NotificationItem {
   });
 }
 
-enum NotificationType {
-  info,
-  success,
-  warning,
-  error,
-}
+enum NotificationType { info, success, warning, error }

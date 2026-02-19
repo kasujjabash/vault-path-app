@@ -341,7 +341,7 @@ class _MainScreenState extends State<MainScreen> {
   void _showAboutDialog() {
     showAboutDialog(
       context: context,
-      applicationName: 'Budjar',
+      applicationName: 'Vault Path',
       applicationVersion: '1.0.0',
       applicationIcon: const Icon(Icons.account_balance_wallet, size: 48),
       children: const [
@@ -556,7 +556,7 @@ class _MainScreenState extends State<MainScreen> {
                           _showAboutDialog();
                         },
                         icon: const Icon(Icons.info_outline),
-                        label: const Text('About Budjar'),
+                        label: const Text('About Vault Path'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF006E1F),
                           side: const BorderSide(color: Color(0xFF006E1F)),
@@ -686,7 +686,7 @@ class _MainScreenState extends State<MainScreen> {
                   CircularProgressIndicator(color: AppTheme.primaryColor),
                   const SizedBox(height: 16),
                   Text(
-                    'Loading Budjar...',
+                    'Loading Vault Path...',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

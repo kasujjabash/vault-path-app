@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/expense_provider.dart';
+import '../../services/notification_service.dart';
 import '../../models/transaction.dart';
 import '../../models/category.dart' as models;
 import '../../models/account.dart';
@@ -759,9 +760,31 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
 
       await provider.addTransaction(transaction);
 
+      // Add notification for the transaction
       if (mounted) {
-        CustomSnackBar.showSuccess(context, 'Transaction added successfully!');
-        context.pop();
+        final notificationService = context.read<NotificationService>();
+        final categoryName = _selectedCategory!.name;
+
+        if (_selectedType == 'income') {
+          await notificationService.addIncomeNotification(
+            amount,
+            _description.isEmpty ? categoryName : _description,
+          );
+        } else {
+          await notificationService.addExpenseNotification(
+            amount,
+            categoryName,
+            _description.isEmpty ? categoryName : _description,
+          );
+        }
+
+        if (mounted) {
+          CustomSnackBar.showSuccess(
+            context,
+            'Transaction added successfully!',
+          );
+          context.pop();
+        }
       }
     } catch (e) {
       if (mounted) {

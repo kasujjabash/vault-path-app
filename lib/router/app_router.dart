@@ -15,6 +15,7 @@ import '../screens/analytics/expense_details_screen.dart';
 import '../screens/more/more_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
+import '../screens/notifications_screen.dart';
 import '../services/auth_service.dart';
 
 /// App Router configuration using go_router
@@ -141,6 +142,12 @@ class AppRouter {
         path: '/more',
         name: 'more',
         builder: (context, state) => const MoreScreen(),
+      ),
+
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationsScreen(),
       ),
     ],
 

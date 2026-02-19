@@ -531,11 +531,12 @@ class _AccountsScreenState extends State<AccountsScreen> {
                           updatedAt: DateTime.now(),
                         );
 
+                        final navigator = Navigator.of(context);
                         Provider.of<ExpenseProvider>(context, listen: false)
                             .addAccount(account)
                             .then((_) {
                               if (mounted) {
-                                Navigator.of(context).pop();
+                                navigator.pop();
                                 CustomSnackBar.showSuccess(
                                   context,
                                   'Account added successfully!',

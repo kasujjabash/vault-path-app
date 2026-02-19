@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/expense_provider.dart';
+import '../../services/notification_service.dart';
 import '../../utils/app_constants.dart';
 import '../../utils/format_utils.dart';
 import '../../utils/custom_snackbar.dart';
@@ -2105,7 +2106,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         name: _categoryNameController.text.trim(),
         icon: _selectedCategoryIcon,
         color:
-            '0x${_selectedCategoryColor.value.toRadixString(16).toUpperCase()}',
+            '0x${_selectedCategoryColor.toARGB32().toRadixString(16).toUpperCase()}',
         type: _transactionType,
         isDefault: false,
         createdAt: DateTime.now(),
@@ -2114,22 +2115,26 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
       await provider.addCategory(category);
 
-      setState(() {
-        _selectedCategoryId = categoryId;
-      });
+      if (mounted) {
+        setState(() {
+          _selectedCategoryId = categoryId;
+        });
 
-      Navigator.pop(context);
-      CustomSnackBar.show(
-        context: context,
-        message: 'Category created successfully!',
-        type: SnackBarType.success,
-      );
+        Navigator.pop(context);
+        CustomSnackBar.show(
+          context: context,
+          message: 'Category created successfully!',
+          type: SnackBarType.success,
+        );
+      }
     } catch (e) {
-      CustomSnackBar.show(
-        context: context,
-        message: 'Failed to create category: $e',
-        type: SnackBarType.error,
-      );
+      if (mounted) {
+        CustomSnackBar.show(
+          context: context,
+          message: 'Failed to create category: $e',
+          type: SnackBarType.error,
+        );
+      }
     }
   }
 
@@ -2252,19 +2257,41 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
       await provider.addTransaction(transaction);
 
-      CustomSnackBar.show(
-        context: context,
-        message: 'Transaction saved successfully!',
-        type: SnackBarType.success,
-      );
+      // Add notification for the transaction
+      final notificationService = context.read<NotificationService>();
+      final categoryName = _getCategoryName(_selectedCategoryId!);
+      final description = _noteController.text.trim();
 
-      context.pop();
+      if (_transactionType == 'income') {
+        await notificationService.addIncomeNotification(
+          amount,
+          description.isEmpty ? categoryName : description,
+        );
+      } else {
+        await notificationService.addExpenseNotification(
+          amount,
+          categoryName,
+          description.isEmpty ? categoryName : description,
+        );
+      }
+
+      if (mounted) {
+        CustomSnackBar.show(
+          context: context,
+          message: 'Transaction saved successfully!',
+          type: SnackBarType.success,
+        );
+
+        context.pop();
+      }
     } catch (e) {
-      CustomSnackBar.show(
-        context: context,
-        message: 'Failed to save transaction: $e',
-        type: SnackBarType.error,
-      );
+      if (mounted) {
+        CustomSnackBar.show(
+          context: context,
+          message: 'Failed to save transaction: $e',
+          type: SnackBarType.error,
+        );
+      }
     } finally {
       setState(() {
         _isLoading = false;

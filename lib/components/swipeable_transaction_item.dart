@@ -18,7 +18,8 @@ class SwipeableTransactionItem extends StatefulWidget {
   });
 
   @override
-  State<SwipeableTransactionItem> createState() => _SwipeableTransactionItemState();
+  State<SwipeableTransactionItem> createState() =>
+      _SwipeableTransactionItemState();
 }
 
 class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
@@ -50,135 +51,150 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
   Future<bool> _confirmDismiss(DismissDirection direction) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Delete Transaction',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
+      builder:
+          (context) => AlertDialog(
+            title: const Text(
+              'Delete Transaction',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: widget.transaction.type == 'expense'
-                        ? Colors.red.shade50
-                        : Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(
-                      color: widget.transaction.type == 'expense'
-                          ? Colors.red.shade200
-                          : Colors.green.shade200,
-                      width: 1,
+                Row(
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color:
+                            widget.transaction.type == 'expense'
+                                ? Colors.red.shade50
+                                : Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          color:
+                              widget.transaction.type == 'expense'
+                                  ? Colors.red.shade200
+                                  : Colors.green.shade200,
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        widget.transaction.type == 'expense'
+                            ? Icons.remove_circle_outline
+                            : Icons.add_circle_outline,
+                        color:
+                            widget.transaction.type == 'expense'
+                                ? Colors.red.shade600
+                                : Colors.green.shade600,
+                        size: 24,
+                      ),
                     ),
-                  ),
-                  child: Icon(
-                    widget.transaction.type == 'expense'
-                        ? Icons.remove_circle_outline
-                        : Icons.add_circle_outline,
-                    color: widget.transaction.type == 'expense'
-                        ? Colors.red.shade600
-                        : Colors.green.shade600,
-                    size: 24,
-                  ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.transaction.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            FormatUtils.formatCurrency(
+                              widget.transaction.amount,
+                            ),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  widget.transaction.type == 'expense'
+                                      ? Colors.red.shade600
+                                      : Colors.green.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.transaction.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        FormatUtils.formatCurrency(widget.transaction.amount),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: widget.transaction.type == 'expense'
-                              ? Colors.red.shade600
-                              : Colors.green.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 12),
+                Text(
+                  'This action cannot be undone. The amount will be adjusted in your balance.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              'This action cannot be undone. The amount will be adjusted in your balance.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Delete'),
               ),
-            ),
-            child: const Text('Delete'),
+            ],
           ),
-        ],
-      ),
     );
 
     return shouldDelete ?? false;
   }
 
   /// Handle deletion with provider and UI feedback
-  Future<void> _handleDeletion() async {
+  void _handleDeletion() {
     try {
       final provider = Provider.of<ExpenseProvider>(context, listen: false);
-      
+
       // Immediately call onDeleted to remove from parent list
       widget.onDeleted?.call();
-      
-      final success = await provider.deleteTransactionWithFeedback(
-        widget.transaction,
-      );
 
-      if (mounted) {
-        if (success) {
-          CustomSnackBar.show(
-            context: context,
-            message: 'Transaction deleted successfully',
-            type: SnackBarType.success,
-          );
-        } else {
-          CustomSnackBar.show(
-            context: context,
-            message: 'Failed to delete transaction',
-            type: SnackBarType.error,
-          );
-        }
-      }
+      // Perform deletion asynchronously but don't await in onDismissed callback
+      provider
+          .deleteTransactionWithFeedback(widget.transaction)
+          .then((success) {
+            if (mounted) {
+              if (success) {
+                CustomSnackBar.show(
+                  context: context,
+                  message: 'Transaction deleted successfully',
+                  type: SnackBarType.success,
+                );
+              } else {
+                CustomSnackBar.show(
+                  context: context,
+                  message: 'Failed to delete transaction',
+                  type: SnackBarType.error,
+                );
+              }
+            }
+          })
+          .catchError((e) {
+            debugPrint('Error handling deletion: $e');
+            if (mounted) {
+              CustomSnackBar.show(
+                context: context,
+                message: 'Error deleting transaction',
+                type: SnackBarType.error,
+              );
+            }
+          });
     } catch (e) {
       debugPrint('Error handling deletion: $e');
       if (mounted) {
@@ -232,7 +248,10 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
                 ),
               ),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
                 child: Column(
                   children: [
                     Row(
@@ -272,9 +291,10 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: widget.transaction.type == 'expense'
-                                    ? Colors.red.shade600
-                                    : Colors.green.shade600,
+                                color:
+                                    widget.transaction.type == 'expense'
+                                        ? Colors.red.shade600
+                                        : Colors.green.shade600,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -326,7 +346,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
       try {
         iconColor = Color(FormatUtils.parseColorString(category.color));
         backgroundColor = iconColor.withOpacity(0.1);
-        
+
         // Map category icon names to IconData
         switch (category.icon.toLowerCase()) {
           case 'restaurant':
@@ -384,16 +404,9 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: iconColor.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: iconColor.withOpacity(0.2), width: 1),
       ),
-      child: Icon(
-        iconData,
-        color: iconColor,
-        size: 20,
-      ),
+      child: Icon(iconData, color: iconColor, size: 20),
     );
   }
 }

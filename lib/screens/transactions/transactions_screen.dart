@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/expense_provider.dart';
 import '../../models/transaction.dart' as trans;
 import '../../components/swipeable_transaction_item.dart';
+import '../../components/banner_ad_widget.dart';
 import '../reports/financial_report_screen.dart';
 
 /// Transactions screen for viewing and managing all transactions
@@ -1066,11 +1067,37 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   Widget _buildTransactionsList(List<trans.Transaction> transactions) {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
+        // Calculate middle position for banner ad
+        final int adPosition =
+            transactions.length > 4
+                ? (transactions.length / 2).floor()
+                : transactions.length;
+        final int totalItems =
+            transactions.isNotEmpty
+                ? transactions.length + 1
+                : transactions.length; // +1 for banner ad
+
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          itemCount: transactions.length,
+          itemCount: totalItems,
           itemBuilder: (context, index) {
-            final transaction = transactions[index];
+            // Show banner ad at middle position
+            if (transactions.isNotEmpty && index == adPosition) {
+              return const BannerAdWidget();
+            }
+
+            // Adjust transaction index if we're past the ad position
+            final int transactionIndex =
+                transactions.isNotEmpty && index > adPosition
+                    ? index - 1
+                    : index;
+
+            // Return empty container if index is out of bounds (shouldn't happen)
+            if (transactionIndex >= transactions.length) {
+              return const SizedBox.shrink();
+            }
+
+            final transaction = transactions[transactionIndex];
 
             return SwipeableTransactionItem(
               key: Key(transaction.id),

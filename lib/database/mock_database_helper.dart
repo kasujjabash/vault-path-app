@@ -137,7 +137,7 @@ class MockDatabaseHelper implements DatabaseInterface {
       );
       await prefs.setString('budjar_budgets', budgetsJson);
     } catch (e) {
-      print('Error saving to local storage: $e');
+      // Error saving to local storage: $e
     }
   }
 
@@ -188,9 +188,9 @@ class MockDatabaseHelper implements DatabaseInterface {
         );
       }
 
-      print('Data loaded from local storage successfully');
+      // Data loaded from local storage successfully
     } catch (e) {
-      print('Error loading from local storage: $e');
+      // Error loading from local storage: $e
     }
   }
 

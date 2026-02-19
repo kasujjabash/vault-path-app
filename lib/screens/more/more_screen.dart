@@ -6,6 +6,7 @@ import '../../services/currency_service.dart';
 import '../../providers/expense_provider.dart';
 import '../../utils/dialog_utils.dart';
 import '../../utils/custom_snackbar.dart';
+import 'premium_screen.dart';
 
 /// More screen with settings, premium features, and additional options
 /// This screen will contain settings, premium upgrade, and other app features
@@ -150,6 +151,12 @@ class _MoreScreenState extends State<MoreScreen> {
                 ],
 
                 const SizedBox(height: 24),
+                _buildSectionTitle(context, 'Premium'),
+                const SizedBox(height: 12),
+
+                _buildPremiumItem(context),
+
+                const SizedBox(height: 24),
                 _buildSectionTitle(context, 'Preferences'),
                 const SizedBox(height: 12),
 
@@ -292,6 +299,88 @@ class _MoreScreenState extends State<MoreScreen> {
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildPremiumItem(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF006E1F), Color(0xFF00A040)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF006E1F).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => showPremiumScreen(context),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                // Premium icon
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.diamond,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Vault Path Premium',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Unlock unlimited features',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Arrow
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white.withOpacity(0.8),
+                  size: 18,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -443,7 +532,7 @@ class _MoreScreenState extends State<MoreScreen> {
 void _showAboutDialog(BuildContext context) {
   showAboutDialog(
     context: context,
-    applicationName: 'Budjar',
+    applicationName: 'Vault Path',
     applicationVersion: '1.0.0',
     applicationIcon: const Icon(Icons.account_balance_wallet, size: 48),
     children: [

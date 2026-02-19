@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'providers/expense_provider.dart';
 import 'services/auth_service.dart';
 import 'services/firebase_sync_service.dart';
 import 'services/currency_service.dart';
+import 'services/notification_service.dart';
+import 'services/ad_service.dart';
 import 'router/app_router.dart';
 
 /// Main entry point of the Budjar expense tracker application
@@ -30,11 +33,13 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Wait for Firebase to be fully ready
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    firebaseInitialized = true;
-    debugPrint('Firebase initialized successfully');
+    // Verify Firebase is properly initialized by checking if an app exists
+    if (Firebase.apps.isNotEmpty) {
+      firebaseInitialized = true;
+      debugPrint('Firebase initialized successfully');
+    } else {
+      throw Exception('Firebase apps list is empty after initialization');
+    }
   } catch (e, stackTrace) {
     debugPrint('Firebase initialization failed: $e');
     debugPrint('Stack trace: $stackTrace');
@@ -42,13 +47,23 @@ void main() async {
     debugPrint('App will continue in offline mode');
   }
 
-  runApp(BudjarApp(firebaseEnabled: firebaseInitialized));
+  // Initialize Mobile Ads
+  try {
+    debugPrint('Initializing Mobile Ads...');
+    await AdService.initialize();
+    AdService.configureAds();
+    debugPrint('Mobile Ads initialized successfully');
+  } catch (e) {
+    debugPrint('Mobile Ads initialization failed: $e');
+  }
+
+  runApp(VaultPathApp(firebaseEnabled: firebaseInitialized));
 }
 
-class BudjarApp extends StatelessWidget {
+class VaultPathApp extends StatelessWidget {
   final bool firebaseEnabled;
 
-  const BudjarApp({super.key, this.firebaseEnabled = false});
+  const VaultPathApp({super.key, this.firebaseEnabled = false});
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +78,9 @@ class BudjarApp extends StatelessWidget {
         // Auth service - Create and initialize properly
         ChangeNotifierProvider(create: (context) => AuthService()),
 
+        // Notification service - Initialize early
+        ChangeNotifierProvider(create: (context) => NotificationService()),
+
         // Firebase sync service - conditional creation
         ChangeNotifierProvider(create: (context) => FirebaseSyncService()),
 
@@ -74,22 +92,33 @@ class BudjarApp extends StatelessWidget {
           // Initialize auth service safely
           final authService = context.read<AuthService>();
           final currencyService = context.read<CurrencyService>();
+          final notificationService = context.read<NotificationService>();
 
+          // Initialize services in sequence to avoid race conditions
           if (!authService.isInitialized) {
-            Future.microtask(() {
-              authService.initialize(firebaseEnabled: firebaseEnabled);
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              try {
+                await authService.initialize(firebaseEnabled: firebaseEnabled);
+                await currencyService.initialize();
+
+                if (!notificationService.isInitialized) {
+                  await notificationService.initialize();
+                  await notificationService.setAppInstallDate();
+
+                  // Schedule follow-up welcome notification for new users
+                  // This will run in the background after a delay
+                  notificationService.scheduleFollowUpWelcomeNotification();
+                }
+              } catch (e) {
+                debugPrint('Error initializing services: $e');
+              }
             });
           }
-
-          // Initialize currency service
-          Future.microtask(() {
-            currencyService.initialize();
-          });
 
           return Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {
               return MaterialApp.router(
-                title: 'Budjar',
+                title: 'Vault Path',
                 debugShowCheckedModeBanner: false,
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,

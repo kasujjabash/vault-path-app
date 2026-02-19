@@ -53,9 +53,8 @@ class FirebaseSyncService extends ChangeNotifier {
       // Enable Firestore offline persistence (different methods for web vs mobile)
       try {
         if (kIsWeb) {
-          await _firestore!.enablePersistence(
-            const PersistenceSettings(synchronizeTabs: true),
-          );
+          // Use Settings.persistenceEnabled for web
+          _firestore!.settings = const Settings(persistenceEnabled: true);
         } else {
           // For mobile platforms, use Settings
           _firestore!.settings = const Settings(

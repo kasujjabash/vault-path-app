@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/expense_provider.dart';
 import '../../utils/format_utils.dart';
+import '../../components/banner_ad_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
@@ -484,6 +485,11 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                 ),
               ],
             ],
+
+            const SizedBox(height: 30),
+
+            // Banner Ad
+            const BannerAdWidget(),
           ],
         ),
       ),

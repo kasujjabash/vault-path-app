@@ -264,4 +264,19 @@ class FormatUtils {
   static String colorToHex(int color) {
     return '#${color.toRadixString(16).substring(2).toUpperCase()}';
   }
+
+  /// Format amount as compact currency string for charts
+  static String formatCurrencyCompact(double amount) {
+    final currency = CurrencyService().currentCurrency;
+
+    if (amount == 0) return '${currency.symbol}0';
+
+    if (amount >= 1000000) {
+      return '${currency.symbol}${(amount / 1000000).toStringAsFixed(1)}M';
+    } else if (amount >= 1000) {
+      return '${currency.symbol}${(amount / 1000).toStringAsFixed(1)}K';
+    } else {
+      return '${currency.symbol}${amount.toStringAsFixed(0)}';
+    }
+  }
 }

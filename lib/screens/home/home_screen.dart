@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
+import '../../services/notification_service.dart';
 import '../../providers/expense_provider.dart';
 import '../../utils/format_utils.dart';
-import '../../utils/custom_snackbar.dart';
 import '../../components/expense_donut_chart.dart';
 import '../../components/swipeable_transaction_item.dart';
 import '../../components/home_drawer.dart';
-import '../notifications/notifications_screen.dart';
+import '../../components/banner_ad_widget.dart';
+import '../more/premium_screen.dart';
 
 /// Home screen with clean layout: Balance card, transactions, expense chart, and premium card
 class HomeScreen extends StatefulWidget {
@@ -27,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadMonthlyData();
+        _checkNotificationReminders();
       }
     });
   }
@@ -38,6 +40,18 @@ class _HomeScreenState extends State<HomeScreen> {
       await provider.getCurrentMonthIncome();
     } catch (e) {
       debugPrint('Error loading monthly data: $e');
+    }
+  }
+
+  Future<void> _checkNotificationReminders() async {
+    final notificationService = Provider.of<NotificationService>(
+      context,
+      listen: false,
+    );
+    try {
+      await notificationService.checkWeeklyReminders();
+    } catch (e) {
+      debugPrint('Error checking notification reminders: $e');
     }
   }
 
@@ -62,17 +76,45 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications_outlined,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationsScreen(),
-                    ),
+              Consumer<NotificationService>(
+                builder: (context, notificationService, child) {
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          context.push('/notifications');
+                        },
+                      ),
+                      if (notificationService.hasUnreadNotifications)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 12,
+                              minHeight: 12,
+                            ),
+                            child: Text(
+                              '${notificationService.unreadCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),
@@ -96,13 +138,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       _buildBalanceCard(),
                       const SizedBox(height: 24),
 
-                      // Recent Transactions
-                      _buildSectionHeader(
-                        'Recent Transactions',
-                        onViewAll: () {
-                          context.push('/transactions');
-                        },
-                      ),
+                      // Banner Ad
+                      const BannerAdWidget(),
+
+                      // Transactions
+                      _buildSectionHeader('Transactions'),
                       const SizedBox(height: 12),
                       _buildRecentTransactions(),
                       const SizedBox(height: 24),
@@ -235,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _isBalanceHidden
-                        ? '• • • • •'
+                        ? '*****'
                         : balance < 0
                         ? '- ${FormatUtils.formatCurrency(balance.abs())}'
                         : FormatUtils.formatCurrency(balance),
@@ -268,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 4),
                             Text(
                               _isBalanceHidden
-                                  ? '• • • •'
+                                  ? '*****'
                                   : FormatUtils.formatCurrency(totalIncome),
                               style: const TextStyle(
                                 color: Color(
@@ -299,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 4),
                             Text(
                               _isBalanceHidden
-                                  ? '• • • •'
+                                  ? '*****'
                                   : '- ${FormatUtils.formatCurrency(totalExpense)}',
                               style: const TextStyle(
                                 color: Color(0xFFD32F2F), // Darker red
@@ -392,82 +432,85 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPremiumCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF006E1F), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF006E1F).withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF006E1F).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: () => showPremiumScreen(context),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF006E1F), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF006E1F).withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF006E1F).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.diamond,
+                        color: Color(0xFF006E1F),
+                        size: 24,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.diamond,
-                      color: Color(0xFF006E1F),
-                      size: 24,
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Get Premium',
+                      style: TextStyle(
+                        color: Color(0xFF006E1F),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Get Premium',
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF006E1F),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'PREMIUM',
                     style: TextStyle(
-                      color: Color(0xFF006E1F),
-                      fontSize: 18,
+                      color: Colors.white,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
                 ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF006E1F),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'PREMIUM',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Get Access to all feature & insights.\nUnlimited possibilities. No ads, more\nfeatures',
-            style: TextStyle(
-              color: Color(0xFF006E1F),
-              fontSize: 14,
-              height: 1.5,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            const Text(
+              'Get Access to all feature & insights.\nUnlimited possibilities. No ads, more\nfeatures',
+              style: TextStyle(
+                color: Color(0xFF006E1F),
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// This class contains all the app-wide constants for consistency
 class AppConstants {
   // App Information
-  static const String appName = 'Budjar';
+  static const String appName = 'Vault Path';
   static const String appVersion = '1.0.0';
   static const String appDescription = 'Modern Expense Tracker';
 
@@ -178,7 +178,7 @@ class AppConstants {
 
   // Notifications
   static const String notificationChannelId = 'budjar_notifications';
-  static const String notificationChannelName = 'Budjar Notifications';
+  static const String notificationChannelName = 'Vault Path Notifications';
   static const String notificationChannelDescription =
       'Notifications for budget alerts and reminders';
 
