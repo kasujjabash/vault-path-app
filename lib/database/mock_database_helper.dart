@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/account.dart';
 import '../models/category.dart' as models;
@@ -46,14 +47,17 @@ class MockDatabaseHelper implements DatabaseInterface {
 
   /// Initialize default categories for better user experience
   void _initializeDefaultCategories() {
+    debugPrint('Initializing default categories for mock database...');
+
     final defaultCategories = [
       // Expense categories
       models.Category(
         id: 'cat_food',
         name: 'Food & Dining',
         type: 'expense',
-        color: '#FF5722',
+        color: '#FF6B6B',
         icon: 'restaurant',
+        isDefault: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -61,8 +65,9 @@ class MockDatabaseHelper implements DatabaseInterface {
         id: 'cat_transport',
         name: 'Transportation',
         type: 'expense',
-        color: '#2196F3',
+        color: '#4ECDC4',
         icon: 'directions_car',
+        isDefault: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -70,27 +75,51 @@ class MockDatabaseHelper implements DatabaseInterface {
         id: 'cat_shopping',
         name: 'Shopping',
         type: 'expense',
-        color: '#9C27B0',
+        color: '#45B7D1',
         icon: 'shopping_bag',
+        isDefault: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
       models.Category(
-        id: 'cat_utilities',
-        name: 'Utilities',
+        id: 'cat_bills',
+        name: 'Bills & Utilities',
         type: 'expense',
-        color: '#FF9800',
-        icon: 'electrical_services',
+        color: '#FFEAA7',
+        icon: 'receipt',
+        isDefault: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
+      models.Category(
+        id: 'cat_entertainment',
+        name: 'Entertainment',
+        type: 'expense',
+        color: '#96CEB4',
+        icon: 'movie',
+        isDefault: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      models.Category(
+        id: 'cat_healthcare',
+        name: 'Healthcare',
+        type: 'expense',
+        color: '#DDA0DD',
+        icon: 'local_hospital',
+        isDefault: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+
       // Income categories
       models.Category(
         id: 'cat_salary',
         name: 'Salary',
         type: 'income',
         color: '#4CAF50',
-        icon: 'work',
+        icon: 'payment',
+        isDefault: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -98,14 +127,36 @@ class MockDatabaseHelper implements DatabaseInterface {
         id: 'cat_freelance',
         name: 'Freelance',
         type: 'income',
-        color: '#00BCD4',
-        icon: 'computer',
+        color: '#2196F3',
+        icon: 'work_outline',
+        isDefault: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      models.Category(
+        id: 'cat_business',
+        name: 'Business',
+        type: 'income',
+        color: '#FF9800',
+        icon: 'business',
+        isDefault: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+      models.Category(
+        id: 'cat_investment',
+        name: 'Investment',
+        type: 'income',
+        color: '#9C27B0',
+        icon: 'trending_up',
+        isDefault: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
     ];
 
     _categories.addAll(defaultCategories);
+    debugPrint('Added ${defaultCategories.length} default categories');
   }
 
   /// Save data to SharedPreferences for persistence
@@ -673,23 +724,27 @@ class MockDatabaseHelper implements DatabaseInterface {
   @override
   Future<void> initializeDefaultData() async {
     if (await isDatabaseEmpty()) {
+      debugPrint('Initializing default data for mock database...');
+
       _initializeDefaultCategories();
 
       // Add default account
       await insertAccount(
         Account(
           id: 'acc_cash',
-          name: 'Cash',
+          name: 'My Wallet',
           type: 'cash',
           balance: 0.0,
           color: '#6C5CE7',
           icon: 'account_balance_wallet',
+          isPrimary: true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
       );
 
       await _saveToLocalStorage();
+      debugPrint('Default data initialization completed for mock database');
     }
   }
 

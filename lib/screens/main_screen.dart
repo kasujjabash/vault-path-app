@@ -112,33 +112,48 @@ class _MainScreenState extends State<MainScreen> {
     required int index,
     required bool isActive,
   }) {
-    return GestureDetector(
-      onTap: () => _onTabTapped(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFFD4E5D3) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              color: isActive ? const Color(0xFF006E1F) : Colors.grey.shade600,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 375;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onTabTapped(index),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 4 : 8,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: isActive ? const Color(0xFFD4E5D3) : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isActive ? activeIcon : icon,
                 color:
                     isActive ? const Color(0xFF006E1F) : Colors.grey.shade600,
-                fontSize: 12,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                size: isSmallScreen ? 20 : 24,
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color:
+                        isActive
+                            ? const Color(0xFF006E1F)
+                            : Colors.grey.shade600,
+                    fontSize: isSmallScreen ? 10 : 12,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -146,30 +161,39 @@ class _MainScreenState extends State<MainScreen> {
 
   /// Build add button as navigation item with green circular background
   Widget _buildAddNavItem() {
-    return GestureDetector(
-      onTap: _showAddOptionsMenu,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFF006E1F),
-              shape: BoxShape.circle,
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 375;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: _showAddOptionsMenu,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: isSmallScreen ? 36 : 40,
+              height: isSmallScreen ? 36 : 40,
+              decoration: const BoxDecoration(
+                color: Color(0xFF006E1F),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: isSmallScreen ? 20 : 24,
+              ),
             ),
-            child: const Icon(Icons.add, color: Colors.white, size: 24),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Add',
-            style: TextStyle(
-              color: Color(0xFF006E1F),
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
+            const SizedBox(height: 2),
+            Text(
+              'Add',
+              style: TextStyle(
+                color: const Color(0xFF006E1F),
+                fontSize: isSmallScreen ? 10 : 12,
+                fontWeight: FontWeight.w400,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -722,11 +746,10 @@ class _MainScreenState extends State<MainScreen> {
               child: Container(
                 height: 85,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
+                  horizontal: 8,
                   vertical: 12,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildCustomNavItem(
                       icon: Icons.home_outlined,

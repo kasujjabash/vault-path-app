@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/account.dart';
@@ -642,7 +643,9 @@ class DatabaseHelper implements DatabaseInterface {
   @override
   Future<void> initializeDefaultData() async {
     if (await isDatabaseEmpty()) {
-      // Add default categories
+      debugPrint('Initializing default categories and account...');
+
+      // Add default expense categories
       await insertCategory(
         Category(
           id: '1',
@@ -650,6 +653,7 @@ class DatabaseHelper implements DatabaseInterface {
           type: 'expense',
           color: '#FF6B6B',
           icon: 'restaurant',
+          isDefault: true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
@@ -661,6 +665,7 @@ class DatabaseHelper implements DatabaseInterface {
           type: 'expense',
           color: '#4ECDC4',
           icon: 'directions_car',
+          isDefault: true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
@@ -672,6 +677,7 @@ class DatabaseHelper implements DatabaseInterface {
           type: 'expense',
           color: '#45B7D1',
           icon: 'shopping_bag',
+          isDefault: true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
@@ -679,10 +685,85 @@ class DatabaseHelper implements DatabaseInterface {
       await insertCategory(
         Category(
           id: '4',
+          name: 'Bills & Utilities',
+          type: 'expense',
+          color: '#FFEAA7',
+          icon: 'receipt',
+          isDefault: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      await insertCategory(
+        Category(
+          id: '5',
+          name: 'Entertainment',
+          type: 'expense',
+          color: '#96CEB4',
+          icon: 'movie',
+          isDefault: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      await insertCategory(
+        Category(
+          id: '6',
+          name: 'Healthcare',
+          type: 'expense',
+          color: '#DDA0DD',
+          icon: 'local_hospital',
+          isDefault: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+
+      // Add default income categories
+      await insertCategory(
+        Category(
+          id: '7',
           name: 'Salary',
           type: 'income',
-          color: '#96CEB4',
-          icon: 'attach_money',
+          color: '#4CAF50',
+          icon: 'payment',
+          isDefault: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      await insertCategory(
+        Category(
+          id: '8',
+          name: 'Freelance',
+          type: 'income',
+          color: '#2196F3',
+          icon: 'work_outline',
+          isDefault: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      await insertCategory(
+        Category(
+          id: '9',
+          name: 'Business',
+          type: 'income',
+          color: '#FF9800',
+          icon: 'business',
+          isDefault: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      await insertCategory(
+        Category(
+          id: '10',
+          name: 'Investment',
+          type: 'income',
+          color: '#9C27B0',
+          icon: 'trending_up',
+          isDefault: true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
@@ -692,15 +773,18 @@ class DatabaseHelper implements DatabaseInterface {
       await insertAccount(
         Account(
           id: '1',
-          name: 'Cash',
+          name: 'My Wallet',
           type: 'cash',
           balance: 0.0,
           color: '#6C5CE7',
           icon: 'account_balance_wallet',
+          isPrimary: true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         ),
       );
+
+      debugPrint('Default data initialization completed');
     }
   }
 

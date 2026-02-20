@@ -13,45 +13,72 @@ class BannerAdWidget extends StatefulWidget {
 class _BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
     _loadAd();
+
+    // Add timeout for ad loading
+    Future.delayed(const Duration(seconds: 10), () {
+      if (mounted && !_isLoaded && _errorMessage.isEmpty) {
+        debugPrint('⏰ Banner ad loading timeout - retrying...');
+        _retryLoadAd();
+      }
+    });
   }
 
   void _loadAd() {
+    final adUnitId = AdService.bannerAdUnitId;
+    debugPrint('Loading banner ad with unit ID: $adUnitId');
+
     _bannerAd = BannerAd(
-      adUnitId: AdService.bannerAdUnitId,
+      adUnitId: adUnitId,
       request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
-          debugPrint('Banner ad loaded.');
-          setState(() {
-            _isLoaded = true;
-          });
+          debugPrint('✅ Banner ad loaded successfully');
+          if (mounted) {
+            setState(() {
+              _isLoaded = true;
+              _errorMessage = '';
+            });
+          }
         },
         onAdFailedToLoad: (ad, err) {
-          debugPrint('Failed to load banner ad: ${err.message}');
+          debugPrint('❌ Failed to load banner ad: ${err.message}');
+          debugPrint('Error code: ${err.code}');
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'Ad failed to load: ${err.message}';
+            });
+          }
           ad.dispose();
         },
         onAdOpened: (ad) {
-          debugPrint('Banner ad opened.');
+          debugPrint('📱 Banner ad opened');
         },
         onAdClosed: (ad) {
-          debugPrint('Banner ad closed.');
+          debugPrint('🔒 Banner ad closed');
         },
         onAdImpression: (ad) {
-          debugPrint('Banner ad impression.');
+          debugPrint('👁️ Banner ad impression recorded');
         },
         onAdClicked: (ad) {
-          debugPrint('Banner ad clicked.');
+          debugPrint('👆 Banner ad clicked');
         },
       ),
     );
 
     _bannerAd!.load();
+  }
+
+  void _retryLoadAd() {
+    debugPrint('🔄 Retrying banner ad load...');
+    _bannerAd?.dispose();
+    _loadAd();
   }
 
   @override
@@ -65,17 +92,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     if (_bannerAd != null && _isLoaded) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: SizedBox(
@@ -85,8 +102,11 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
           ),
         ),
       );
+    } else if (_errorMessage.isNotEmpty) {
+      // Hide ad space completely when offline/error
+      return const SizedBox.shrink();
     } else {
-      // Return empty container while loading
+      // Hide loading space completely when not loaded
       return const SizedBox.shrink();
     }
   }

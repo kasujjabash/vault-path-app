@@ -1100,11 +1100,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             final transaction = transactions[transactionIndex];
 
             return SwipeableTransactionItem(
-              key: Key(transaction.id),
+              key: Key(
+                '${transaction.id}-${transaction.updatedAt.millisecondsSinceEpoch}',
+              ),
               transaction: transaction,
               onDeleted: () {
-                // Refresh the transaction list after deletion
-                setState(() {});
+                // Force complete state refresh to update totals and transaction list
+                setState(() {
+                  // Transaction deletion should trigger UI refresh
+                });
+                // Additional refresh after a small delay to ensure provider data is updated
+                Future.delayed(const Duration(milliseconds: 200), () {
+                  if (mounted) {
+                    setState(() {});
+                  }
+                });
               },
             );
           },

@@ -412,4 +412,88 @@ class FirebaseSyncService extends ChangeNotifier {
     _isSyncing = false;
     notifyListeners();
   }
+
+  /// Delete transaction from Firebase
+  Future<void> deleteTransactionFromFirebase(String transactionId) async {
+    if (_firestore == null || _currentUserId == null) {
+      debugPrint(
+        'Firebase not available or user not signed in, skipping Firebase deletion',
+      );
+      return;
+    }
+
+    try {
+      final collection = _getUserCollection('transactions');
+      if (collection != null) {
+        await collection.doc(transactionId).delete();
+        debugPrint('Transaction deleted from Firebase: $transactionId');
+      }
+    } catch (e) {
+      debugPrint('Error deleting transaction from Firebase: $e');
+      // Don't rethrow - local deletion should still work even if Firebase deletion fails
+    }
+  }
+
+  /// Delete account from Firebase
+  Future<void> deleteAccountFromFirebase(String accountId) async {
+    if (_firestore == null || _currentUserId == null) {
+      debugPrint(
+        'Firebase not available or user not signed in, skipping Firebase deletion',
+      );
+      return;
+    }
+
+    try {
+      final collection = _getUserCollection('accounts');
+      if (collection != null) {
+        await collection.doc(accountId).delete();
+        debugPrint('Account deleted from Firebase: $accountId');
+      }
+    } catch (e) {
+      debugPrint('Error deleting account from Firebase: $e');
+      // Don't rethrow - local deletion should still work even if Firebase deletion fails
+    }
+  }
+
+  /// Delete category from Firebase
+  Future<void> deleteCategoryFromFirebase(String categoryId) async {
+    if (_firestore == null || _currentUserId == null) {
+      debugPrint(
+        'Firebase not available or user not signed in, skipping Firebase deletion',
+      );
+      return;
+    }
+
+    try {
+      final collection = _getUserCollection('categories');
+      if (collection != null) {
+        await collection.doc(categoryId).delete();
+        debugPrint('Category deleted from Firebase: $categoryId');
+      }
+    } catch (e) {
+      debugPrint('Error deleting category from Firebase: $e');
+      // Don't rethrow - local deletion should still work even if Firebase deletion fails
+    }
+  }
+
+  /// Delete budget from Firebase
+  Future<void> deleteBudgetFromFirebase(String budgetId) async {
+    if (_firestore == null || _currentUserId == null) {
+      debugPrint(
+        'Firebase not available or user not signed in, skipping Firebase deletion',
+      );
+      return;
+    }
+
+    try {
+      final collection = _getUserCollection('budgets');
+      if (collection != null) {
+        await collection.doc(budgetId).delete();
+        debugPrint('Budget deleted from Firebase: $budgetId');
+      }
+    } catch (e) {
+      debugPrint('Error deleting budget from Firebase: $e');
+      // Don't rethrow - local deletion should still work even if Firebase deletion fails
+    }
+  }
 }

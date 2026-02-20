@@ -308,7 +308,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                         ? () =>
                                             _handleCreateAccount(authService)
                                         : null,
-                                isLoading: authService.isLoading,
+                                isLoading: authService.isEmailLoading,
                                 isPrimary: true,
                                 isEnabled: _acceptTerms,
                               ),
@@ -325,7 +325,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                 text: 'Sign up with Google',
                                 onPressed:
                                     () => _handleGoogleSignUp(authService),
-                                isLoading: authService.isLoading,
+                                isLoading: authService.isGoogleLoading,
                                 isPrimary: false,
                                 icon: const FaIcon(
                                   FontAwesomeIcons.google,

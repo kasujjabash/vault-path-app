@@ -197,7 +197,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBalanceCard() {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
+        // Create a unique key that changes when transaction data changes
+        final transactionIds = provider.transactions.map((t) => t.id).join(',');
+        final transactionHash = transactionIds.hashCode;
+
         return FutureBuilder<List<double>>(
+          // Force rebuild when transactions actually change
+          key: ValueKey(
+            'balance-${provider.transactions.length}-$transactionHash',
+          ),
           future: Future.wait([
             provider.getCurrentMonthIncome(),
             provider.getCurrentMonthExpenses(),
@@ -410,11 +418,21 @@ class _HomeScreenState extends State<HomeScreen> {
           children:
               transactions.map((transaction) {
                 return SwipeableTransactionItem(
-                  key: Key(transaction.id),
+                  key: Key(
+                    '${transaction.id}-${transaction.updatedAt.millisecondsSinceEpoch}',
+                  ),
                   transaction: transaction,
                   onDeleted: () {
-                    // Transaction will be automatically removed from provider
-                    setState(() {});
+                    // Force complete refresh of transaction list and balance card
+                    setState(() {
+                      // This will trigger a rebuild of the entire screen
+                    });
+                    // Additional refresh after a small delay to ensure provider data is updated
+                    Future.delayed(const Duration(milliseconds: 200), () {
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    });
                   },
                 );
               }).toList(),

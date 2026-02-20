@@ -47,7 +47,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
     super.dispose();
   }
 
-  /// Handle swipe to delete with confirmation
+  /// Handle swipe to delete with confirmation and perform deletion
   Future<bool> _confirmDismiss(DismissDirection direction) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -154,49 +154,50 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
           ),
     );
 
-    return shouldDelete ?? false;
+    if (shouldDelete == true) {
+      return await _performDeletion();
+    }
+    return false;
   }
 
-  /// Handle deletion with provider and UI feedback
-  void _handleDeletion() {
+  /// Perform the actual deletion and return success status
+  Future<bool> _performDeletion() async {
     try {
       final provider = Provider.of<ExpenseProvider>(context, listen: false);
 
-      // Immediately call onDeleted to remove from parent list
-      widget.onDeleted?.call();
+      // Perform deletion and wait for it to complete
+      final success = await provider.deleteTransactionWithFeedback(
+        widget.transaction,
+      );
 
-      // Perform deletion asynchronously but don't await in onDismissed callback
-      provider
-          .deleteTransactionWithFeedback(widget.transaction)
-          .then((success) {
-            if (mounted) {
-              if (success) {
-                CustomSnackBar.show(
-                  context: context,
-                  message: 'Transaction deleted successfully',
-                  type: SnackBarType.success,
-                );
-              } else {
-                CustomSnackBar.show(
-                  context: context,
-                  message: 'Failed to delete transaction',
-                  type: SnackBarType.error,
-                );
-              }
-            }
-          })
-          .catchError((e) {
-            debugPrint('Error handling deletion: $e');
-            if (mounted) {
-              CustomSnackBar.show(
-                context: context,
-                message: 'Error deleting transaction',
-                type: SnackBarType.error,
-              );
-            }
-          });
+      if (mounted && success) {
+        // Delay the UI update slightly to ensure database operations complete
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // Call onDeleted callback to update parent list
+        widget.onDeleted?.call();
+
+        if (mounted) {
+          CustomSnackBar.show(
+            context: context,
+            message: 'Transaction deleted successfully',
+            type: SnackBarType.success,
+          );
+        }
+
+        return true;
+      } else if (mounted) {
+        CustomSnackBar.show(
+          context: context,
+          message: 'Failed to delete transaction',
+          type: SnackBarType.error,
+        );
+        return false;
+      }
+
+      return success;
     } catch (e) {
-      debugPrint('Error handling deletion: $e');
+      debugPrint('Error performing deletion: $e');
       if (mounted) {
         CustomSnackBar.show(
           context: context,
@@ -204,6 +205,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
           type: SnackBarType.error,
         );
       }
+      return false;
     }
   }
 
@@ -218,12 +220,11 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
         return SizeTransition(
           sizeFactor: _animation,
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            margin: const EdgeInsets.symmetric(vertical: 4),
             child: Dismissible(
               key: Key(widget.transaction.id),
               direction: DismissDirection.endToStart,
               confirmDismiss: _confirmDismiss,
-              onDismissed: (_) => _handleDeletion(),
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),

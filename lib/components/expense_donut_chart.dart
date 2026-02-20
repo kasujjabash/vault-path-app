@@ -94,12 +94,17 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
 
         return Container(
           padding: const EdgeInsets.all(20),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(
-              0xFFE8F5E8,
-            ), // Light green background like screenshot
+            color: Colors.white,
             borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child:
               _isLoading
@@ -258,64 +263,7 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
           style: TextStyle(fontSize: 14, color: Color(0xFF006E1F), height: 1.4),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () {
-            // Add sample data for demonstration
-            _addSampleData();
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF006E1F),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            'Add Sample Data',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          ),
-        ),
       ],
     );
-  }
-
-  /// Add sample data for demonstration
-  void _addSampleData() {
-    setState(() {
-      _spendingData = [
-        CategorySpendingData(
-          categoryId: '1',
-          categoryName: 'Electronics',
-          amount: 470.0,
-          percentage: 47.0,
-          color: '#8B5A3C',
-        ),
-        CategorySpendingData(
-          categoryId: '2',
-          categoryName: 'Drinks',
-          amount: 240.0,
-          percentage: 24.0,
-          color: '#FF6B35',
-        ),
-        CategorySpendingData(
-          categoryId: '3',
-          categoryName: 'Travel',
-          amount: 149.0,
-          percentage: 14.9,
-          color: '#4285F4',
-        ),
-        CategorySpendingData(
-          categoryId: '4',
-          categoryName: 'Rent',
-          amount: 66.0,
-          percentage: 6.6,
-          color: '#674EA7',
-        ),
-      ];
-      _isLoading = false;
-    });
-    _animationController.forward();
   }
 }

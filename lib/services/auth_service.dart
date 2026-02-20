@@ -113,16 +113,25 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Set loading state (deprecated - use specific methods)
-  void _setLoading(bool loading) {
-    _isEmailLoading = loading;
-    _isGoogleLoading = loading;
-    notifyListeners();
-  }
+  /// Set error message with optional context for better user guidance
+  void _setError(String error, {String? context}) {
+    String fullMessage = error;
 
-  /// Set error message
-  void _setError(String error) {
-    _error = error;
+    // Add contextual suggestions based on the error and context
+    if (context == 'register' && error.contains('already registered')) {
+      fullMessage +=
+          '\n\nTip: Use the "Sign In" button below to access your existing account.';
+    } else if (context == 'login' && error.contains('No account found')) {
+      fullMessage += '\n\nTip: Use the "Sign Up" link to create a new account.';
+    } else if (error.contains('password') && error.contains('weak')) {
+      fullMessage +=
+          '\n\nTip: Try using a mix of letters, numbers, and symbols.';
+    } else if (error.contains('Network error') ||
+        error.contains('connection')) {
+      fullMessage += '\n\nTip: Check your WiFi or mobile data connection.';
+    }
+
+    _error = fullMessage;
     notifyListeners();
   }
 
@@ -153,7 +162,7 @@ class AuthService extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _setError('Invalid email or password');
+        _setError('Invalid email or password', context: 'login');
         _setEmailLoading(false);
         return false;
       }
@@ -162,6 +171,7 @@ class AuthService extends ChangeNotifier {
     if (_auth == null) {
       _setError(
         'Authentication service not available. Please check Firebase setup.',
+        context: 'login',
       );
       return false;
     }
@@ -172,12 +182,12 @@ class AuthService extends ChangeNotifier {
 
       // Validate input before attempting authentication
       if (email.trim().isEmpty || password.isEmpty) {
-        _setError('Please enter both email and password');
+        _setError('Please enter both email and password', context: 'login');
         return false;
       }
 
       if (!email.contains('@') || !email.contains('.')) {
-        _setError('Please enter a valid email address');
+        _setError('Please enter a valid email address', context: 'login');
         return false;
       }
 
@@ -190,7 +200,7 @@ class AuthService extends ChangeNotifier {
       return true;
     } on FirebaseAuthException catch (e) {
       String errorMessage = _getErrorMessage(e);
-      _setError(errorMessage);
+      _setError(errorMessage, context: 'login');
       debugPrint('Firebase Auth error: ${e.code} - ${e.message}');
       return false;
     } catch (e) {
@@ -219,7 +229,7 @@ class AuthService extends ChangeNotifier {
         debugPrint('Unexpected sign in error: $e');
       }
 
-      _setError(errorMessage);
+      _setError(errorMessage, context: 'login');
       return false;
     } finally {
       _setEmailLoading(false);
@@ -229,7 +239,7 @@ class AuthService extends ChangeNotifier {
   /// Create account with email and password
   Future<bool> createAccount(String email, String password, String name) async {
     if (_isMockMode) {
-      _setLoading(true);
+      _setEmailLoading(true);
       await Future.delayed(
         const Duration(seconds: 1),
       ); // Simulate network delay
@@ -237,22 +247,22 @@ class AuthService extends ChangeNotifier {
       if (email.isNotEmpty && password.isNotEmpty && name.isNotEmpty) {
         // Create account successfully but DON'T set _user (no auto-login)
         debugPrint('Mock account created for: $email (not auto-logged in)');
-        _setLoading(false);
+        _setEmailLoading(false);
         return true;
       } else {
-        _setError('Please fill in all fields');
-        _setLoading(false);
+        _setError('Please fill in all fields', context: 'register');
+        _setEmailLoading(false);
         return false;
       }
     }
 
     if (_auth == null) {
-      _setError('Authentication service not available');
+      _setError('Authentication service not available', context: 'register');
       return false;
     }
 
     try {
-      _setLoading(true);
+      _setEmailLoading(true);
       _clearError();
 
       final credential = await _auth!.createUserWithEmailAndPassword(
@@ -275,7 +285,7 @@ class AuthService extends ChangeNotifier {
       return true;
     } on FirebaseAuthException catch (e) {
       String errorMessage = _getErrorMessage(e);
-      _setError(errorMessage);
+      _setError(errorMessage, context: 'register');
       debugPrint('Create account error: $errorMessage');
       return false;
     } catch (e) {
@@ -303,10 +313,10 @@ class AuthService extends ChangeNotifier {
         debugPrint('Unexpected create account error: $e');
       }
 
-      _setError(errorMessage);
+      _setError(errorMessage, context: 'register');
       return false;
     } finally {
-      _setLoading(false);
+      _setEmailLoading(false);
     }
   }
 
@@ -378,19 +388,50 @@ class AuthService extends ChangeNotifier {
     } catch (e) {
       String errorMessage = 'Failed to sign in with Google. Please try again.';
 
-      // Handle specific network errors
-      if (e.toString().contains('network-request-failed')) {
+      // Handle specific Google sign-in errors
+      String errorString = e.toString().toLowerCase();
+
+      if (errorString.contains('network-request-failed') ||
+          errorString.contains('network')) {
         errorMessage =
             'Network error. Please check your internet connection and try again.';
-      } else if (e.toString().contains('sign_in_canceled')) {
-        // User cancelled, don't show error
+      } else if (errorString.contains('sign_in_canceled') ||
+          errorString.contains('cancelled')) {
+        // User cancelled, don't show error message
+        debugPrint('Google sign-in cancelled by user');
         return false;
-      } else if (e.toString().contains('sign_in_failed')) {
+      } else if (errorString.contains('sign_in_failed')) {
         errorMessage =
-            'Sign in failed. Please ensure Google Play Services is installed and try again.';
+            'Google sign-in failed. Please ensure Google Play Services is up to date and try again.';
+      } else if (errorString.contains(
+        'account-exists-with-different-credential',
+      )) {
+        errorMessage =
+            'An account already exists with this email using a different sign-in method. Please try signing in with email/password.';
+      } else if (errorString.contains('popup-blocked')) {
+        errorMessage =
+            'Sign-in popup was blocked. Please allow popups and try again.';
+      } else if (errorString.contains('popup-closed')) {
+        errorMessage =
+            'Sign-in was cancelled. Please complete the sign-in process.';
+      } else if (errorString.contains('unauthorized-domain')) {
+        errorMessage =
+            'Sign-in not allowed from this domain. Please contact support.';
+      } else if (errorString.contains('operation-not-allowed')) {
+        errorMessage = 'Google sign-in is not enabled. Please contact support.';
+      } else if (errorString.contains('invalid-credential')) {
+        errorMessage = 'Google authentication failed. Please try again.';
+      } else if (errorString.contains('user-disabled')) {
+        errorMessage =
+            'Your account has been disabled. Please contact support for assistance.';
+      } else if (errorString.contains('too-many-requests')) {
+        errorMessage =
+            'Too many sign-in attempts. Please wait a moment and try again.';
+      } else if (errorString.contains('internal-error')) {
+        errorMessage = 'Internal error occurred. Please try again later.';
       }
 
-      _setError(errorMessage);
+      _setError(errorMessage, context: 'google-signin');
       debugPrint('Google sign in error: $e');
       return false;
     } finally {
@@ -401,17 +442,20 @@ class AuthService extends ChangeNotifier {
   /// Sign out
   Future<void> signOut() async {
     if (_isMockMode) {
-      _setLoading(true);
+      _setEmailLoading(true);
+      _setGoogleLoading(true);
       await Future.delayed(const Duration(milliseconds: 500));
       _user = null;
       debugPrint('Mock sign out successful');
-      _setLoading(false);
+      _setEmailLoading(false);
+      _setGoogleLoading(false);
       notifyListeners();
       return;
     }
 
     try {
-      _setLoading(true);
+      _setEmailLoading(true);
+      _setGoogleLoading(true);
       _clearError();
 
       // Sign out from Google if signed in
@@ -423,17 +467,18 @@ class AuthService extends ChangeNotifier {
       await _auth?.signOut();
       debugPrint('User signed out');
     } catch (e) {
-      _setError('Failed to sign out. Please try again.');
+      _setError('Failed to sign out. Please try again.', context: 'signout');
       debugPrint('Sign out error: $e');
     } finally {
-      _setLoading(false);
+      _setEmailLoading(false);
+      _setGoogleLoading(false);
     }
   }
 
   /// Reset password
   Future<bool> resetPassword(String email) async {
     try {
-      _setLoading(true);
+      _setEmailLoading(true);
       _clearError();
 
       await _auth!.sendPasswordResetEmail(email: email.trim());
@@ -441,21 +486,26 @@ class AuthService extends ChangeNotifier {
       return true;
     } on FirebaseAuthException catch (e) {
       String errorMessage = _getErrorMessage(e);
-      _setError(errorMessage);
+      _setError(errorMessage, context: 'password-reset');
       debugPrint('Password reset error: $errorMessage');
       return false;
     } catch (e) {
-      _setError('Failed to send password reset email. Please try again.');
+      _setError(
+        'Failed to send password reset email. Please try again.',
+        context: 'password-reset',
+      );
       debugPrint('Unexpected password reset error: $e');
       return false;
     } finally {
-      _setLoading(false);
+      _setEmailLoading(false);
     }
   }
 
   /// Convert Firebase error codes to user-friendly messages
   String _getErrorMessage(FirebaseAuthException e) {
     switch (e.code) {
+      case 'email-already-in-use':
+        return 'This email is already registered. Please sign in instead or use a different email address.';
       case 'invalid-credential':
         return 'The email or password is incorrect. Please check your credentials and try again.';
       case 'invalid-email':
@@ -463,20 +513,70 @@ class AuthService extends ChangeNotifier {
       case 'user-not-found':
         return 'No account found with this email. Please check your email or create a new account.';
       case 'wrong-password':
-        return 'Incorrect password. Please try again.';
+        return 'Incorrect password. Please try again or reset your password if you forgot it.';
+      case 'weak-password':
+        return 'Password is too weak. Please choose a stronger password with at least 6 characters.';
+      case 'too-many-requests':
+        return 'Too many failed attempts. Please wait a moment before trying again.';
+      case 'user-disabled':
+        return 'This account has been disabled. Please contact support for assistance.';
+      case 'operation-not-allowed':
+        return 'This sign-in method is not enabled. Please contact support.';
+      case 'account-exists-with-different-credential':
+        return 'An account already exists with this email using a different sign-in method. Please try signing in with that method.';
+      case 'requires-recent-login':
+        return 'For security, please sign out and sign in again to complete this action.';
+      case 'credential-already-in-use':
+        return 'This account is already linked to another user.';
       case 'INVALID_LOGIN_CREDENTIALS':
         return 'Invalid email or password. Please check your credentials and try again.';
       case 'network-request-failed':
         return 'Network error. Please check your internet connection and try again.';
       case 'app-not-authorized':
-        return 'App is not authorized to use Firebase Authentication.';
+        return 'App is not authorized to use Firebase Authentication. Please contact support.';
+      case 'invalid-verification-code':
+        return 'Invalid verification code. Please check the code and try again.';
+      case 'invalid-verification-id':
+        return 'Invalid verification ID. Please restart the process.';
+      case 'code-expired':
+        return 'Verification code has expired. Please request a new code.';
+      case 'missing-verification-code':
+        return 'Please enter the verification code.';
+      case 'missing-verification-id':
+        return 'Verification ID is missing. Please restart the process.';
+      case 'quota-exceeded':
+        return 'Too many requests. Please try again later.';
+      case 'cancelled-popup-request':
+        return 'Sign-in was cancelled. Please try again.';
+      case 'popup-blocked':
+        return 'Sign-in popup was blocked. Please allow popups and try again.';
+      case 'popup-closed-by-user':
+        return 'Sign-in was cancelled. Please complete the sign-in process.';
+      case 'unauthorized-domain':
+        return 'This domain is not authorized for authentication. Please contact support.';
       default:
-        // Provide the original message but make it more user-friendly
+        // Handle unknown errors with helpful fallback messages
         String message = e.message ?? 'An error occurred. Please try again.';
+
+        // Check for common patterns and provide helpful messages
+        if (message.toLowerCase().contains('email') &&
+            message.toLowerCase().contains('exist')) {
+          return 'This email is already registered. Please sign in instead.';
+        }
+        if (message.toLowerCase().contains('password') &&
+            message.toLowerCase().contains('weak')) {
+          return 'Password is too weak. Please choose a stronger password.';
+        }
+        if (message.toLowerCase().contains('network') ||
+            message.toLowerCase().contains('connection')) {
+          return 'Network error. Please check your internet connection and try again.';
+        }
+
         // Remove technical jargon if present
         if (message.contains('FirebaseError') || message.contains('auth/')) {
           return 'Authentication failed. Please try again or contact support if the problem persists.';
         }
+
         return message;
     }
   }
@@ -500,7 +600,10 @@ class AuthService extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      _setError('Failed to send verification email.');
+      _setError(
+        'Failed to send verification email.',
+        context: 'email-verification',
+      );
       debugPrint('Email verification error: $e');
       return false;
     }

@@ -6,6 +6,7 @@ import '../models/category.dart' as models;
 import '../models/transaction.dart';
 import '../models/budget.dart';
 import '../models/category_spending_data.dart';
+import '../services/firebase_sync_service.dart';
 
 /// Main data provider for the expense tracker app
 /// This class manages all data operations and notifies listeners of changes
@@ -49,6 +50,9 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       // Initialize repository (chooses appropriate database implementation)
       await _repository.initialize();
+
+      // Initialize default data for new users
+      await _repository.initializeDefaultData();
 
       // Load essential data first, then load secondary data
       await loadAccounts();
@@ -124,6 +128,14 @@ class ExpenseProvider extends ChangeNotifier {
   Future<void> deleteAccount(String accountId) async {
     try {
       await _repository.deleteAccount(accountId);
+
+      // Delete from Firebase to prevent reappearance after sync
+      try {
+        await FirebaseSyncService().deleteAccountFromFirebase(accountId);
+      } catch (e) {
+        debugPrint('Warning: Failed to delete account from Firebase: $e');
+      }
+
       await loadAccounts();
       await loadTransactions(); // Refresh transactions as they reference accounts
     } catch (e) {
@@ -171,6 +183,14 @@ class ExpenseProvider extends ChangeNotifier {
   Future<void> deleteCategory(String categoryId) async {
     try {
       await _repository.deleteCategory(categoryId);
+
+      // Delete from Firebase to prevent reappearance after sync
+      try {
+        await FirebaseSyncService().deleteCategoryFromFirebase(categoryId);
+      } catch (e) {
+        debugPrint('Warning: Failed to delete category from Firebase: $e');
+      }
+
       await loadCategories();
       await loadTransactions(); // Refresh transactions as they reference categories
     } catch (e) {
@@ -254,7 +274,25 @@ class ExpenseProvider extends ChangeNotifier {
   /// Delete transaction
   Future<void> deleteTransaction(Transaction transaction) async {
     try {
+      debugPrint(
+        'Deleting transaction: ${transaction.id} - ${transaction.title} - ${transaction.amount}',
+      );
+
+      // Delete from database first
       await _repository.deleteTransaction(transaction.id);
+
+      // Delete from Firebase to prevent reappearance after sync
+      try {
+        await FirebaseSyncService().deleteTransactionFromFirebase(
+          transaction.id,
+        );
+      } catch (e) {
+        debugPrint('Warning: Failed to delete from Firebase: $e');
+        // Continue with local deletion even if Firebase deletion fails
+      }
+
+      // Also remove from local list immediately to prevent showing stale data
+      _transactions.removeWhere((t) => t.id == transaction.id);
 
       // Reverse transaction effect on account balance
       await _reverseAccountBalance(transaction);
@@ -267,9 +305,12 @@ class ExpenseProvider extends ChangeNotifier {
         );
       }
 
+      // Reload all data to ensure consistency
       await loadTransactions();
       await loadAccounts();
       await loadBudgets();
+
+      debugPrint('Transaction deletion completed successfully');
     } catch (e) {
       debugPrint('Error deleting transaction: $e');
       rethrow;
@@ -349,6 +390,14 @@ class ExpenseProvider extends ChangeNotifier {
   Future<void> deleteBudget(String budgetId) async {
     try {
       await _repository.deleteBudget(budgetId);
+
+      // Delete from Firebase to prevent reappearance after sync
+      try {
+        await FirebaseSyncService().deleteBudgetFromFirebase(budgetId);
+      } catch (e) {
+        debugPrint('Warning: Failed to delete budget from Firebase: $e');
+      }
+
       await loadBudgets();
     } catch (e) {
       debugPrint('Error deleting budget: $e');
@@ -476,11 +525,29 @@ class ExpenseProvider extends ChangeNotifier {
       final allTransactions = await _repository.getTransactions();
       for (final transaction in allTransactions) {
         await _repository.deleteTransaction(transaction.id);
+        // Also delete from Firebase
+        try {
+          await FirebaseSyncService().deleteTransactionFromFirebase(
+            transaction.id,
+          );
+        } catch (e) {
+          debugPrint(
+            'Warning: Failed to delete transaction from Firebase during clear: $e',
+          );
+        }
       }
 
       final allBudgets = await _repository.getBudgets();
       for (final budget in allBudgets) {
         await _repository.deleteBudget(budget.id);
+        // Also delete from Firebase
+        try {
+          await FirebaseSyncService().deleteBudgetFromFirebase(budget.id);
+        } catch (e) {
+          debugPrint(
+            'Warning: Failed to delete budget from Firebase during clear: $e',
+          );
+        }
       }
 
       // Reload data
