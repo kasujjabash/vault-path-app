@@ -1877,6 +1877,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             ? provider.incomeCategories
             : provider.expenseCategories;
 
+    debugPrint('Showing category selector for $_transactionType');
+    debugPrint('Available categories: ${categories.length}');
+    for (var cat in categories) {
+      debugPrint('  Category: ${cat.name} (${cat.type}) - ${cat.id}');
+    }
+
     showDialog(
       context: context,
       builder:
@@ -1904,93 +1910,115 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             ),
             content: Container(
               width: double.maxFinite,
-              height: 450, // Increased height to accommodate all categories
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        final isSelected = _selectedCategoryId == category.id;
-                        return ListTile(
-                          leading: Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Color(
-                                FormatUtils.parseColorString(category.color),
-                              ),
-                              shape: BoxShape.circle,
-                              border:
-                                  isSelected
-                                      ? Border.all(
-                                        color: AppConstants.primaryColor,
-                                        width: 3,
-                                      )
-                                      : null,
-                            ),
-                            child: Icon(
-                              _getIconData(category.icon),
-                              color: Colors.white,
-                              size: 24,
-                            ),
+              height: 450,
+              child:
+                  categories.isEmpty
+                      ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.category_outlined,
+                            size: 64,
+                            color: Colors.grey.shade400,
                           ),
-                          title: Text(
-                            category.name,
+                          const SizedBox(height: 16),
+                          Text(
+                            'No ${_transactionType} categories found',
                             style: TextStyle(
-                              fontWeight:
-                                  isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                              color:
-                                  isSelected
-                                      ? AppConstants.primaryColor
-                                      : Colors.black87,
+                              fontSize: 16,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          trailing:
-                              isSelected
-                                  ? Icon(
-                                    Icons.check_circle,
-                                    color: AppConstants.primaryColor,
-                                  )
-                                  : null,
-                          onTap: () {
-                            setState(() {
-                              _selectedCategoryId = category.id;
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  const Divider(),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showCreateCategoryDialog();
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Create New Category'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppConstants.primaryColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Add one to get started',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _showCreateCategoryDialog();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppConstants.primaryColor,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Add Category'),
+                          ),
+                        ],
+                      )
+                      : ListView.builder(
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
+                          final isSelected = _selectedCategoryId == category.id;
+                          return ListTile(
+                            leading: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Color(
+                                  FormatUtils.parseColorString(category.color),
+                                ),
+                                shape: BoxShape.circle,
+                                border:
+                                    isSelected
+                                        ? Border.all(
+                                          color: AppConstants.primaryColor,
+                                          width: 3,
+                                        )
+                                        : null,
+                              ),
+                              child: Icon(
+                                _getIconData(category.icon),
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            title: Text(
+                              category.name,
+                              style: TextStyle(
+                                fontWeight:
+                                    isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                color:
+                                    isSelected
+                                        ? AppConstants.primaryColor
+                                        : Colors.black87,
+                              ),
+                            ),
+                            trailing:
+                                isSelected
+                                    ? Icon(
+                                      Icons.check,
+                                      color: AppConstants.primaryColor,
+                                    )
+                                    : null,
+                            onTap: () {
+                              setState(() {
+                                _selectedCategoryId = category.id;
+                              });
+                              Navigator.of(context).pop();
+                            },
+                          );
+                        },
                       ),
-                    ),
-                  ),
-                ],
-              ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Close',
+                  style: TextStyle(color: AppConstants.primaryColor),
+                ),
+              ),
+            ],
           ),
     );
   }

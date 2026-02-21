@@ -39,97 +39,103 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder:
-          (context) => Container(
-            height: MediaQuery.of(context).size.height * 0.8,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    'Filter & Sort',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF006E1F),
+          (context) => StatefulBuilder(
+            builder:
+                (context, setModalState) => Container(
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Filter by Type
-                        _buildFilterSection(
-                          'Filter by Type',
-                          ['All', 'Income', 'Expense'],
-                          _filterType,
-                          (value) => setState(() => _filterType = value),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(top: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                        const SizedBox(height: 24),
-
-                        // Sort by
-                        _buildFilterSection(
-                          'Sort by',
-                          ['Newest', 'Oldest', 'Highest', 'Lowest'],
-                          _sortBy,
-                          (value) => setState(() => _sortBy = value),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                          'Filter & Sort',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF006E1F),
+                          ),
                         ),
-                        const SizedBox(height: 24),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Filter by Type
+                              _buildFilterSection(
+                                'Filter by Type',
+                                ['All', 'Income', 'Expense'],
+                                _filterType,
+                                (value) =>
+                                    setModalState(() => _filterType = value),
+                                setModalState,
+                              ),
+                              const SizedBox(height: 24),
 
-                        // Filter by Category
-                        _buildCategoryFilter(),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
+                              // Sort by
+                              _buildFilterSection(
+                                'Sort by',
+                                ['Newest', 'Oldest', 'Highest', 'Lowest'],
+                                _sortBy,
+                                (value) => setModalState(() => _sortBy = value),
+                                setModalState,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Filter by Category
+                              _buildCategoryFilter(setModalState),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Apply Button
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            setState(() {}); // Trigger rebuild with new filters
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF006E1F),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Apply Filters',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-
-                // Apply Button
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {}); // Trigger rebuild with new filters
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF006E1F),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Apply Filters',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
     );
   }
@@ -424,6 +430,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     List<String> options,
     String selectedValue,
     Function(String) onChanged,
+    StateSetter setModalState,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,10 +453,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 return GestureDetector(
                   onTap: () {
                     onChanged(option);
-                    // Force rebuild to show visual feedback immediately
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) setState(() {});
-                    });
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -489,7 +492,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   /// Build category filter section
-  Widget _buildCategoryFilter() {
+  Widget _buildCategoryFilter(StateSetter setModalState) {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
         final categories = [
@@ -514,7 +517,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 if (_selectedCategories.isNotEmpty)
                   TextButton(
                     onPressed: () {
-                      setState(() {
+                      setModalState(() {
                         _selectedCategories.clear();
                       });
                     },
@@ -542,16 +545,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       );
                       return GestureDetector(
                         onTap: () {
-                          setState(() {
+                          setModalState(() {
                             if (isSelected) {
                               _selectedCategories.remove(category.id);
                             } else {
                               _selectedCategories.add(category.id);
                             }
-                          });
-                          // Force rebuild to show visual feedback immediately
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) setState(() {});
                           });
                         },
                         child: AnimatedContainer(

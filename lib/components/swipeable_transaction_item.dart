@@ -22,32 +22,18 @@ class SwipeableTransactionItem extends StatefulWidget {
       _SwipeableTransactionItemState();
 }
 
-class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _animation;
-
+class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
     super.dispose();
   }
 
-  /// Handle swipe to delete with confirmation and perform deletion
+  /// Handle swipe to delete with confirmation only
   Future<bool> _confirmDismiss(DismissDirection direction) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -154,10 +140,9 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
           ),
     );
 
-    if (shouldDelete == true) {
-      return await _performDeletion();
-    }
-    return false;
+    // Return the user's choice - true will trigger onDismissed callback
+    // false will reset the dismissible to original position
+    return shouldDelete ?? false;
   }
 
   /// Perform the actual deletion and return success status
@@ -214,115 +199,106 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem>
     final provider = Provider.of<ExpenseProvider>(context, listen: false);
     final category = provider.findCategoryById(widget.transaction.categoryId);
 
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return SizeTransition(
-          sizeFactor: _animation,
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: Dismissible(
-              key: Key(widget.transaction.id),
-              direction: DismissDirection.endToStart,
-              confirmDismiss: _confirmDismiss,
-              background: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 20),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade400,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.delete_outline, color: Colors.white, size: 24),
-                    SizedBox(height: 2),
-                    Text(
-                      'Delete',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: Dismissible(
+        key: Key(widget.transaction.id),
+        direction: DismissDirection.endToStart,
+        confirmDismiss: _confirmDismiss,
+        onDismissed: (direction) async {
+          // This callback is called when the dismiss animation completes
+          // Now perform the actual deletion
+          debugPrint('Transaction dismissed: ${widget.transaction.id}');
+          await _performDeletion();
+        },
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          decoration: BoxDecoration(
+            color: Colors.red.shade400,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.delete_outline, color: Colors.white, size: 24),
+              SizedBox(height: 2),
+              Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                child: Column(
-                  children: [
-                    Row(
+            ],
+          ),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  _buildTransactionIcon(category),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildTransactionIcon(category),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                category?.name ?? 'Transaction',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                FormatUtils.formatDate(widget.transaction.date),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade500,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          category?.name ?? 'Transaction',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: Colors.black87,
                           ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              widget.transaction.type == 'expense'
-                                  ? '- ${FormatUtils.formatCurrency(widget.transaction.amount)}'
-                                  : '+ ${FormatUtils.formatCurrency(widget.transaction.amount)}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    widget.transaction.type == 'expense'
-                                        ? Colors.red.shade600
-                                        : Colors.green.shade600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              FormatUtils.formatTime(widget.transaction.date),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: 4),
+                        Text(
+                          FormatUtils.formatDate(widget.transaction.date),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Colors.grey.shade200,
-                    ),
-                  ],
-                ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        widget.transaction.type == 'expense'
+                            ? '- ${FormatUtils.formatCurrency(widget.transaction.amount)}'
+                            : '+ ${FormatUtils.formatCurrency(widget.transaction.amount)}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color:
+                              widget.transaction.type == 'expense'
+                                  ? Colors.red.shade600
+                                  : Colors.green.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        FormatUtils.formatTime(widget.transaction.date),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
+              const SizedBox(height: 8),
+              Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
