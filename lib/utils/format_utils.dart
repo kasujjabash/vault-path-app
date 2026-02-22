@@ -1,4 +1,6 @@
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/currency_service.dart';
 
 /// Utility class for formatting currency, dates, and other data
@@ -14,11 +16,21 @@ class FormatUtils {
   static final DateFormat _shortDateFormatter = DateFormat('dd/MM/yyyy');
 
   /// Format amount as currency string
-  static String formatCurrency(double amount) {
-    final currency = CurrencyService().currentCurrency;
+  static String formatCurrency(double amount, [Currency? currency]) {
+    final currentCurrency = currency ?? CurrencyService().currentCurrency;
+    final formatter = NumberFormat.currency(
+      symbol: currentCurrency.symbol,
+      decimalDigits:
+          currentCurrency.code == 'UGX' ? 0 : 2, // UGX doesn't use decimals
+    );
+    return formatter.format(amount);
+  }
+
+  /// Format amount as currency string with specific currency
+  static String formatCurrencyWithCurrency(double amount, Currency currency) {
     final formatter = NumberFormat.currency(
       symbol: currency.symbol,
-      decimalDigits: currency.code == 'UGX' ? 0 : 2, // UGX doesn't use decimals
+      decimalDigits: currency.code == 'UGX' ? 0 : 2,
     );
     return formatter.format(amount);
   }
@@ -26,12 +38,13 @@ class FormatUtils {
   /// Format amount as currency string with optional sign
   static String formatCurrencyWithSign(
     double amount, {
+    Currency? currency,
     bool showPositiveSign = false,
   }) {
-    final currency = CurrencyService().currentCurrency;
+    final currentCurrency = currency ?? CurrencyService().currentCurrency;
     final formatter = NumberFormat.currency(
-      symbol: currency.symbol,
-      decimalDigits: currency.code == 'UGX' ? 0 : 2,
+      symbol: currentCurrency.symbol,
+      decimalDigits: currentCurrency.code == 'UGX' ? 0 : 2,
     );
 
     final formatted = formatter.format(amount.abs());
@@ -278,5 +291,39 @@ class FormatUtils {
     } else {
       return '${currency.symbol}${amount.toStringAsFixed(0)}';
     }
+  }
+}
+
+/// Reactive currency display widget that automatically updates when currency changes
+class CurrencyDisplay extends StatelessWidget {
+  final double amount;
+  final TextStyle? style;
+  final bool showSign;
+
+  const CurrencyDisplay({
+    super.key,
+    required this.amount,
+    this.style,
+    this.showSign = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CurrencyService>(
+      builder: (context, currencyService, child) {
+        final formattedAmount =
+            showSign
+                ? FormatUtils.formatCurrencyWithSign(
+                  amount,
+                  currency: currencyService.currentCurrency,
+                )
+                : FormatUtils.formatCurrencyWithCurrency(
+                  amount,
+                  currencyService.currentCurrency,
+                );
+
+        return Text(formattedAmount, style: style);
+      },
+    );
   }
 }

@@ -4,6 +4,7 @@ import '../../providers/expense_provider.dart';
 import '../../utils/format_utils.dart';
 import '../../models/budget.dart';
 import 'package:uuid/uuid.dart';
+import 'package:go_router/go_router.dart';
 
 /// Comprehensive Budget Management Screen
 /// Set spending limits, receive alerts, and track budget progress
@@ -73,6 +74,15 @@ class _BudgetScreenState extends State<BudgetScreen> {
         backgroundColor: const Color(0xFF006E1F),
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.push('/all-budgets');
+            },
+            icon: const Icon(Icons.list_alt),
+            tooltip: 'View All Budgets',
+          ),
+        ],
       ),
       body: Consumer<ExpenseProvider>(
         builder: (context, provider, child) {
@@ -625,30 +635,51 @@ class _BudgetScreenState extends State<BudgetScreen> {
     IconData icon,
     Color color,
   ) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(width: 8),
-        Text(
-          '$label:',
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: color,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 18),
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1A1A1A),
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   /// Build active budgets list
   Widget _buildActiveBudgets(ExpenseProvider provider) {
     final budgets = provider.activeBudgets;
+    final displayBudgets = budgets.take(2).toList(); // Limit to 2 budgets
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -666,24 +697,42 @@ class _BudgetScreenState extends State<BudgetScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.list_alt, color: Color(0xFF006E1F), size: 24),
-              SizedBox(width: 12),
-              Text(
-                'Active Budgets',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF006E1F),
-                ),
+              const Row(
+                children: [
+                  Icon(Icons.list_alt, color: Color(0xFF006E1F), size: 24),
+                  SizedBox(width: 12),
+                  Text(
+                    'Active Budgets',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF006E1F),
+                    ),
+                  ),
+                ],
               ),
+              if (budgets.length > 2)
+                TextButton(
+                  onPressed: () {
+                    context.push('/all-budgets');
+                  },
+                  child: const Text(
+                    'View All',
+                    style: TextStyle(
+                      color: Color(0xFF006E1F),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
             ],
           ),
 
           const SizedBox(height: 16),
 
-          if (budgets.isEmpty)
+          if (displayBudgets.isEmpty)
             Center(
               child: Column(
                 children: [
@@ -707,7 +756,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
               ),
             )
           else
-            ...budgets
+            ...displayBudgets
                 .map((budget) => _buildBudgetCard(budget, provider))
                 .toList(),
         ],

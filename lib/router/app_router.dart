@@ -16,6 +16,8 @@ import '../screens/more/more_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/notifications_screen.dart';
+import '../screens/categories/categories_screen.dart';
+import '../screens/budgets/all_budgets_screen.dart';
 import '../services/auth_service.dart';
 
 /// App Router configuration using go_router
@@ -98,6 +100,13 @@ class AppRouter {
             name: 'accounts',
             builder: (context, state) => const AccountsScreen(),
           ),
+
+          // Categories route
+          GoRoute(
+            path: '/categories',
+            name: 'categories',
+            builder: (context, state) => const CategoriesScreen(),
+          ),
         ],
       ),
 
@@ -148,6 +157,12 @@ class AppRouter {
         path: '/notifications',
         name: 'notifications',
         builder: (context, state) => const NotificationsScreen(),
+      ),
+
+      GoRoute(
+        path: '/all-budgets',
+        name: 'all-budgets',
+        builder: (context, state) => const AllBudgetsScreen(),
       ),
     ],
 

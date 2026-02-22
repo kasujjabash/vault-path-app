@@ -338,33 +338,4 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return FormatUtils.formatDate(dateTime);
     }
   }
-
-  void _showClearAllDialog(BuildContext context, NotificationService service) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Clear All Notifications'),
-            content: const Text(
-              'Are you sure you want to delete all notifications? This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  service.clearAllNotifications();
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Clear All',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
 }

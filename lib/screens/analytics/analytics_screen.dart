@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -213,6 +214,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               _buildChartToggle(Icons.bar_chart, 'bar'),
               const SizedBox(width: 8),
               _buildChartToggle(Icons.pie_chart, 'pie'),
+              const SizedBox(width: 8),
+              _buildChartToggle(Icons.calendar_today, 'daily'),
             ],
           ),
         ],
@@ -254,6 +257,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             _buildPieChart(categoriesData, type)
           else if (_chartType == 'line')
             _buildLineChart(categoriesData, type)
+          else if (_chartType == 'daily')
+            _buildDailyBarsChart()
           else
             _buildBarChart(categoriesData, type),
         ],
@@ -894,49 +899,45 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       }
     }
 
-    // Convert to FlSpot list with proper ordering
-    List<FlSpot> spots = [];
+    // Convert to bar chart data with proper ordering
     final sortedDates = dailyTotals.keys.toList()..sort();
-
-    for (int i = 0; i < sortedDates.length; i++) {
-      final date = sortedDates[i];
-      final amount = dailyTotals[date] ?? 0;
-      spots.add(FlSpot(i.toDouble(), amount));
-    }
 
     // Calculate max value for proper scaling
     double maxY =
-        spots.isEmpty
-            ? 100
-            : spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
+        dailyTotals.values.isNotEmpty
+            ? dailyTotals.values.reduce((a, b) => a > b ? a : b)
+            : 100;
     if (maxY == 0) maxY = 100;
 
     // Color based on transaction type
-    final lineColor = type == 'expense' ? Colors.red : const Color(0xFF006E1F);
+    final barColor = type == 'expense' ? Colors.red : const Color(0xFF006E1F);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SizedBox(
         height: 220,
-        child: LineChart(
-          LineChartData(
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: true,
-              horizontalInterval: maxY / 4,
-              verticalInterval: 7,
-              getDrawingHorizontalLine: (value) {
-                return FlLine(
-                  color: Colors.grey.withOpacity(0.2),
-                  strokeWidth: 1,
-                );
-              },
-              getDrawingVerticalLine: (value) {
-                return FlLine(
-                  color: Colors.grey.withOpacity(0.2),
-                  strokeWidth: 1,
-                );
-              },
+        child: BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            maxY: maxY * 1.2,
+            barTouchData: BarTouchData(
+              enabled: true,
+              touchTooltipData: BarTouchTooltipData(
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  if (groupIndex < sortedDates.length) {
+                    final date = sortedDates[groupIndex];
+                    final amount = dailyTotals[date] ?? 0;
+                    return BarTooltipItem(
+                      '${FormatUtils.formatDate(date)}\n${FormatUtils.formatCurrency(amount)}',
+                      const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }
+                  return null;
+                },
+              ),
             ),
             titlesData: FlTitlesData(
               show: true,
@@ -950,23 +951,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 30,
-                  interval: 7, // Show every 7 days
                   getTitlesWidget: (double value, TitleMeta meta) {
-                    if (value.toInt() >= 0 &&
-                        value.toInt() < sortedDates.length) {
-                      final date = sortedDates[value.toInt()];
-                      final day = date.day;
-                      final month = date.month;
-                      return SideTitleWidget(
-                        axisSide: meta.axisSide,
-                        child: Text(
-                          '$day/$month',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 10,
+                    final index = value.toInt();
+                    if (index >= 0 && index < sortedDates.length) {
+                      final date = sortedDates[index];
+                      // Show every 7th day to avoid crowding
+                      if (index % 7 == 0) {
+                        final day = date.day;
+                        final month = date.month;
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: Text(
+                            '$day/$month',
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 10,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     }
                     return const Text('');
                   },
@@ -996,59 +999,303 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               show: true,
               border: Border.all(color: Colors.grey.withOpacity(0.3)),
             ),
-            lineBarsData: [
-              LineChartBarData(
-                spots: spots,
-                isCurved: true,
-                color: lineColor,
-                barWidth: 3,
-                isStrokeCapRound: true,
-                dotData: FlDotData(
-                  show: true,
-                  getDotPainter: (spot, percent, barData, index) {
-                    return FlDotCirclePainter(
-                      radius: 3,
-                      color: lineColor,
-                      strokeWidth: 2,
-                      strokeColor: Colors.white,
-                    );
-                  },
-                ),
-                belowBarData: BarAreaData(
-                  show: true,
-                  color: lineColor.withOpacity(0.1),
-                ),
-              ),
-            ],
-            minX: 0,
-            maxX: spots.length > 1 ? (spots.length - 1).toDouble() : 29,
-            minY: 0,
-            maxY: maxY * 1.2,
-            // Add touch interaction
-            lineTouchData: LineTouchData(
-              enabled: true,
-              touchTooltipData: LineTouchTooltipData(
-                getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-                  return touchedBarSpots.map((barSpot) {
-                    final flSpot = barSpot;
-                    if (flSpot.x.toInt() < sortedDates.length) {
-                      final date = sortedDates[flSpot.x.toInt()];
-                      final amount = flSpot.y;
-                      return LineTooltipItem(
-                        '${FormatUtils.formatDate(date)}\n${FormatUtils.formatCurrency(amount)}',
-                        const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+            barGroups:
+                sortedDates.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final date = entry.value;
+                  final amount = dailyTotals[date] ?? 0;
+
+                  return BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        toY: amount,
+                        color: barColor,
+                        width: 4, // Thinner bars for daily data
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(2),
+                          topRight: Radius.circular(2),
                         ),
-                      );
-                    }
-                    return null;
-                  }).toList();
-                },
-              ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: maxY / 4,
+              getDrawingHorizontalLine: (value) {
+                return FlLine(
+                  color: Colors.grey.withOpacity(0.2),
+                  strokeWidth: 1,
+                );
+              },
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Daily bars chart showing both expense and income for each day
+  Widget _buildDailyBarsChart() {
+    final provider = Provider.of<ExpenseProvider>(context, listen: false);
+
+    // Get last 30 days of data
+    Map<DateTime, double> dailyExpenses = {};
+    Map<DateTime, double> dailyIncome = {};
+
+    // Initialize all days with 0
+    for (int i = 29; i >= 0; i--) {
+      final date = DateTime.now().subtract(Duration(days: i));
+      final dateKey = DateTime(date.year, date.month, date.day);
+      dailyExpenses[dateKey] = 0.0;
+      dailyIncome[dateKey] = 0.0;
+    }
+
+    // Accumulate expense transactions by day
+    final expenseTransactions = provider.transactions.where(
+      (t) => t.type == 'expense',
+    );
+    for (final transaction in expenseTransactions) {
+      final transactionDate = DateTime(
+        transaction.date.year,
+        transaction.date.month,
+        transaction.date.day,
+      );
+
+      final daysDiff = DateTime.now().difference(transactionDate).inDays;
+      if (daysDiff >= 0 && daysDiff < 30) {
+        dailyExpenses[transactionDate] =
+            (dailyExpenses[transactionDate] ?? 0) + transaction.amount;
+      }
+    }
+
+    // Accumulate income transactions by day
+    final incomeTransactions = provider.transactions.where(
+      (t) => t.type == 'income',
+    );
+    for (final transaction in incomeTransactions) {
+      final transactionDate = DateTime(
+        transaction.date.year,
+        transaction.date.month,
+        transaction.date.day,
+      );
+
+      final daysDiff = DateTime.now().difference(transactionDate).inDays;
+      if (daysDiff >= 0 && daysDiff < 30) {
+        dailyIncome[transactionDate] =
+            (dailyIncome[transactionDate] ?? 0) + transaction.amount;
+      }
+    }
+
+    final sortedDates = dailyExpenses.keys.toList()..sort();
+
+    // Calculate max value for proper scaling
+    double maxExpense =
+        dailyExpenses.values.isNotEmpty
+            ? dailyExpenses.values.reduce((a, b) => a > b ? a : b)
+            : 0;
+    double maxIncome =
+        dailyIncome.values.isNotEmpty
+            ? dailyIncome.values.reduce((a, b) => a > b ? a : b)
+            : 0;
+    double maxY = math.max(maxExpense, maxIncome);
+    if (maxY == 0) maxY = 100;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Expenses',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 32),
+              Row(
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF006E1F),
+                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Income',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Chart
+          SizedBox(
+            height: 220,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: maxY * 1.2,
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      if (groupIndex < sortedDates.length) {
+                        final date = sortedDates[groupIndex];
+                        final expenseAmount = dailyExpenses[date] ?? 0;
+                        final incomeAmount = dailyIncome[date] ?? 0;
+                        final isExpense = rodIndex == 0;
+                        final amount = isExpense ? expenseAmount : incomeAmount;
+                        final type = isExpense ? 'Expense' : 'Income';
+
+                        return BarTooltipItem(
+                          '${FormatUtils.formatDate(date)}\n$type: ${FormatUtils.formatCurrency(amount)}',
+                          const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        final index = value.toInt();
+                        if (index >= 0 && index < sortedDates.length) {
+                          final date = sortedDates[index];
+                          // Show every 7th day to avoid crowding
+                          if (index % 7 == 0) {
+                            final day = date.day;
+                            final month = date.month;
+                            return SideTitleWidget(
+                              axisSide: meta.axisSide,
+                              child: Text(
+                                '$day/$month',
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                        return const Text('');
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: maxY / 4,
+                      reservedSize: 40,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: Text(
+                            FormatUtils.formatCurrencyCompact(value),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 10,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                ),
+                barGroups:
+                    sortedDates.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final date = entry.value;
+                      final expenseAmount = dailyExpenses[date] ?? 0;
+                      final incomeAmount = dailyIncome[date] ?? 0;
+
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          // Expense bar (red)
+                          BarChartRodData(
+                            toY: expenseAmount,
+                            color: Colors.red,
+                            width: 3,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(2),
+                              topRight: Radius.circular(2),
+                            ),
+                          ),
+                          // Income bar (green)
+                          BarChartRodData(
+                            toY: incomeAmount,
+                            color: const Color(0xFF006E1F),
+                            width: 3,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(2),
+                              topRight: Radius.circular(2),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: maxY / 4,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey.withOpacity(0.2),
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

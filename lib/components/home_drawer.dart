@@ -13,65 +13,104 @@ class HomeDrawer extends StatelessWidget {
       builder: (context, authService, child) {
         return Drawer(
           backgroundColor: Colors.white,
+          elevation: 0,
           child: SafeArea(
             child: Column(
               children: [
-                // Simple Header with User Info
-                Padding(
-                  padding: const EdgeInsets.all(16),
+                // Enhanced Header with Gradient Background
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF006E1F), Color(0xFF00B830)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
+                  ),
                   child: Row(
                     children: [
-                      // Profile Circle
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundColor: const Color(0xFF006E1F),
-                        backgroundImage:
-                            authService.currentUser?.photoURL != null
-                                ? NetworkImage(
-                                  authService.currentUser!.photoURL!,
-                                )
-                                : null,
-                        child:
-                            authService.currentUser?.photoURL == null
-                                ? Text(
-                                  (authService.userDisplayName?.isNotEmpty ==
-                                          true)
-                                      ? authService.userDisplayName![0]
-                                          .toUpperCase()
-                                      : 'U',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                                : null,
+                      // Enhanced Profile Circle with Shadow
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 28,
+                          backgroundColor: Colors.white.withOpacity(0.25),
+                          backgroundImage:
+                              authService.currentUser?.photoURL != null
+                                  ? NetworkImage(
+                                    authService.currentUser!.photoURL!,
+                                  )
+                                  : null,
+                          child:
+                              authService.currentUser?.photoURL == null
+                                  ? Text(
+                                    (authService.userDisplayName?.isNotEmpty ==
+                                            true)
+                                        ? authService.userDisplayName![0]
+                                            .toUpperCase()
+                                        : 'U',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                  : null,
+                        ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
 
-                      // User Info
+                      // Enhanced User Info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // User Name
+                            // User Name with better styling
                             Text(
-                              authService.userDisplayName ?? 'User',
+                              authService.userDisplayName ?? 'Welcome User',
                               style: const TextStyle(
-                                color: Color(0xFF006E1F),
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
                               ),
                             ),
-                            // Email
+                            const SizedBox(height: 4),
+                            // Email with icon
                             if (authService.userEmail != null)
-                              Text(
-                                authService.userEmail!,
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 13,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.email_rounded,
+                                    color: Colors.white.withOpacity(0.8),
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      authService.userEmail!,
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.9),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                           ],
                         ),
@@ -80,48 +119,78 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 ),
 
-                const Divider(height: 1),
+                // Enhanced Menu Items
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    children: [
+                      // Profile Item
+                      _buildDrawerItem(
+                        context,
+                        icon: Icons.person_rounded,
+                        title: 'Profile',
+                        subtitle: 'View your profile & stats',
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          context.push('/profile');
+                        },
+                      ),
 
-                // Profile Item
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.person,
-                  title: 'Profile',
-                  subtitle: 'View your profile & stats',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    context.push('/profile');
-                  },
+                      // Settings Item
+                      _buildDrawerItem(
+                        context,
+                        icon: Icons.settings_rounded,
+                        title: 'Settings',
+                        subtitle: 'App settings & preferences',
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          context.push('/more');
+                        },
+                      ),
+                    ],
+                  ),
                 ),
 
-                // Settings Item
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.settings,
-                  title: 'Settings',
-                  subtitle: 'App settings & preferences',
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    context.push('/more');
-                  },
-                ),
-
-                const Spacer(),
-
-                // Sign Out Button at Bottom
-                Padding(
-                  padding: const EdgeInsets.all(16),
+                // Enhanced Sign Out Button
+                Container(
+                  margin: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () => _showSignOutDialog(context, authService),
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Sign Out'),
+                      icon: const Icon(Icons.logout_rounded),
+                      label: const Text(
+                        'Sign Out',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red.shade50,
-                        foregroundColor: Colors.red,
+                        foregroundColor: Colors.red.shade700,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(color: Colors.red.shade200),
+                        ),
                       ),
                     ),
                   ),
@@ -141,34 +210,88 @@ class HomeDrawer extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    Gradient? gradient,
   }) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF006E1F).withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Icon with gradient background
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient:
+                        gradient ??
+                        const LinearGradient(
+                          colors: [Color(0xFF006E1F), Color(0xFF00A040)],
+                        ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (gradient?.colors.first ??
+                                const Color(0xFF006E1F))
+                            .withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(icon, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 16),
+
+                // Title and subtitle
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1F2937),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Arrow icon
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        child: Icon(icon, color: const Color(0xFF006E1F), size: 20),
       ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF1A1A1A),
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-      ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        size: 16,
-        color: Colors.grey,
-      ),
-      onTap: onTap,
     );
   }
 

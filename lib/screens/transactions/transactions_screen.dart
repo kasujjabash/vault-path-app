@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 import '../../providers/expense_provider.dart';
 import '../../models/transaction.dart' as trans;
 import '../../components/swipeable_transaction_item.dart';
 import '../../components/banner_ad_widget.dart';
 import '../reports/financial_report_screen.dart';
+import '../../services/currency_service.dart';
 
 /// Transactions screen for viewing and managing all transactions
 /// Redesigned to match the modern green-themed interface from the reference image
@@ -158,8 +165,20 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+            onPressed: () async {
+              final provider = Provider.of<ExpenseProvider>(
+                context,
+                listen: false,
+              );
+              await _exportToPdf(context, provider.transactions);
+            },
+            tooltip: 'Export to PDF',
+          ),
+          IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.white),
             onPressed: _showFilterModal,
+            tooltip: 'Filter & Sort',
           ),
         ],
       ),
@@ -1120,5 +1139,493 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         );
       },
     );
+  }
+
+  /// Export transactions to PDF
+  Future<void> _exportToPdf(
+    BuildContext context,
+    List<trans.Transaction> transactions,
+  ) async {
+    if (!mounted) return;
+
+    try {
+      // Small delay to ensure any pending navigation is complete
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (!mounted) return;
+
+      // Show loading dialog with proper context
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        useRootNavigator: false,
+        builder:
+            (BuildContext dialogContext) => const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: Color(0xFF006E1F)),
+                  SizedBox(height: 16),
+                  Text(
+                    'Generating PDF...',
+                    style: TextStyle(
+                      color: Color(0xFF006E1F),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+      );
+
+      final pdf = pw.Document();
+      final currencyService = Provider.of<CurrencyService>(
+        context,
+        listen: false,
+      );
+      final provider = Provider.of<ExpenseProvider>(context, listen: false);
+      final now = DateTime.now();
+      final filteredTransactions = _filterTransactions(transactions);
+
+      // Check if still mounted before proceeding
+      if (!mounted) return;
+
+      // Calculate totals
+      double totalIncome = 0;
+      double totalExpenses = 0;
+      for (final transaction in filteredTransactions) {
+        if (transaction.type == 'income') {
+          totalIncome += transaction.amount;
+        } else {
+          totalExpenses += transaction.amount;
+        }
+      }
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build:
+              (pw.Context context) => [
+                // Header
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(20),
+                  decoration: const pw.BoxDecoration(color: PdfColors.green800),
+                  child: pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            'Vault Path',
+                            style: pw.TextStyle(
+                              fontSize: 24,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.white,
+                            ),
+                          ),
+                          pw.Text(
+                            'Transaction Report',
+                            style: pw.TextStyle(
+                              fontSize: 16,
+                              color: PdfColors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.end,
+                        children: [
+                          pw.Text(
+                            'Generated on',
+                            style: pw.TextStyle(color: PdfColors.white),
+                          ),
+                          pw.Text(
+                            DateFormat('MMM dd, yyyy - HH:mm').format(now),
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                pw.SizedBox(height: 20),
+
+                // Summary Section
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(16),
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.grey300),
+                    borderRadius: const pw.BorderRadius.all(
+                      pw.Radius.circular(8),
+                    ),
+                  ),
+                  child: pw.Column(
+                    children: [
+                      pw.Text(
+                        'Summary',
+                        style: pw.TextStyle(
+                          fontSize: 18,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.SizedBox(height: 12),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
+                        children: [
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                'Total Income',
+                                style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                              pw.Text(
+                                '${currencyService.currentCurrency.symbol}${totalIncome.toStringAsFixed(2)}',
+                                style: const pw.TextStyle(
+                                  color: PdfColors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                'Total Expenses',
+                                style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                              pw.Text(
+                                '${currencyService.currentCurrency.symbol}${totalExpenses.toStringAsFixed(2)}',
+                                style: const pw.TextStyle(color: PdfColors.red),
+                              ),
+                            ],
+                          ),
+                          pw.Column(
+                            children: [
+                              pw.Text(
+                                'Net Balance',
+                                style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                              pw.Text(
+                                '${currencyService.currentCurrency.symbol}${(totalIncome - totalExpenses).toStringAsFixed(2)}',
+                                style: pw.TextStyle(
+                                  color:
+                                      (totalIncome - totalExpenses) >= 0
+                                          ? PdfColors.green
+                                          : PdfColors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                pw.SizedBox(height: 20),
+
+                // Filter Info
+                if (_filterType != 'All' ||
+                    _selectedCategories.isNotEmpty ||
+                    _selectedTimePeriod != 'All time')
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(12),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.grey100,
+                      borderRadius: const pw.BorderRadius.all(
+                        pw.Radius.circular(6),
+                      ),
+                    ),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'Applied Filters:',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
+                        if (_filterType != 'All') pw.Text('Type: $_filterType'),
+                        if (_selectedTimePeriod != 'All time')
+                          pw.Text('Period: $_selectedTimePeriod'),
+                        if (_selectedCategories.isNotEmpty)
+                          pw.Text(
+                            'Categories: ${_selectedCategories.length} selected',
+                          ),
+                      ],
+                    ),
+                  ),
+
+                pw.SizedBox(height: 20),
+
+                // Transactions Table
+                pw.Text(
+                  'Transactions (${filteredTransactions.length} items)',
+                  style: pw.TextStyle(
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+
+                if (filteredTransactions.isEmpty)
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(20),
+                    child: pw.Text(
+                      'No transactions found with the current filters.',
+                      style: pw.TextStyle(fontStyle: pw.FontStyle.italic),
+                    ),
+                  )
+                else
+                  pw.Table(
+                    border: pw.TableBorder.all(color: PdfColors.grey300),
+                    columnWidths: {
+                      0: const pw.FlexColumnWidth(2), // Date
+                      1: const pw.FlexColumnWidth(3), // Description
+                      2: const pw.FlexColumnWidth(2), // Category
+                      3: const pw.FlexColumnWidth(1.5), // Amount
+                      4: const pw.FlexColumnWidth(1), // Type
+                    },
+                    children: [
+                      // Header
+                      pw.TableRow(
+                        decoration: const pw.BoxDecoration(
+                          color: PdfColors.grey200,
+                        ),
+                        children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                              'Date',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                              'Description',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                              'Category',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                              'Amount',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                              'Type',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Data rows
+                      ...filteredTransactions.map((transaction) {
+                        final category = provider.categories.firstWhere(
+                          (cat) => cat.id == transaction.categoryId,
+                          orElse: () => provider.categories.first,
+                        );
+
+                        return pw.TableRow(
+                          children: [
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8),
+                              child: pw.Text(
+                                DateFormat('MMM dd').format(transaction.date),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8),
+                              child: pw.Text(transaction.title),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8),
+                              child: pw.Text(category.name),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8),
+                              child: pw.Text(
+                                '${currencyService.currentCurrency.symbol}${transaction.amount.toStringAsFixed(2)}',
+                                style: pw.TextStyle(
+                                  color:
+                                      transaction.type == 'income'
+                                          ? PdfColors.green
+                                          : PdfColors.red,
+                                ),
+                              ),
+                            ),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.all(8),
+                              child: pw.Text(
+                                transaction.type.toUpperCase(),
+                                style: pw.TextStyle(
+                                  fontSize: 10,
+                                  color:
+                                      transaction.type == 'income'
+                                          ? PdfColors.green
+                                          : PdfColors.red,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ),
+              ],
+        ),
+      );
+
+      // Save and open PDF
+      final output = await getTemporaryDirectory();
+      final file = File(
+        '${output.path}/vault_path_transactions_${DateFormat('yyyyMMdd_HHmmss').format(now)}.pdf',
+      );
+      await file.writeAsBytes(await pdf.save());
+
+      // Close loading dialog
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.of(context, rootNavigator: false).pop();
+
+        // Show success message with open option
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.picture_as_pdf, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  const Text('PDF exported successfully!'),
+                ],
+              ),
+              backgroundColor: const Color(0xFF006E1F),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              action: SnackBarAction(
+                label: 'Open PDF',
+                textColor: Colors.white,
+                onPressed: () async {
+                  try {
+                    // Use platform channel to open PDF
+                    const platform = MethodChannel('com.budjar.file_opener');
+                    await platform.invokeMethod('openFile', {
+                      'path': file.path,
+                    });
+                  } catch (e) {
+                    // Fallback: show file location dialog
+                    if (mounted) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: const Text('PDF Exported Successfully!'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Your transaction report has been saved.',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Location:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: SelectableText(
+                                      file.path,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: 'monospace',
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'You can find this file in your device\'s Downloads folder or use a file manager app to open it.',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog if still open
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.of(context, rootNavigator: false).pop();
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting PDF: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
   }
 }

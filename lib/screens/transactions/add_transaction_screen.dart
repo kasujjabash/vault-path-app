@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/expense_provider.dart';
 import '../../services/notification_service.dart';
+import '../../services/currency_service.dart';
 import '../../utils/app_constants.dart';
 import '../../utils/format_utils.dart';
 import '../../utils/custom_snackbar.dart';
@@ -1545,15 +1546,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     right: BorderSide(color: const Color(0xFFE0E0E0), width: 1),
                   ),
                 ),
-                child: Center(
-                  child: Text(
-                    'USD',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppConstants.primaryColor,
-                    ),
-                  ),
+                child: Consumer<CurrencyService>(
+                  builder: (context, currencyService, child) {
+                    return Center(
+                      child: Text(
+                        currencyService.currentCurrency.code,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppConstants.primaryColor,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               Expanded(

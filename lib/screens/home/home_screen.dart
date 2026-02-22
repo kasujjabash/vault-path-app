@@ -329,34 +329,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Total Expense',
-                              style: TextStyle(
-                                color: Color(
-                                  0xFF006E1F,
-                                ), // Updated dark green for labels
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text(
+                            'Total Expense',
+                            style: TextStyle(
+                              color: Color(
+                                0xFF006E1F,
+                              ), // Updated dark green for labels
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _isBalanceHidden
-                                  ? '*****'
-                                  : '- ${FormatUtils.formatCurrency(totalExpense)}',
-                              style: const TextStyle(
-                                color: Color(0xFFD32F2F), // Darker red
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _isBalanceHidden
+                                ? '*****'
+                                : '- ${FormatUtils.formatCurrency(totalExpense)}',
+                            style: const TextStyle(
+                              color: Color(0xFFD32F2F), // Darker red
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
