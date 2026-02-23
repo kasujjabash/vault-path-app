@@ -41,7 +41,7 @@ class RecentTransactionsList extends StatelessWidget {
             itemCount: transactions.length,
             separatorBuilder:
                 (context, index) =>
-                    Divider(height: 1, color: Colors.grey.shade200),
+                    Divider(height: 1, color: Colors.grey.shade300),
             itemBuilder: (context, index) {
               final transaction = transactions[index];
               final account = provider.findAccountById(transaction.accountId);

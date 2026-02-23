@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../../providers/expense_provider.dart';
 import '../../utils/app_constants.dart';
 import '../../utils/format_utils.dart';
+import '../more/about_screen.dart';
 
 /// Profile screen showing user information and statistics
 class ProfileScreen extends StatefulWidget {
@@ -348,7 +349,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // TODO: Navigate to privacy policy
           }),
           _buildSettingsTile('About', Icons.info, () {
-            // TODO: Navigate to about
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AboutScreen()),
+            );
           }),
           _buildSettingsTile(
             'Sign Out',

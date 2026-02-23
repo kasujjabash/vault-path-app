@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 // Custom Colors class to avoid conflicts
 class AppColors {
-  // Updated theme colors as requested
   static const primary = Color(0xFFD4E5D3); // Light green card background
   static const primaryDark = Color(0xFF006E1F); // Dark green
   static const primaryLight = Color(0xFFE8F6E8); // Very light green
@@ -24,9 +23,10 @@ class AppColors {
   static const lightOnSurface = Color(0xFF111827);
   static const lightOnBackground = Color(0xFF111827);
 
-  // Dark theme colors (black and white as requested)
-  static const darkBackground = Color(0xFF000000);
-  static const darkSurface = Color(0xFF1A1A1A);
+  // Dark theme colors
+  static const darkBackground = Color(0xFF1C211B); // Dark green-gray background
+  static const darkSurface = Color(0xFF2B3C29); // Card background
+  static const darkGreen = Color(0xFF7DDB7D); // Light green for dark theme
   static const darkOnSurface = Color(0xFFFFFFFF);
   static const darkOnBackground = Color(0xFFFFFFFF);
 }
@@ -162,15 +162,17 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: ColorScheme.dark(
-        primary: AppColors.primary,
+        primary: AppColors.darkGreen,
         onPrimary: Colors.black,
-        secondary: AppColors.primary, // Changed to green
+        secondary: AppColors.darkGreen, // Light green for dark theme
         onSecondary: Colors.white,
-        tertiary: AppColors.primaryLight, // Green tertiary
+        tertiary: AppColors.darkGreen, // Light green tertiary
         error: AppColors.error,
         onError: Colors.white,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkOnSurface,
+        background: AppColors.darkBackground,
+        onBackground: AppColors.darkOnBackground,
       ),
       textTheme: GoogleFonts.interTextTheme(
         ThemeData.dark().textTheme.apply(
@@ -179,13 +181,13 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF006E1F), // Dark green
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.darkGreen, // Light green for dark theme
+        foregroundColor: Colors.black,
         elevation: 0,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: Colors.black,
         ),
       ),
       cardTheme: const CardThemeData(
@@ -197,8 +199,8 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary, // GREEN
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.darkGreen, // Light green for dark theme
+          foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -211,8 +213,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary, // GREEN
-          side: BorderSide(color: AppColors.primary), // GREEN
+          foregroundColor: AppColors.darkGreen, // Light green for dark theme
+          side: BorderSide(color: AppColors.darkGreen), // Light green border
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -236,13 +238,16 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.primary, width: 2), // GREEN
+          borderSide: BorderSide(
+            color: AppColors.darkGreen,
+            width: 2,
+          ), // Light green for dark theme
         ),
         labelStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16),
         hintStyle: GoogleFonts.inter(color: Colors.grey[500], fontSize: 16),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: const Color(0xFF006E1F), // Updated dark green
+        backgroundColor: AppColors.darkGreen, // Light green for dark theme
         foregroundColor: Colors.white,
         shape: const CircleBorder(),
       ),
@@ -254,8 +259,8 @@ class AppTheme {
             return null;
           }
           if (states.contains(WidgetState.selected)) {
-            return AppColors.primary;
-          } // GREEN
+            return AppColors.darkGreen;
+          } // Light green for dark theme
           return null;
         }),
       ),
@@ -267,8 +272,8 @@ class AppTheme {
             return null;
           }
           if (states.contains(WidgetState.selected)) {
-            return AppColors.primary;
-          } // GREEN
+            return AppColors.darkGreen;
+          } // Light green for dark theme
           return null;
         }),
       ),

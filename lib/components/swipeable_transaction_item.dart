@@ -294,7 +294,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
                 ],
               ),
               const SizedBox(height: 8),
-              Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+              Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
             ],
           ),
         ),

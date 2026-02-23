@@ -8,6 +8,7 @@ import '../../providers/expense_provider.dart';
 import '../../utils/dialog_utils.dart';
 import '../../utils/custom_snackbar.dart';
 import 'premium_screen.dart';
+import 'about_screen.dart';
 
 /// More screen with settings, premium features, and additional options
 /// This screen will contain settings, premium upgrade, and other app features
@@ -134,14 +135,6 @@ class _MoreScreenState extends State<MoreScreen> {
                 _buildSectionTitle(context, 'Preferences'),
                 const SizedBox(height: 12),
 
-                _buildSettingsItem(
-                  context,
-                  icon: Icons.notifications,
-                  title: 'Notifications',
-                  subtitle: 'Manage your notifications',
-                  onTap:
-                      () => _showComingSoonSnackBar(context, 'Notifications'),
-                ),
                 Consumer<CurrencyService>(
                   builder: (context, currencyService, child) {
                     return _buildSettingsItem(
@@ -155,35 +148,11 @@ class _MoreScreenState extends State<MoreScreen> {
                     );
                   },
                 ),
-                _buildSettingsItem(
-                  context,
-                  icon: Icons.palette_outlined,
-                  title: 'Theme',
-                  subtitle: 'Choose your preferred theme',
-                  onTap:
-                      () => _showComingSoonSnackBar(context, 'Theme Settings'),
-                ),
-                _buildSettingsItem(
-                  context,
-                  icon: Icons.language_outlined,
-                  title: 'Language',
-                  subtitle: 'Select your language',
-                  onTap:
-                      () =>
-                          _showComingSoonSnackBar(context, 'Language Settings'),
-                ),
 
                 const SizedBox(height: 24),
                 _buildSectionTitle(context, 'Support'),
                 const SizedBox(height: 12),
 
-                _buildSettingsItem(
-                  context,
-                  icon: Icons.help_outline,
-                  title: 'Help Center',
-                  subtitle: 'Get help and support',
-                  onTap: () => _showComingSoonSnackBar(context, 'Help Center'),
-                ),
                 _buildSettingsItem(
                   context,
                   icon: Icons.info_outline,
@@ -206,19 +175,6 @@ class _MoreScreenState extends State<MoreScreen> {
                     isDestructive: true,
                   ),
                 ],
-
-                const SizedBox(height: 24),
-                _buildSectionTitle(context, 'Debug Tools'),
-                const SizedBox(height: 12),
-
-                _buildSettingsItem(
-                  context,
-                  icon: Icons.delete_forever,
-                  title: 'Clear All Data',
-                  subtitle: 'Delete all transactions and reset balances',
-                  onTap: () => _showClearDataDialog(context),
-                  isDestructive: true,
-                ),
 
                 const SizedBox(height: 32),
               ],
@@ -504,14 +460,9 @@ class _MoreScreenState extends State<MoreScreen> {
 }
 
 void _showAboutDialog(BuildContext context) {
-  showAboutDialog(
-    context: context,
-    applicationName: 'Vault Path',
-    applicationVersion: '1.0.0',
-    applicationIcon: const Icon(Icons.account_balance_wallet, size: 48),
-    children: [
-      const Text('Your smart expense tracker for better financial management.'),
-    ],
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const AboutScreen()),
   );
 }
 
@@ -521,90 +472,6 @@ void _showComingSoonSnackBar(BuildContext context, String feature) {
       content: Text('$feature feature coming soon!'),
       action: SnackBarAction(label: 'OK', onPressed: () {}),
     ),
-  );
-}
-
-void _showClearDataDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text(
-          '⚠️ Clear All Data',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This will permanently delete:',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 8),
-            Text('• All transactions'),
-            Text('• All budgets'),
-            Text('• Custom categories'),
-            Text('• Reset account balances to 0'),
-            SizedBox(height: 16),
-            Text(
-              'This action cannot be undone!',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-
-              // Show loading
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder:
-                    (context) =>
-                        const Center(child: CircularProgressIndicator()),
-              );
-
-              try {
-                await Provider.of<ExpenseProvider>(
-                  context,
-                  listen: false,
-                ).clearAllData();
-
-                if (context.mounted) {
-                  Navigator.of(context).pop(); // Close loading
-                  CustomSnackBar.show(
-                    context: context,
-                    message: 'All data cleared successfully!',
-                    type: SnackBarType.success,
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  Navigator.of(context).pop(); // Close loading
-                  CustomSnackBar.show(
-                    context: context,
-                    message: 'Error clearing data: $e',
-                    type: SnackBarType.error,
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Clear All Data'),
-          ),
-        ],
-      );
-    },
   );
 }
 
