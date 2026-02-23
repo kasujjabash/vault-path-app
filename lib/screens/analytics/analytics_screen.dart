@@ -369,95 +369,100 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
           ),
         ),
         // Transaction list
-        ...transactions.map((transaction) {
-          final provider = Provider.of<ExpenseProvider>(context, listen: false);
-          final category = provider.findCategoryById(transaction.categoryId);
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: transactions.length,
+          separatorBuilder:
+              (context, index) => Divider(
+                height: 1,
+                thickness: 1,
+                color: Colors.grey.shade300,
+                indent: 16,
+                endIndent: 16,
+              ),
+          itemBuilder: (context, index) {
+            final transaction = transactions[index];
+            final provider = Provider.of<ExpenseProvider>(
+              context,
+              listen: false,
+            );
+            final category = provider.findCategoryById(transaction.categoryId);
 
-          return Container(
-            margin: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Category Icon
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: (category?.color != null
-                            ? Color(
-                              int.parse(
-                                category!.color.replaceFirst('#', '0xFF'),
-                              ),
-                            )
-                            : Colors.pink)
-                        .withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  // Category Icon
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: (category?.color != null
+                              ? Color(
+                                int.parse(
+                                  category!.color.replaceFirst('#', '0xFF'),
+                                ),
+                              )
+                              : Colors.pink)
+                          .withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      _getCategoryIcon(category?.icon ?? 'shopping_bag'),
+                      color:
+                          category?.color != null
+                              ? Color(
+                                int.parse(
+                                  category!.color.replaceFirst('#', '0xFF'),
+                                ),
+                              )
+                              : Colors.pink,
+                      size: 24,
+                    ),
                   ),
-                  child: Icon(
-                    _getCategoryIcon(category?.icon ?? 'shopping_bag'),
-                    color:
-                        category?.color != null
-                            ? Color(
-                              int.parse(
-                                category!.color.replaceFirst('#', '0xFF'),
-                              ),
-                            )
-                            : Colors.pink,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Transaction Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        category?.name ?? 'Transaction',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                  const SizedBox(width: 12),
+                  // Transaction Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          category?.name ?? 'Transaction',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        FormatUtils.formatDate(transaction.date),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
+                        const SizedBox(height: 4),
+                        Text(
+                          FormatUtils.formatDate(transaction.date),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                // Amount
-                Text(
-                  '${type == 'expense' ? '-' : '+'} ${FormatUtils.formatCurrency(transaction.amount)}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color:
-                        type == 'expense'
-                            ? Colors.red
-                            : const Color(0xFF006E1F),
+                  // Amount
+                  Text(
+                    '${type == 'expense' ? '-' : '+'} ${FormatUtils.formatCurrency(transaction.amount)}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color:
+                          type == 'expense'
+                              ? Colors.red
+                              : const Color(0xFF006E1F),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+            );
+          },
+        ),
       ],
     );
   }

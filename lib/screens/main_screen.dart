@@ -395,21 +395,21 @@ class _MainScreenState extends State<MainScreen> {
                       // Profile Avatar with Glow Effect
                       Container(
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.3),
-                              blurRadius: 15,
-                              spreadRadius: 2,
-                            ),
-                          ],
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.3),
+                                blurRadius: 15,
+                                spreadRadius: 2,
+                              ),
+                            ],
                         ),
                         child: Hero(
-                          tag: 'profile-avatar',
-                          child: CircleAvatar(
-                            radius: 32,
-                            backgroundColor: Colors.white.withOpacity(0.25),
-                            child:
+                            tag: 'profile-avatar',
+                            child: CircleAvatar(
+                              radius: 32,
+                              backgroundColor: Colors.white.withOpacity(0.25),
+                              child:
                                 authService.currentUser?.photoURL != null
                                     ? ClipOval(
                                       child: Image.network(
@@ -422,18 +422,20 @@ class _MainScreenState extends State<MainScreen> {
                                           error,
                                           stackTrace,
                                         ) {
-                                          return _buildInitialsAvatar(
-                                            authService.userDisplayName,
-                                          );
-                                        },
+                                            return _buildInitia
+                                       lsAvatar(
+                                              authService.userDisp
+                                        layName,
+                                            );
+                                          },
                                       ),
-                                    )
-                                    : _buildInitialsAvatar(
-                                      authService.userDisplayName,
-                                    ),
+                                      )
+                                      : _buildInitialsAvatar(
+                                        authService.userDisplayNam  e,
+                                      ),
+                            ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 16),
 
                       // User Name with better styling
