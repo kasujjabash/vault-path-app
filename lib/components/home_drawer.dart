@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
-import '../theme/app_theme.dart';
+import '../providers/expense_provider.dart';
 import '../theme/app_theme.dart';
 
 /// Home screen drawer component with user profile and navigation options
@@ -11,8 +11,8 @@ class HomeDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthService>(
-      builder: (context, authService, child) {
+    return Consumer2<AuthService, ExpenseProvider>(
+      builder: (context, authService, expenseProvider, child) {
         return Drawer(
           backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
@@ -127,12 +127,47 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 ),
 
+                // Quick Stats Section
+                Container(
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primaryDark.withValues(alpha: 0.1),
+                        AppColors.primary.withValues(alpha: 0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.primaryDark.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: _buildQuickStats(context, expenseProvider),
+                ),
+
                 // Enhanced Menu Items
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
-                      // Settings Item
+                      // Navigation Section
+                      _buildSectionHeader(context, 'Navigation'),
+                      _buildDrawerItem(
+                        context,
+                        icon: Icons.category_rounded,
+                        title: 'Categories',
+                        subtitle: 'Manage expense categories',
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          context.push('/categories');
+                        },
+                      ),
+
+                      // Settings Section
+                      _buildSectionHeader(context, 'Settings'),
                       _buildDrawerItem(
                         context,
                         icon: Icons.settings_rounded,
@@ -210,7 +245,7 @@ class HomeDrawer extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -222,20 +257,20 @@ class HomeDrawer extends StatelessWidget {
               children: [
                 // Icon with dark green background
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: AppColors.primaryDark,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.primaryDark.withValues(alpha: 0.3),
-                        blurRadius: 8,
+                        blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: Icon(icon, color: Colors.white, size: 24),
+                  child: Icon(icon, color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 16),
 
@@ -247,7 +282,7 @@ class HomeDrawer extends StatelessWidget {
                       Text(
                         title,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -256,7 +291,7 @@ class HomeDrawer extends StatelessWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -269,20 +304,282 @@ class HomeDrawer extends StatelessWidget {
 
                 // Arrow icon
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: AppColors.primaryDark.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.arrow_forward_ios_rounded,
-                    size: 14,
+                    size: 12,
                     color: AppColors.primaryDark,
                   ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Build section header for drawer
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.primaryDark,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  /// Build quick stats widget
+  Widget _buildQuickStats(BuildContext context, ExpenseProvider provider) {
+    final thisMonthExpenses = provider.transactions
+        .where(
+          (t) =>
+              t.type == 'expense' &&
+              t.date.month == DateTime.now().month &&
+              t.date.year == DateTime.now().year,
+        )
+        .fold(0.0, (sum, t) => sum + t.amount);
+
+    final thisMonthIncome = provider.transactions
+        .where(
+          (t) =>
+              t.type == 'income' &&
+              t.date.month == DateTime.now().month &&
+              t.date.year == DateTime.now().year,
+        )
+        .fold(0.0, (sum, t) => sum + t.amount);
+
+    final balance = thisMonthIncome - thisMonthExpenses;
+
+    return Column(
+      children: [
+        // Header
+        Row(
+          children: [
+            Icon(
+              Icons.insights_rounded,
+              color: AppColors.primaryDark,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'This Month',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryDark,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Stats Row
+        Row(
+          children: [
+            // Balance
+            Expanded(
+              child: _buildStatItem(
+                context,
+                'Balance',
+                balance.abs(),
+                balance >= 0 ? Icons.trending_up : Icons.trending_down,
+                balance >= 0 ? Colors.green : Colors.red,
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Expenses
+            Expanded(
+              child: _buildStatItem(
+                context,
+                'Spent',
+                thisMonthExpenses,
+                Icons.arrow_downward,
+                Colors.red.shade400,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Build individual stat item
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    double amount,
+    IconData icon,
+    Color color,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '\$${amount.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Show add transaction options
+  void _showAddTransactionOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag Handle
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Header
+              Text(
+                'Add Transaction',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryDark,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Options
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildQuickAddOption(
+                      context,
+                      Icons.trending_up,
+                      'Income',
+                      'Record money received',
+                      Colors.green,
+                      () {
+                        Navigator.pop(context);
+                        context.push('/add-transaction?type=income');
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildQuickAddOption(
+                      context,
+                      Icons.trending_down,
+                      'Expense',
+                      'Record money spent',
+                      Colors.red,
+                      () {
+                        Navigator.pop(context);
+                        context.push('/add-transaction?type=expense');
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Build quick add option
+  Widget _buildQuickAddOption(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: Icon(icon, color: Colors.white, size: 24),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
         ),
       ),
     );

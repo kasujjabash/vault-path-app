@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/expense_provider.dart';
 import '../../models/category.dart' as models;
 import '../../utils/format_utils.dart';
+import '../../components/category_card.dart';
 
 /// Full-screen Categories Management Page
 /// Shows expense and income categories with user and default categories sections
@@ -48,39 +49,91 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
-            onPressed: () => _showAddCategoryDialog(),
-            tooltip: 'Add Category',
+      ),
+      body: Column(
+        children: [
+          // Custom Tab Section
+          Container(
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _tabController.animateTo(0),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color:
+                            _tabController.index == 0
+                                ? const Color(0xFF006E1F)
+                                : Colors.transparent,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Text(
+                        'Expenses',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color:
+                              _tabController.index == 0
+                                  ? Colors.white
+                                  : Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _tabController.animateTo(1),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color:
+                            _tabController.index == 1
+                                ? const Color(0xFF006E1F)
+                                : Colors.transparent,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Text(
+                        'Income',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color:
+                              _tabController.index == 1
+                                  ? Colors.white
+                                  : Colors.black,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Tab Content
+          Expanded(
+            child: Consumer<ExpenseProvider>(
+              builder: (context, provider, child) {
+                return TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildCategoryTab('expense', provider.expenseCategories),
+                    _buildCategoryTab('income', provider.incomeCategories),
+                  ],
+                );
+              },
+            ),
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          indicatorWeight: 3,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withOpacity(0.7),
-          labelStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-          tabs: const [
-            Tab(icon: Icon(Icons.trending_down), text: 'Expenses'),
-            Tab(icon: Icon(Icons.trending_up), text: 'Income'),
-          ],
-        ),
-      ),
-      body: Consumer<ExpenseProvider>(
-        builder: (context, provider, child) {
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _buildCategoryTab('expense', provider.expenseCategories),
-              _buildCategoryTab('income', provider.incomeCategories),
-            ],
-          );
-        },
       ),
     );
   }
@@ -107,10 +160,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           _buildSectionHeader('Default Categories', defaultCategories.length),
           const SizedBox(height: 12),
           _buildCategoriesGrid(defaultCategories, isDefault: true),
-
-          // Add Category Button
-          const SizedBox(height: 24),
-          _buildAddCategoryCard(type),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -193,155 +243,21 @@ class _CategoriesScreenState extends State<CategoriesScreen>
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.0,
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
         final category = categories[index];
-        return _buildCategoryCard(category, isDefault: isDefault);
+        return CategoryCard(
+          category: category,
+          isDefault: isDefault,
+          onTap: () => _showCategoryDetailDialog(category),
+          onLongPress:
+              isDefault ? null : () => _showCategoryOptionsDialog(category),
+        );
       },
-    );
-  }
-
-  Widget _buildCategoryCard(
-    models.Category category, {
-    required bool isDefault,
-  }) {
-    return GestureDetector(
-      onTap: () => _showCategoryDetailDialog(category),
-      onLongPress:
-          isDefault ? null : () => _showCategoryOptionsDialog(category),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(
-            FormatUtils.parseColorString(category.color),
-          ).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Color(
-              FormatUtils.parseColorString(category.color),
-            ).withOpacity(0.3),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icon
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Color(FormatUtils.parseColorString(category.color)),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(
-                      FormatUtils.parseColorString(category.color),
-                    ).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                _getIconData(category.icon),
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Category Name
-            Text(
-              category.name,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(FormatUtils.parseColorString(category.color)),
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            // Default badge
-            if (isDefault) ...[
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'DEFAULT',
-                  style: TextStyle(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddCategoryCard(String type) {
-    return GestureDetector(
-      onTap: () => _showAddCategoryDialog(type: type),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: const Color(0xFF006E1F).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFF006E1F).withOpacity(0.3),
-            width: 2,
-            style: BorderStyle.solid,
-          ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: const BoxDecoration(
-                color: Color(0xFF006E1F),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.add, color: Colors.white, size: 32),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Add ${type.substring(0, 1).toUpperCase()}${type.substring(1)} Category',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF006E1F),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Create a custom category for your ${type}s',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -358,11 +274,6 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                   decoration: BoxDecoration(
                     color: Color(FormatUtils.parseColorString(category.color)),
                     shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _getIconData(category.icon),
-                    color: Colors.white,
-                    size: 20,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -481,7 +392,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        _getIconData(category.icon),
+                        Icons.category,
                         color: Colors.white,
                         size: 24,
                       ),
@@ -593,6 +504,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     );
   }
 
+  /* Temporarily commented out for refactoring
   void _showAddCategoryDialog({String? type}) {
     // Implementation for add category dialog
     // This would show a form to create a new category
@@ -604,6 +516,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
       ),
     );
   }
+  */
 
   void _showEditCategoryDialog(models.Category category) {
     // Implementation for edit category dialog
@@ -677,33 +590,5 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           ),
     );
   }
+}  // Close the _CategoriesScreenState class
 
-  IconData _getIconData(String iconName) {
-    // Map icon names to IconData
-    switch (iconName) {
-      case 'restaurant':
-        return Icons.restaurant;
-      case 'directions_car':
-        return Icons.directions_car;
-      case 'shopping_bag':
-        return Icons.shopping_bag;
-      case 'receipt':
-        return Icons.receipt;
-      case 'movie':
-        return Icons.movie;
-      case 'local_hospital':
-        return Icons.local_hospital;
-      case 'payment':
-        return Icons.payment;
-      case 'work_outline':
-        return Icons.work_outline;
-      case 'business':
-        return Icons.business;
-      case 'trending_up':
-        return Icons.trending_up;
-      case 'category':
-      default:
-        return Icons.category;
-    }
-  }
-}
