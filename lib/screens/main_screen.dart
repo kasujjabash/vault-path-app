@@ -7,7 +7,6 @@ import '../services/auth_service.dart';
 import '../services/firebase_sync_service.dart';
 import '../theme/app_theme.dart';
 import '../components/home_drawer.dart';
-import '../components/home_drawer.dart';
 
 /// Main screen with bottom navigation and drawer
 /// This screen manages navigation between different sections of the app

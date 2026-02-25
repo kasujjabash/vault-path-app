@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Custom Colors class to avoid conflicts
 class AppColors {
@@ -171,8 +172,6 @@ class AppTheme {
         onError: Colors.white,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkOnSurface,
-        background: AppColors.darkBackground,
-        onBackground: AppColors.darkOnBackground,
       ),
       textTheme: GoogleFonts.interTextTheme(
         ThemeData.dark().textTheme.apply(
@@ -283,7 +282,12 @@ class AppTheme {
 
 // Theme provider for switching between light and dark themes
 class ThemeProvider with ChangeNotifier {
+  static const String _themeKey = 'theme_mode';
   ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeProvider() {
+    _loadThemeMode();
+  }
 
   bool get isDarkMode {
     if (_themeMode == ThemeMode.system) {
@@ -298,11 +302,36 @@ class ThemeProvider with ChangeNotifier {
   void toggleTheme() {
     _themeMode =
         _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    _saveThemeMode();
     notifyListeners();
   }
 
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
+    _saveThemeMode();
     notifyListeners();
+  }
+
+  Future<void> _loadThemeMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedThemeIndex = prefs.getInt(_themeKey);
+      if (savedThemeIndex != null) {
+        _themeMode = ThemeMode.values[savedThemeIndex];
+        notifyListeners();
+      }
+    } catch (e) {
+      // Handle any errors and use default theme
+      _themeMode = ThemeMode.system;
+    }
+  }
+
+  Future<void> _saveThemeMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_themeKey, _themeMode.index);
+    } catch (e) {
+      // Handle save error silently
+    }
   }
 }

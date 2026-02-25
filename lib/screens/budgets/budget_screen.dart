@@ -159,7 +159,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     _receiveAlerts = value;
                   });
                 },
-                activeColor: const Color(0xFF006E1F),
+                activeThumbColor: const Color(0xFF006E1F),
               ),
             ],
           ),
@@ -758,7 +758,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
           else
             ...displayBudgets
                 .map((budget) => _buildBudgetCard(budget, provider))
-                .toList(),
+                ,
         ],
       ),
     );

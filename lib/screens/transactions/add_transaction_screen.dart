@@ -1913,7 +1913,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ),
               ],
             ),
-            content: Container(
+            content: SizedBox(
               width: double.maxFinite,
               height: 450,
               child:
@@ -1928,7 +1928,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No ${_transactionType} categories found',
+                            'No $_transactionType categories found',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey.shade600,
