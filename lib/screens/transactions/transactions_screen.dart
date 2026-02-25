@@ -50,9 +50,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             builder:
                 (context, setModalState) => Container(
                   height: MediaQuery.of(context).size.height * 0.8,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.surface,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
                     ),
@@ -64,18 +67,20 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         height: 4,
                         margin: const EdgeInsets.only(top: 12),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(20),
+                      Padding(
+                        padding: const EdgeInsets.all(20),
                         child: Text(
                           'Filter & Sort',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF006E1F),
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       ),
@@ -124,16 +129,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             setState(() {}); // Trigger rebuild with new filters
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF006E1F),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Apply Filters',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onSecondary,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -150,22 +156,25 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: true, // Handle keyboard properly
       appBar: AppBar(
-        backgroundColor: const Color(0xFF006E1F),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Transactions',
           style: TextStyle(
-            color: Colors.white,
+            color: Theme.of(context).appBarTheme.foregroundColor,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+            icon: Icon(
+              Icons.picture_as_pdf,
+              color: Theme.of(context).appBarTheme.foregroundColor,
+            ),
             onPressed: () async {
               final provider = Provider.of<ExpenseProvider>(
                 context,
@@ -176,7 +185,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             tooltip: 'Export to PDF',
           ),
           IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.white),
+            icon: Icon(
+              Icons.filter_list,
+              color: Theme.of(context).appBarTheme.foregroundColor,
+            ),
             onPressed: _showFilterModal,
             tooltip: 'Filter & Sort',
           ),
@@ -204,16 +216,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD4E5D3),
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Expanded(
                           child: Text(
                             'See your financial report',
                             style: TextStyle(
-                              color: Color(0xFF006E1F),
+                              color: Theme.of(context).colorScheme.onPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -221,7 +233,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         ),
                         Icon(
                           Icons.arrow_forward_ios,
-                          color: Color(0xFF006E1F),
+                          color: Theme.of(context).colorScheme.onPrimary,
                           size: 16,
                         ),
                       ],
@@ -234,11 +246,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
+                    color:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -283,7 +300,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -294,7 +313,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     decoration: InputDecoration(
                       hintText: 'Search your transactions...',
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade500,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.5),
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
                       ),
@@ -302,7 +323,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         padding: const EdgeInsets.all(12),
                         child: Icon(
                           Icons.search_rounded,
-                          color: Colors.grey.shade500,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.5),
                           size: 20,
                         ),
                       ),
@@ -319,32 +342,37 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                   padding: const EdgeInsets.all(12),
                                   child: Icon(
                                     Icons.clear_rounded,
-                                    color: Colors.grey.shade500,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.5),
                                     size: 18,
                                   ),
                                 ),
                               )
                               : null,
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor:
+                          Theme.of(context).brightness == Brightness.light
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: Colors.grey.shade200,
+                          color: Theme.of(context).colorScheme.outline,
                           width: 1,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: Colors.grey.shade200,
+                          color: Theme.of(context).colorScheme.outline,
                           width: 1,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF006E1F),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.secondary,
                           width: 2,
                         ),
                       ),
@@ -397,20 +425,29 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF006E1F) : Colors.white,
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.secondary
+                  : (Theme.of(context).brightness == Brightness.light
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.surface),
           borderRadius: BorderRadius.circular(12),
           boxShadow:
               isSelected
                   ? [
                     BoxShadow(
-                      color: const Color(0xFF006E1F).withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
                   ]
                   : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -424,14 +461,19 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               size: 14,
               color:
                   isSelected
-                      ? Colors.white
-                      : const Color(0xFF006E1F).withOpacity(0.7),
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : Theme.of(
+                        context,
+                      ).colorScheme.secondary.withOpacity(0.7),
             ),
             const SizedBox(width: 6),
             Text(
               period,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF006E1F),
+                color:
+                    isSelected
+                        ? Theme.of(context).colorScheme.onSecondary
+                        : Theme.of(context).colorScheme.secondary,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 fontSize: 13,
                 letterSpacing: 0.2,
@@ -456,10 +498,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF006E1F),
+            color: Theme.of(context).colorScheme.secondary,
           ),
         ),
         const SizedBox(height: 12),
@@ -482,14 +524,19 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     decoration: BoxDecoration(
                       color:
                           isSelected
-                              ? const Color(0xFF006E1F)
-                              : const Color(0xFFD4E5D3).withOpacity(0.3),
+                              ? Theme.of(context).colorScheme.secondary
+                              : (Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Colors.grey.shade100
+                                  : Theme.of(context).colorScheme.surface),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color:
                             isSelected
-                                ? const Color(0xFF006E1F)
-                                : const Color(0xFF006E1F).withOpacity(0.3),
+                                ? Theme.of(context).colorScheme.secondary
+                                : Theme.of(
+                                  context,
+                                ).colorScheme.secondary.withOpacity(0.3),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -497,7 +544,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       option,
                       style: TextStyle(
                         color:
-                            isSelected ? Colors.white : const Color(0xFF006E1F),
+                            isSelected
+                                ? Theme.of(context).colorScheme.onSecondary
+                                : Theme.of(context).colorScheme.secondary,
                         fontWeight:
                             isSelected ? FontWeight.w700 : FontWeight.w500,
                       ),
@@ -524,12 +573,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           children: [
             Row(
               children: [
-                const Text(
+                Text(
                   'Filter by Category',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF006E1F),
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
                 const Spacer(),
@@ -540,18 +589,24 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         _selectedCategories.clear();
                       });
                     },
-                    child: const Text(
+                    child: Text(
                       'Clear All',
-                      style: TextStyle(color: Color(0xFF006E1F)),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ),
               ],
             ),
             const SizedBox(height: 12),
             if (categories.isEmpty)
-              const Text(
+              Text(
                 'No categories available',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
               )
             else
               Wrap(
@@ -581,16 +636,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           decoration: BoxDecoration(
                             color:
                                 isSelected
-                                    ? const Color(0xFF006E1F)
-                                    : const Color(0xFFD4E5D3).withOpacity(0.3),
+                                    ? Theme.of(context).colorScheme.secondary
+                                    : (Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? Colors.grey.shade100
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.surface),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color:
                                   isSelected
-                                      ? const Color(0xFF006E1F)
-                                      : const Color(
-                                        0xFF006E1F,
-                                      ).withOpacity(0.3),
+                                      ? Theme.of(context).colorScheme.secondary
+                                      : Theme.of(
+                                        context,
+                                      ).colorScheme.secondary.withOpacity(0.3),
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -599,8 +659,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             style: TextStyle(
                               color:
                                   isSelected
-                                      ? Colors.white
-                                      : const Color(0xFF006E1F),
+                                      ? Theme.of(
+                                        context,
+                                      ).colorScheme.onSecondary
+                                      : Theme.of(context).colorScheme.secondary,
                               fontWeight:
                                   isSelected
                                       ? FontWeight.w700
@@ -729,28 +791,35 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(50),
                   ),
                   child: Icon(
                     Icons.search_off,
                     size: 50,
-                    color: Colors.grey.shade400,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.4),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'No Matches Found',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Try adjusting your search or filters',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -766,8 +835,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF006E1F),
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 12,
@@ -802,14 +871,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  const Color(0xFF006E1F).withOpacity(0.1),
-                  const Color(0xFFD4E5D3).withOpacity(0.3),
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                  Theme.of(context).colorScheme.primary.withOpacity(0.3),
                 ],
               ),
               borderRadius: BorderRadius.circular(90),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF006E1F).withOpacity(0.15),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withOpacity(0.15),
                   blurRadius: 30,
                   offset: const Offset(0, 15),
                 ),
@@ -825,7 +896,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF006E1F).withOpacity(0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),
@@ -837,7 +910,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     width: 35,
                     height: 35,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD4E5D3).withOpacity(0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.6),
                       borderRadius: BorderRadius.circular(17.5),
                     ),
                   ),
@@ -852,23 +927,30 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [Color(0xFF006E1F), Color(0xFF00A040)],
+                            colors: [
+                              Theme.of(context).colorScheme.secondary,
+                              Theme.of(
+                                context,
+                              ).colorScheme.secondary.withOpacity(0.8),
+                            ],
                           ),
                           borderRadius: BorderRadius.circular(25),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF006E1F).withOpacity(0.3),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.secondary.withOpacity(0.3),
                               blurRadius: 15,
                               offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.receipt_long_outlined,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSecondary,
                           size: 30,
                         ),
                       ),
@@ -894,15 +976,18 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           // Main heading with gradient text effect
           ShaderMask(
             shaderCallback:
-                (bounds) => const LinearGradient(
-                  colors: [Color(0xFF006E1F), Color(0xFF00A040)],
+                (bounds) => LinearGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.secondary,
+                    Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+                  ],
                 ).createShader(bounds),
-            child: const Text(
+            child: Text(
               '🎯 Ready to Track?',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 letterSpacing: -0.5,
               ),
               textAlign: TextAlign.center,
@@ -914,11 +999,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           // Beautiful description
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: const Text(
+            child: Text(
               'Your financial journey starts here!\nAdd your first transaction and watch your money insights come to life.',
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF666666),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 fontWeight: FontWeight.w500,
                 height: 1.4,
                 letterSpacing: 0.2,
@@ -941,14 +1026,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     context.push('/add-transaction');
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF006E1F),
-                    foregroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 8,
-                    shadowColor: const Color(0xFF006E1F).withOpacity(0.4),
+                    shadowColor: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withOpacity(0.4),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -957,13 +1044,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
                           size: 16,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSecondary,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -987,9 +1076,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 32),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9FA),
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE8F6E8), width: 1),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 1,
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -999,23 +1091,23 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE8F6E8),
+                            color: Theme.of(context).colorScheme.primary,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.lightbulb_outline,
                             size: 18,
-                            color: Color(0xFF006E1F),
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Quick Tips',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF006E1F),
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                         ),
@@ -1043,17 +1135,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF006E1F).withValues(alpha: 0.15),
+              color: Theme.of(context).colorScheme.secondary.withOpacity(0.15),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Icon(icon, color: const Color(0xFF006E1F), size: 20),
+        child: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.secondary,
+          size: 20,
+        ),
       ),
     );
   }
@@ -1069,9 +1165,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF666666),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1160,16 +1256,18 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         barrierDismissible: false,
         useRootNavigator: false,
         builder:
-            (BuildContext dialogContext) => const AlertDialog(
+            (BuildContext dialogContext) => AlertDialog(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(color: Color(0xFF006E1F)),
-                  SizedBox(height: 16),
+                  CircularProgressIndicator(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const SizedBox(height: 16),
                   Text(
                     'Generating PDF...',
                     style: TextStyle(
-                      color: Color(0xFF006E1F),
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

@@ -21,19 +21,28 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'All Budgets',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: const Color(0xFF006E1F),
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).appBarTheme.foregroundColor,
+        ),
+        title: Text(
+          'All Budgets',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).appBarTheme.foregroundColor,
+          ),
+        ),
         actions: [
           // Sort button only
           PopupMenuButton<String>(
-            icon: const Icon(Icons.sort, color: Colors.white),
+            icon: Icon(
+              Icons.sort,
+              color: Theme.of(context).appBarTheme.foregroundColor,
+            ),
             onSelected: (value) {
               setState(() {
                 _sortBy = value;
@@ -48,16 +57,16 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                           children: [
                             Icon(
                               _getSortIcon(option),
-                              color: const Color(0xFF006E1F),
+                              color: Theme.of(context).colorScheme.secondary,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
                             Text('Sort by $option'),
                             if (_sortBy == option) ...[
                               const Spacer(),
-                              const Icon(
+                              Icon(
                                 Icons.check,
-                                color: Color(0xFF006E1F),
+                                color: Theme.of(context).colorScheme.secondary,
                                 size: 16,
                               ),
                             ],
@@ -78,11 +87,11 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
+                  // color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Theme.of(context).shadowColor.withOpacity(0.04),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -168,20 +177,25 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF006E1F) : Colors.white,
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow:
               isSelected
                   ? [
                     BoxShadow(
-                      color: const Color(0xFF006E1F).withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
                   ]
                   : [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Theme.of(context).shadowColor.withOpacity(0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -195,8 +209,10 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
               size: 14,
               color:
                   isSelected
-                      ? Colors.white
-                      : const Color(0xFF006E1F).withOpacity(0.7),
+                      ? Theme.of(context).colorScheme.onSecondary
+                      : Theme.of(
+                        context,
+                      ).colorScheme.secondary.withOpacity(0.7),
             ),
             const SizedBox(width: 6),
             Text(
@@ -206,8 +222,10 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                 fontWeight: FontWeight.w600,
                 color:
                     isSelected
-                        ? Colors.white
-                        : const Color(0xFF006E1F).withOpacity(0.8),
+                        ? Theme.of(context).colorScheme.onSecondary
+                        : Theme.of(
+                          context,
+                        ).colorScheme.secondary.withOpacity(0.8),
               ),
             ),
           ],
@@ -242,20 +260,14 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color:
-            isExceeded
-                ? Colors.red.withOpacity(0.05)
-                : isNearLimit
-                ? Colors.orange.withOpacity(0.05)
-                : const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color:
               isExceeded
-                  ? Colors.red.withOpacity(0.3)
+                  ? Theme.of(context).colorScheme.error.withOpacity(0.3)
                   : isNearLimit
-                  ? Colors.orange.withOpacity(0.3)
-                  : Colors.grey.withOpacity(0.2),
+                  ? Theme.of(context).colorScheme.tertiary.withOpacity(0.3)
+                  : Theme.of(context).colorScheme.outline.withOpacity(0.2),
         ),
       ),
       child: Column(
@@ -266,10 +278,10 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
               Expanded(
                 child: Text(
                   budget.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A1A),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -280,13 +292,13 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
+                  child: Text(
                     'EXCEEDED',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onError,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -299,13 +311,13 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.orange,
+                    color: Theme.of(context).colorScheme.tertiary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
+                  child: Text(
                     'ALERT',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onTertiary,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -319,13 +331,14 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
           // Progress bar
           LinearProgressIndicator(
             value: progress.clamp(0.0, 1.0),
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor:
+                Theme.of(context).colorScheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(
               isExceeded
-                  ? Colors.red
+                  ? Theme.of(context).colorScheme.error
                   : isNearLimit
-                  ? Colors.orange
-                  : const Color(0xFF006E1F),
+                  ? Theme.of(context).colorScheme.tertiary
+                  : Theme.of(context).colorScheme.secondary,
             ),
           ),
 
@@ -336,11 +349,21 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
             children: [
               Text(
                 'Spent: ${FormatUtils.formatCurrency(budget.spent)}',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
               Text(
                 'Limit: ${FormatUtils.formatCurrency(budget.amount)}',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
             ],
           ),
@@ -352,7 +375,12 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                 '${(progress * 100).toStringAsFixed(1)}% used',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isExceeded ? Colors.red : Colors.grey.shade600,
+                  color:
+                      isExceeded
+                          ? Theme.of(context).colorScheme.error
+                          : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -362,8 +390,8 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                   fontSize: 12,
                   color:
                       budget.remaining > 0
-                          ? const Color(0xFF006E1F)
-                          : Colors.red,
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.error,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -385,7 +413,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
             Icon(
               Icons.account_balance_wallet_outlined,
               size: 80,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.outline,
             ),
             const SizedBox(height: 20),
             Text(
@@ -393,7 +421,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -401,19 +429,27 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
               _selectedMonth == 'All time'
                   ? 'Create your first budget to start tracking expenses'
                   : 'No budgets found for $_selectedMonth',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
+              icon: Icon(
+                Icons.add,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+              label: Text(
                 'Create Budget',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF006E1F),
+                backgroundColor: Theme.of(context).colorScheme.secondary,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 12,

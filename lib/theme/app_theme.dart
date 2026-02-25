@@ -60,9 +60,7 @@ class AppTheme {
         error: AppColors.error,
         onError: Colors.white,
         surface: const Color(0xFFD4E5D3), // Light Sage Green cards
-        onSurface: const Color(0xFF111827), // Charcoal text
-        background: const Color(0xFFFAFAFA), // Off White background
-        onBackground: const Color(0xFF111827),
+        onSurface: const Color(0xFF111827),
         surfaceContainer: const Color(
           0xFFD4E5D3,
         ), // Light Sage Green card backgrounds
@@ -191,8 +189,6 @@ class AppTheme {
         onError: Colors.white,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkOnSurface,
-        background: AppColors.darkBackground, // DARK THEME: Main background
-        onBackground: AppColors.darkOnBackground,
         surfaceContainer: AppColors.darkSurface, // DARK THEME: Card backgrounds
       ),
       textTheme: GoogleFonts.interTextTheme(

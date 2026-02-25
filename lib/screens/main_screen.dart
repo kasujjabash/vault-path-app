@@ -354,36 +354,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  /// Show sign out confirmation dialog
-  void _showSignOutDialog(AuthService authService) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Sign Out'),
-            content: const Text('Are you sure you want to sign out?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await authService.signOut();
-                  // Router will automatically redirect to login when auth state changes
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Sign Out'),
-              ),
-            ],
-          ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ExpenseProvider>(
