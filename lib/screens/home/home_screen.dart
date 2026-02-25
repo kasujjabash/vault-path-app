@@ -60,17 +60,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return Consumer<AuthService>(
       builder: (context, authService, child) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F9FA),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           drawer: const HomeDrawer(),
           appBar: AppBar(
-            backgroundColor: const Color(0xFF006E1F), // Dark green
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             elevation: 0,
             centerTitle: false,
             titleSpacing: 0,
-            title: const Text(
+            iconTheme: IconThemeData(
+              color: Theme.of(context).appBarTheme.foregroundColor,
+            ),
+            title: Text(
               'Vault Path',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).appBarTheme.foregroundColor,
                 // fontSize: 12,
                 fontWeight: FontWeight.w300,
               ),
@@ -81,9 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Stack(
                     children: [
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.notifications_outlined,
-                          color: Colors.white,
+                          color: Theme.of(context).appBarTheme.foregroundColor,
                         ),
                         onPressed: () {
                           context.push('/notifications');
@@ -96,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(2),
                             decoration: BoxDecoration(
-                              color: Colors.red,
+                              color: Theme.of(context).colorScheme.error,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             constraints: const BoxConstraints(
@@ -105,8 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Text(
                               '${notificationService.unreadCount}',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onError,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -173,10 +176,10 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF006E1F), // Green color
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         if (onViewAll != null)
@@ -185,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text(
               'View All',
               style: TextStyle(
-                color: const Color(0xFF006E1F), // Dark green
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -220,32 +223,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 180,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD4E5D3), // Light green background
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF006E1F).withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: const Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF006E1F), // Updated dark green
-                  ),
+                  child: CircularProgressIndicator(),
                 ),
+
               );
             }
 
             return Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFFD4E5D3), // Light green background
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF006E1F).withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -257,10 +259,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Balance',
                         style: TextStyle(
-                          color: Color(0xFF006E1F), // Updated dark green
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
                         ),
@@ -275,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           _isBalanceHidden
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
-                          color: const Color(0xFF006E1F), // Updated dark green
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -290,8 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                       color:
                           balance < 0
-                              ? Colors.red.shade700
-                              : const Color(0xFF006E1F),
+                              ? Theme.of(context).colorScheme.error
+                              : Theme.of(context).colorScheme.secondary,
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
                     ),
@@ -303,12 +305,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Total Income',
                               style: TextStyle(
-                                color: Color(
-                                  0xFF006E1F,
-                                ), // Updated dark green for labels
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -318,10 +318,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               _isBalanceHidden
                                   ? '*****'
                                   : FormatUtils.formatCurrency(totalIncome),
-                              style: const TextStyle(
-                                color: Color(
-                                  0xFF2E7D32,
-                                ), // Darker green for income
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -332,12 +330,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text(
+                          Text(
                             'Total Expense',
                             style: TextStyle(
-                              color: Color(
-                                0xFF006E1F,
-                              ), // Updated dark green for labels
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -347,8 +343,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             _isBalanceHidden
                                 ? '*****'
                                 : '- ${FormatUtils.formatCurrency(totalExpense)}',
-                            style: const TextStyle(
-                              color: Color(0xFFD32F2F), // Darker red
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -375,11 +371,11 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container(
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -390,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(
                   Icons.receipt_long_outlined,
                   size: 48,
-                  color: Colors.grey.shade400,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -398,13 +394,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade600,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Add your first transaction to get started',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  style: TextStyle(
+                    fontSize: 14, 
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                  ),
                 ),
               ],
             ),
@@ -443,6 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
       size: 250,
       showLegend: true,
       showCenterText: true,
+      
     );
   }
 
@@ -453,12 +453,13 @@ class _HomeScreenState extends State<HomeScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFF006E1F), width: 2),
+          border: Border.all(color: Theme.of(context).colorScheme.secondary, width: 2),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF006E1F).withOpacity(0.1),
+              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -475,20 +476,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF006E1F).withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.diamond,
-                        color: Color(0xFF006E1F),
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 24,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'Get Premium',
                       style: TextStyle(
-                        color: Color(0xFF006E1F),
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -501,13 +502,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF006E1F),
+                    color: Theme.of(context).colorScheme.secondary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
+                  child: Text(
                     'PREMIUM',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSecondary,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -516,10 +517,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Get Access to all feature & insights.\nUnlimited possibilities. No ads, more\nfeatures',
               style: TextStyle(
-                color: Color(0xFF006E1F),
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
                 height: 1.5,
               ),

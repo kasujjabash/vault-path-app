@@ -18,16 +18,22 @@ class AppColors {
   static const gradientEnd = Color(0xFF006E1F);
   static const gradientLight = Color(0xFFE8F6E8);
 
-  // Light theme colors
+  // ============================================================================
+  // LIGHT THEME COLORS - Only affects light mode
+  // ============================================================================
   static const lightBackground = Color(0xFFFAFAFA);
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightOnSurface = Color(0xFF111827);
   static const lightOnBackground = Color(0xFF111827);
 
-  // Dark theme colors
+  // ============================================================================
+  // DARK THEME COLORS - Only affects dark mode - EDIT THESE FOR DARK THEME
+  // ============================================================================
   static const darkBackground = Color(0xFF1C211B); // Dark green-gray background
   static const darkSurface = Color(0xFF2B3C29); // Card background
-  static const darkGreen = Color(0xFF7DDB7D); // Light green for dark theme
+  static const darkGreen = Color(
+    0xFF7DDB7D,
+  ); // DARK THEME: Primary accent color
   static const darkOnSurface = Color(0xFFFFFFFF);
   static const darkOnBackground = Color(0xFFFFFFFF);
 }
@@ -44,16 +50,22 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      scaffoldBackgroundColor: const Color(0xFFFAFAFA), // Off White background
       colorScheme: ColorScheme.light(
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
-        secondary: AppColors.primary, // Changed to green
+        primary: const Color(0xFFD4E5D3), // Light Sage Green
+        onPrimary: const Color(0xFF111827), // Charcoal text on light sage
+        secondary: const Color(0xFF006E1F), // Forest Green for accents
         onSecondary: Colors.white,
-        tertiary: AppColors.primaryLight, // Green tertiary
+        tertiary: AppColors.primaryLight, // Light green tertiary
         error: AppColors.error,
         onError: Colors.white,
-        surface: AppColors.lightSurface,
-        onSurface: AppColors.lightOnSurface,
+        surface: const Color(0xFFD4E5D3), // Light Sage Green cards
+        onSurface: const Color(0xFF111827), // Charcoal text
+        background: const Color(0xFFFAFAFA), // Off White background
+        onBackground: const Color(0xFF111827),
+        surfaceContainer: const Color(
+          0xFFD4E5D3,
+        ), // Light Sage Green card backgrounds
       ),
       textTheme: GoogleFonts.interTextTheme(
         ThemeData.light().textTheme.apply(
@@ -62,7 +74,7 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF006E1F), // Dark green
+        backgroundColor: const Color(0xFF006E1F), // Forest Green
         foregroundColor: Colors.white,
         elevation: 0,
         titleTextStyle: GoogleFonts.inter(
@@ -158,20 +170,30 @@ class AppTheme {
     );
   }
 
+  // ============================================================================
+  // DARK THEME IMPLEMENTATION - Only affects dark mode
+  // ============================================================================
+  // Edit colors below to customize dark theme appearance
+  // All colors reference AppColors.dark* constants defined above
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      scaffoldBackgroundColor:
+          AppColors.darkBackground, // DARK THEME: Scaffold background
       colorScheme: ColorScheme.dark(
         primary: AppColors.darkGreen,
         onPrimary: Colors.black,
-        secondary: AppColors.darkGreen, // Light green for dark theme
+        secondary: AppColors.darkGreen, // DARK THEME: Secondary color
         onSecondary: Colors.white,
-        tertiary: AppColors.darkGreen, // Light green tertiary
+        tertiary: AppColors.darkGreen, // DARK THEME: Tertiary color
         error: AppColors.error,
         onError: Colors.white,
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkOnSurface,
+        background: AppColors.darkBackground, // DARK THEME: Main background
+        onBackground: AppColors.darkOnBackground,
+        surfaceContainer: AppColors.darkSurface, // DARK THEME: Card backgrounds
       ),
       textTheme: GoogleFonts.interTextTheme(
         ThemeData.dark().textTheme.apply(
@@ -180,13 +202,14 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.darkGreen, // Light green for dark theme
-        foregroundColor: Colors.black,
+        backgroundColor:
+            AppColors.darkSurface, // DARK THEME: App bar matches cards
+        foregroundColor: AppColors.darkOnSurface, // DARK THEME: White text
         elevation: 0,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.black,
+          color: AppColors.darkOnSurface,
         ),
       ),
       cardTheme: const CardThemeData(
@@ -198,8 +221,8 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.darkGreen, // Light green for dark theme
-          foregroundColor: Colors.black,
+          backgroundColor: AppColors.darkGreen, // DARK THEME: Button background
+          foregroundColor: Colors.black, // DARK THEME: Button text color
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -212,8 +235,11 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.darkGreen, // Light green for dark theme
-          side: BorderSide(color: AppColors.darkGreen), // Light green border
+          foregroundColor:
+              AppColors.darkGreen, // DARK THEME: Outlined button text
+          side: BorderSide(
+            color: AppColors.darkGreen,
+          ), // DARK THEME: Button border
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -226,7 +252,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.darkSurface,
+        fillColor: AppColors.darkSurface, // DARK THEME: Input field background
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.grey),
@@ -238,16 +264,16 @@ class AppTheme {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppColors.darkGreen,
+            color: AppColors.darkGreen, // DARK THEME: Focused input border
             width: 2,
-          ), // Light green for dark theme
+          ),
         ),
         labelStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16),
         hintStyle: GoogleFonts.inter(color: Colors.grey[500], fontSize: 16),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: AppColors.darkGreen, // Light green for dark theme
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.darkGreen, // DARK THEME: FAB background
+        foregroundColor: Colors.black, // DARK THEME: FAB icon color
         shape: const CircleBorder(),
       ),
       checkboxTheme: CheckboxThemeData(
@@ -258,8 +284,8 @@ class AppTheme {
             return null;
           }
           if (states.contains(WidgetState.selected)) {
-            return AppColors.darkGreen;
-          } // Light green for dark theme
+            return AppColors.darkGreen; // DARK THEME: Selected checkbox color
+          }
           return null;
         }),
       ),
@@ -271,13 +297,18 @@ class AppTheme {
             return null;
           }
           if (states.contains(WidgetState.selected)) {
-            return AppColors.darkGreen;
-          } // Light green for dark theme
+            return AppColors
+                .darkGreen; // DARK THEME: Selected radio button color
+          }
           return null;
         }),
       ),
     );
   }
+
+  // ============================================================================
+  // END OF DARK THEME IMPLEMENTATION
+  // ============================================================================
 }
 
 // Theme provider for switching between light and dark themes

@@ -248,10 +248,10 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
                       children: [
                         Text(
                           category?.name ?? 'Transaction',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -259,7 +259,9 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
                           FormatUtils.formatDate(widget.transaction.date),
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade500,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.7),
                           ),
                         ),
                       ],
@@ -286,7 +288,9 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
                         FormatUtils.formatTime(widget.transaction.date),
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade500,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -294,7 +298,11 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
                 ],
               ),
               const SizedBox(height: 8),
-              Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
+              Divider(
+                height: 1,
+                thickness: 1,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+              ),
             ],
           ),
         ),

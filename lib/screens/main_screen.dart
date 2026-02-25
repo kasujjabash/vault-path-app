@@ -125,7 +125,16 @@ class _MainScreenState extends State<MainScreen> {
             vertical: 8,
           ),
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFFD4E5D3) : Colors.transparent,
+            color:
+                isActive
+                    ? (Theme.of(context).brightness == Brightness.light
+                        ? Theme.of(
+                          context,
+                        ).colorScheme.secondary.withOpacity(0.2)
+                        : Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.8))
+                    : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -134,7 +143,13 @@ class _MainScreenState extends State<MainScreen> {
               Icon(
                 isActive ? activeIcon : icon,
                 color:
-                    isActive ? const Color(0xFF006E1F) : Colors.grey.shade600,
+                    isActive
+                        ? (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.secondary)
+                        : Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
                 size: isSmallScreen ? 20 : 24,
               ),
               const SizedBox(height: 2),
@@ -144,8 +159,12 @@ class _MainScreenState extends State<MainScreen> {
                   style: TextStyle(
                     color:
                         isActive
-                            ? const Color(0xFF006E1F)
-                            : Colors.grey.shade600,
+                            ? (Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.secondary)
+                            : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                     fontSize: isSmallScreen ? 10 : 12,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   ),
@@ -174,13 +193,13 @@ class _MainScreenState extends State<MainScreen> {
             Container(
               width: isSmallScreen ? 36 : 40,
               height: isSmallScreen ? 36 : 40,
-              decoration: const BoxDecoration(
-                color: Color(0xFF006E1F),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.add,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSecondary,
                 size: isSmallScreen ? 20 : 24,
               ),
             ),
@@ -188,9 +207,12 @@ class _MainScreenState extends State<MainScreen> {
             Text(
               'Add',
               style: TextStyle(
-                color: const Color(0xFF006E1F),
+                color:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.secondary,
                 fontSize: isSmallScreen ? 10 : 12,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -395,7 +417,10 @@ class _MainScreenState extends State<MainScreen> {
           body: widget.child,
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color:
+                  Theme.of(context).brightness == Brightness.light
+                      ? Colors.white
+                      : Theme.of(context).colorScheme.surface,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),

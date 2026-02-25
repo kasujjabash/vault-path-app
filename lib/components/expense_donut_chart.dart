@@ -96,7 +96,7 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
           padding: const EdgeInsets.all(20),
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -214,9 +214,9 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
                   Expanded(
                     child: Text(
                       '${percentage.toStringAsFixed(1)}% - ${data.categoryName}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                       ),
@@ -249,18 +249,22 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'No Expenses Yet',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF006E1F),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Add some expenses to see\nyour spending breakdown',
-          style: TextStyle(fontSize: 14, color: Color(0xFF006E1F), height: 1.4),
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            height: 1.4,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
