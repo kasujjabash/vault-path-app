@@ -116,10 +116,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF006E1F),
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         title: const Text(
           'Analytics',
@@ -128,7 +128,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_today, color: Colors.white),
+            icon: Icon(
+              Icons.calendar_today,
+              color: Theme.of(context).appBarTheme.foregroundColor,
+            ),
             onPressed: _selectDate,
           ),
         ],
@@ -172,7 +175,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               },
               underline: const SizedBox.shrink(),
               icon: const Icon(Icons.keyboard_arrow_down, size: 16),
-              style: const TextStyle(color: Colors.black87, fontSize: 14),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 14,
+              ),
               items: const [
                 DropdownMenuItem(
                   value: 'Transactions',
@@ -204,7 +210,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           Row(
@@ -237,12 +243,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             Icon(
               Icons.analytics_outlined,
               size: 64,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
             ),
             const SizedBox(height: 16),
             Text(
               'No ${type == 'expense' ? 'expenses' : 'income'} data available',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
           ],
         ),
@@ -271,7 +280,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: Theme.of(context).colorScheme.surface,
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+        ),
         borderRadius: BorderRadius.circular(25),
       ),
       child: Row(
@@ -284,7 +296,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 decoration: BoxDecoration(
                   color:
                       _tabController.index == 0
-                          ? const Color(0xFF006E1F)
+                          ? Theme.of(context).colorScheme.primary
                           : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -293,7 +305,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color:
-                        _tabController.index == 0 ? Colors.white : Colors.black,
+                        _tabController.index == 0
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
@@ -309,7 +323,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 decoration: BoxDecoration(
                   color:
                       _tabController.index == 1
-                          ? const Color(0xFF006E1F)
+                          ? Theme.of(context).colorScheme.primary
                           : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -318,7 +332,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color:
-                        _tabController.index == 1 ? Colors.white : Colors.black,
+                        _tabController.index == 1
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
@@ -342,11 +358,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            Icon(Icons.receipt_long, size: 64, color: Colors.grey.shade400),
+            Icon(
+              Icons.receipt_long,
+              size: 64,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+            ),
             const SizedBox(height: 16),
             Text(
               'No recent $typeDisplayName transactions',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
           ],
         ),
@@ -364,7 +387,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
         ),
@@ -377,7 +400,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               (context, index) => Divider(
                 height: 1,
                 thickness: 1,
-                color: Colors.grey.shade300,
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
                 indent: 16,
                 endIndent: 16,
               ),
@@ -429,10 +452,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                       children: [
                         Text(
                           category?.name ?? 'Transaction',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -440,7 +463,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                           FormatUtils.formatDate(transaction.date),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -454,8 +479,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                       fontWeight: FontWeight.w600,
                       color:
                           type == 'expense'
-                              ? Colors.red
-                              : const Color(0xFF006E1F),
+                              ? Theme.of(context).colorScheme.error
+                              : Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ],
@@ -490,12 +515,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             Icon(
               Icons.analytics_outlined,
               size: 64,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
             ),
             const SizedBox(height: 16),
             Text(
               'No $typeDisplayName data available',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
           ],
         ),
@@ -515,7 +543,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               ),
             ),
           ),
@@ -540,7 +568,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                         ),
                         child: Icon(
                           _getCategoryIcon(category.categoryName.toLowerCase()),
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           size: 14,
                         ),
                       ),
@@ -548,20 +576,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                       // Category name
                       Text(
                         category.categoryName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const Spacer(),
-                      // Amount in red
+                      // Amount in theme color
                       Text(
                         FormatUtils.formatCurrency(category.amount),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.red,
+                          color: Theme.of(context).colorScheme.error,
                         ),
                       ),
                     ],
@@ -574,7 +602,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                         child: Container(
                           height: 6,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: Theme.of(context).colorScheme.outlineVariant,
                             borderRadius: BorderRadius.circular(3),
                           ),
                           child: FractionallySizedBox(
@@ -612,13 +640,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF006E1F) : Colors.grey.shade200,
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Icon(
           icon,
           size: 20,
-          color: isSelected ? Colors.white : Colors.grey.shade600,
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
         ),
       ),
     );
@@ -710,10 +744,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                               width: 70,
                               child: Text(
                                 data.categoryName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ),
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
@@ -725,7 +760,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                               FormatUtils.formatCurrencyCompact(data.amount),
                               style: TextStyle(
                                 fontSize: 9,
-                                color: Colors.grey.shade600,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
                               ),
                             ),
                           ],
@@ -915,7 +952,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
     if (maxY == 0) maxY = 100;
 
     // Color based on transaction type
-    final barColor = type == 'expense' ? Colors.red : const Color(0xFF006E1F);
+    final barColor =
+        type == 'expense'
+            ? Theme.of(context).colorScheme.error
+            : Theme.of(context).colorScheme.secondary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1121,18 +1161,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   Container(
                     width: 16,
                     height: 16,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.error,
+                      borderRadius: const BorderRadius.all(Radius.circular(2)),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Expenses',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -1143,18 +1183,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   Container(
                     width: 16,
                     height: 16,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF006E1F),
-                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: const BorderRadius.all(Radius.circular(2)),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
+                  Text(
                     'Income',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -1266,7 +1306,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                           // Expense bar (red)
                           BarChartRodData(
                             toY: expenseAmount,
-                            color: Colors.red,
+                            color: Theme.of(context).colorScheme.error,
                             width: 3,
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(2),
@@ -1276,7 +1316,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                           // Income bar (green)
                           BarChartRodData(
                             toY: incomeAmount,
-                            color: const Color(0xFF006E1F),
+                            color: Theme.of(context).colorScheme.secondary,
                             width: 3,
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(2),
