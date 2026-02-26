@@ -279,13 +279,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
   Widget _buildTabSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-        ),
-        borderRadius: BorderRadius.circular(25),
-      ),
       child: Row(
         children: [
           Expanded(
@@ -296,7 +289,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 decoration: BoxDecoration(
                   color:
                       _tabController.index == 0
-                          ? Theme.of(context).colorScheme.primary
+                          ? const Color(0xFF006E1F)
                           : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -306,7 +299,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   style: TextStyle(
                     color:
                         _tabController.index == 0
-                            ? Theme.of(context).colorScheme.onPrimary
+                            ? Colors.white
                             : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -323,7 +316,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 decoration: BoxDecoration(
                   color:
                       _tabController.index == 1
-                          ? Theme.of(context).colorScheme.primary
+                          ? const Color(0xFF006E1F)
                           : Colors.transparent,
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -333,7 +326,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   style: TextStyle(
                     color:
                         _tabController.index == 1
-                            ? Theme.of(context).colorScheme.onPrimary
+                            ? Colors.white
                             : Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
