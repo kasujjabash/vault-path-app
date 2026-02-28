@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
 import '../../services/currency_service.dart';
+import '../../services/firebase_sync_service.dart';
 import '../../utils/dialog_utils.dart';
 import '../../utils/custom_snackbar.dart';
 import '../../theme/app_theme.dart';
@@ -173,6 +174,43 @@ class _MoreScreenState extends State<MoreScreen> {
 
                 if (authService.isSignedIn) ...[
                   const SizedBox(height: 24),
+                  _buildSectionTitle(context, 'Data Sync'),
+                  const SizedBox(height: 12),
+
+                  Consumer<FirebaseSyncService>(
+                    builder: (context, syncService, child) {
+                      return _buildSettingsItem(
+                        context,
+                        icon:
+                            syncService.isSyncing
+                                ? Icons.sync
+                                : (syncService.isOnline
+                                    ? Icons.cloud_done
+                                    : Icons.cloud_off),
+                        title:
+                            syncService.isSyncing ? 'Syncing...' : 'Cloud Sync',
+                        subtitle:
+                            syncService.isSyncing
+                                ? 'Syncing your data to cloud'
+                                : (syncService.isOnline
+                                    ? 'Last synced: ${_getLastSyncText(syncService)}'
+                                    : 'Sync not available'),
+                        onTap: () => _showSyncDialog(context),
+                        trailing:
+                            syncService.isSyncing
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : null,
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
                   _buildSectionTitle(context, 'Account Actions'),
                   const SizedBox(height: 12),
 
@@ -210,8 +248,9 @@ class _MoreScreenState extends State<MoreScreen> {
     required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     bool isDestructive = false,
+    Widget? trailing,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -241,10 +280,17 @@ class _MoreScreenState extends State<MoreScreen> {
           ),
         ),
         subtitle: Text(subtitle),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-        ),
+        trailing:
+            trailing ??
+            Icon(
+              Icons.chevron_right,
+              color:
+                  isDestructive
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+            ),
         onTap: onTap,
       ),
     );
@@ -858,10 +904,106 @@ class _MoreScreenState extends State<MoreScreen> {
           ),
     );
   }
-}
 
-void showPremiumScreen(BuildContext context) {
-  Navigator.of(
-    context,
-  ).push(MaterialPageRoute(builder: (context) => const PremiumScreen()));
+  /// Get last sync text for display
+  String _getLastSyncText(FirebaseSyncService syncService) {
+    if (syncService.lastSyncTime == null) return 'Never';
+
+    final now = DateTime.now();
+    final difference = now.difference(syncService.lastSyncTime!);
+
+    if (difference.inMinutes < 1) return 'Just now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
+    if (difference.inHours < 24) return '${difference.inHours}h ago';
+    return '${difference.inDays}d ago';
+  }
+
+  /// Show sync dialog with manual sync option
+  void _showSyncDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Cloud Sync'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Your budget settings, transactions, and other data are automatically synced across all your devices.',
+                ),
+                const SizedBox(height: 16),
+                Consumer<FirebaseSyncService>(
+                  builder: (context, syncService, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Status: ${syncService.isOnline ? "Connected" : "Offline"}',
+                          style: TextStyle(
+                            color:
+                                syncService.isOnline
+                                    ? Colors.green
+                                    : Colors.orange,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        if (syncService.lastSyncTime != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Last sync: ${_getLastSyncText(syncService)}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+              Consumer<FirebaseSyncService>(
+                builder: (context, syncService, child) {
+                  return ElevatedButton(
+                    onPressed:
+                        syncService.isSyncing
+                            ? null
+                            : () async {
+                              Navigator.of(context).pop();
+
+                              // Show sync in progress
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Syncing your data...'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+
+                              // Trigger manual sync
+                              await FirebaseSyncService().forceSyncSettings();
+
+                              // Show result
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Sync completed!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            },
+                    child: Text(
+                      syncService.isSyncing ? 'Syncing...' : 'Sync Now',
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+    );
+  }
 }

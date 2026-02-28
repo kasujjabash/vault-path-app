@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:flutter/foundation.dart' hide Category;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/account.dart';
 import '../models/category.dart' as app_models;
 import '../models/transaction.dart' as app_models;
 import '../models/budget.dart';
 import '../database/data_repository.dart';
+import '../utils/app_constants.dart';
 
 /// Firebase Sync Service
 /// Handles synchronization between local database and Firestore
@@ -43,6 +45,7 @@ class FirebaseSyncService extends ChangeNotifier {
           'Firebase not available, sync service will remain offline: $e',
         );
         _isInitialized = true;
+        _isOnline = false;
         notifyListeners();
         return;
       }
@@ -68,32 +71,47 @@ class FirebaseSyncService extends ChangeNotifier {
         );
       }
 
-      // Listen for network connectivity changes
-      _firestore!
-          .enableNetwork()
-          .then((_) {
-            _isOnline = true;
-            notifyListeners();
-            _performInitialSync();
-          })
-          .catchError((e) {
-            debugPrint('Firestore network error: $e');
-            _isOnline = false;
-            notifyListeners();
+      // Test Firestore connection first
+      try {
+        await _firestore!
+            .doc('test/connection')
+            .get()
+            .timeout(const Duration(seconds: 5));
+        _isOnline = true;
+        debugPrint('Firestore connection test successful');
+      } catch (e) {
+        debugPrint('Firestore connection test failed: $e');
+        _isOnline = false;
 
-            // If it's a permission error, don't retry
-            if (e.toString().contains('PERMISSION_DENIED') ||
-                e.toString().contains(
-                  'Cloud Firestore API has not been used',
-                )) {
-              debugPrint('Firestore API not enabled - disabling sync service');
-              _isInitialized = false; // Prevent further initialization attempts
-              return;
-            }
-          });
+        // Check for specific permission/API errors
+        if (e.toString().contains('PERMISSION_DENIED') ||
+            e.toString().contains('Cloud Firestore API has not been used') ||
+            e.toString().contains('firestore.googleapis.com')) {
+          debugPrint(
+            'Firestore API not enabled - sync service will remain offline',
+          );
+          _isInitialized = true; // Mark as initialized but offline
+          notifyListeners();
+          return;
+        }
+      }
+
+      // Only try to enable network if we passed the connection test
+      if (_isOnline) {
+        try {
+          await _firestore!.enableNetwork();
+          _performInitialSync();
+        } catch (e) {
+          debugPrint('Failed to enable Firestore network: $e');
+          _isOnline = false;
+        }
+      }
 
       _isInitialized = true;
-      debugPrint('FirebaseSyncService initialized successfully');
+      debugPrint(
+        'FirebaseSyncService initialized successfully (Online: $_isOnline)',
+      );
+      notifyListeners();
     } catch (e) {
       debugPrint('Failed to initialize FirebaseSyncService: $e');
       _isInitialized = false;
@@ -114,10 +132,11 @@ class FirebaseSyncService extends ChangeNotifier {
 
       // If it's a permission error, disable sync service to prevent retries
       if (e.toString().contains('PERMISSION_DENIED') ||
-          e.toString().contains('Cloud Firestore API has not been used')) {
-        debugPrint('Disabling sync due to Firestore permission error');
+          e.toString().contains('Cloud Firestore API has not been used') ||
+          e.toString().contains('unavailable')) {
+        debugPrint('Disabling sync due to Firestore error: $e');
         _isOnline = false;
-        _isInitialized = false;
+        // Don't disable _isInitialized to allow retry later
         notifyListeners();
       }
     } finally {
@@ -127,12 +146,30 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Sync all data between local and remote
   Future<void> _syncAllData() async {
-    await Future.wait([
-      _syncAccounts(),
-      _syncCategories(),
-      _syncTransactions(),
-      _syncBudgets(),
-    ]);
+    if (!_isOnline || _currentUserId == null) {
+      debugPrint('Skipping sync - offline or no user');
+      return;
+    }
+
+    try {
+      await Future.wait([
+        _syncAccountsSafe(),
+        _syncCategoriesSafe(),
+        _syncTransactionsSafe(),
+        _syncBudgetsSafe(),
+        _syncUserSettingsSafe(),
+      ]);
+    } catch (e) {
+      debugPrint('Sync all data failed: $e');
+      // Check if it's a connectivity issue
+      if (e.toString().contains('unavailable') ||
+          e.toString().contains('UNAVAILABLE') ||
+          e.toString().contains('network')) {
+        _isOnline = false;
+        notifyListeners();
+      }
+      rethrow;
+    }
   }
 
   /// Set syncing state
@@ -494,6 +531,220 @@ class FirebaseSyncService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error deleting budget from Firebase: $e');
       // Don't rethrow - local deletion should still work even if Firebase deletion fails
+    }
+  }
+
+  // USER SETTINGS SYNC
+
+  /// Safe wrapper for syncing user settings
+  Future<void> _syncUserSettingsSafe() async {
+    try {
+      await _syncUserSettings();
+    } catch (e) {
+      debugPrint('Safe sync user settings failed: $e');
+      // Don't rethrow - continue with other syncs
+    }
+  }
+
+  /// Safe wrapper for syncing accounts
+  Future<void> _syncAccountsSafe() async {
+    try {
+      await _syncAccounts();
+    } catch (e) {
+      debugPrint('Safe sync accounts failed: $e');
+      // Don't rethrow - continue with other syncs
+    }
+  }
+
+  /// Safe wrapper for syncing categories
+  Future<void> _syncCategoriesSafe() async {
+    try {
+      await _syncCategories();
+    } catch (e) {
+      debugPrint('Safe sync categories failed: $e');
+      // Don't rethrow - continue with other syncs
+    }
+  }
+
+  /// Safe wrapper for syncing transactions
+  Future<void> _syncTransactionsSafe() async {
+    try {
+      await _syncTransactions();
+    } catch (e) {
+      debugPrint('Safe sync transactions failed: $e');
+      // Don't rethrow - continue with other syncs
+    }
+  }
+
+  /// Safe wrapper for syncing budgets
+  Future<void> _syncBudgetsSafe() async {
+    try {
+      await _syncBudgets();
+    } catch (e) {
+      debugPrint('Safe sync budgets failed: $e');
+      // Don't rethrow - continue with other syncs
+    }
+  }
+
+  /// Sync user settings between local SharedPreferences and Firebase
+  Future<void> _syncUserSettings() async {
+    if (_currentUserId == null || _firestore == null || !_isOnline) {
+      debugPrint('Skipping settings sync - no user, firestore, or offline');
+      return;
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final doc = _firestore!
+          .collection('users')
+          .doc(_currentUserId!)
+          .collection('settings')
+          .doc('preferences');
+
+      // Get remote settings with timeout
+      final remoteDoc = await doc.get().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException(
+            'Settings fetch timed out',
+            const Duration(seconds: 10),
+          );
+        },
+      );
+
+      if (remoteDoc.exists) {
+        // Remote settings exist - update local with remote (remote takes precedence)
+        final remoteData = remoteDoc.data();
+        if (remoteData != null) {
+          await prefs.setBool(
+            AppConstants.keyBudgetAlertsEnabled,
+            remoteData['budgetAlertsEnabled'] ?? true,
+          );
+          await prefs.setDouble(
+            AppConstants.keyBudgetAlertPercentage,
+            (remoteData['budgetAlertPercentage'] as num?)?.toDouble() ?? 80.0,
+          );
+          await prefs.setBool(
+            AppConstants.keyDarkMode,
+            remoteData['darkMode'] ?? false,
+          );
+          await prefs.setString(
+            AppConstants.keyDefaultCurrency,
+            remoteData['defaultCurrency'] ?? 'USD',
+          );
+          await prefs.setBool(
+            AppConstants.keyNotificationsEnabled,
+            remoteData['notificationsEnabled'] ?? true,
+          );
+          await prefs.setBool(
+            AppConstants.keyBiometricEnabled,
+            remoteData['biometricEnabled'] ?? false,
+          );
+          await prefs.setBool(
+            AppConstants.keyAutoBackup,
+            remoteData['autoBackup'] ?? false,
+          );
+
+          debugPrint('User settings synced from Firebase');
+        }
+      } else {
+        // No remote settings - upload current local settings
+        await _uploadUserSettings();
+      }
+    } catch (e) {
+      debugPrint('Error syncing user settings: $e');
+
+      // Handle specific Firebase errors
+      if (e.toString().contains('unavailable') ||
+          e.toString().contains('UNAVAILABLE') ||
+          e.toString().contains('timeout')) {
+        debugPrint('Firebase temporarily unavailable for settings sync');
+        _isOnline = false;
+        notifyListeners();
+      }
+
+      // Don't rethrow to prevent app crashes
+    }
+  }
+
+  /// Upload current local settings to Firebase
+  Future<void> _uploadUserSettings() async {
+    if (_currentUserId == null || _firestore == null || !_isOnline) {
+      debugPrint('Skipping settings upload - no user, firestore, or offline');
+      return;
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final doc = _firestore!
+          .collection('users')
+          .doc(_currentUserId!)
+          .collection('settings')
+          .doc('preferences');
+
+      final settingsData = {
+        'budgetAlertsEnabled':
+            prefs.getBool(AppConstants.keyBudgetAlertsEnabled) ?? true,
+        'budgetAlertPercentage':
+            prefs.getDouble(AppConstants.keyBudgetAlertPercentage) ?? 80.0,
+        'darkMode': prefs.getBool(AppConstants.keyDarkMode) ?? false,
+        'defaultCurrency':
+            prefs.getString(AppConstants.keyDefaultCurrency) ?? 'USD',
+        'notificationsEnabled':
+            prefs.getBool(AppConstants.keyNotificationsEnabled) ?? true,
+        'biometricEnabled':
+            prefs.getBool(AppConstants.keyBiometricEnabled) ?? false,
+        'autoBackup': prefs.getBool(AppConstants.keyAutoBackup) ?? false,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      };
+
+      await doc
+          .set(settingsData)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw TimeoutException(
+                'Settings upload timed out',
+                const Duration(seconds: 10),
+              );
+            },
+          );
+      debugPrint('User settings uploaded to Firebase');
+    } catch (e) {
+      debugPrint('Error uploading user settings: $e');
+
+      // Handle specific Firebase errors
+      if (e.toString().contains('unavailable') ||
+          e.toString().contains('UNAVAILABLE') ||
+          e.toString().contains('timeout')) {
+        debugPrint('Firebase temporarily unavailable for settings upload');
+        _isOnline = false;
+        notifyListeners();
+      }
+
+      // Don't rethrow to prevent app crashes
+    }
+  }
+
+  /// Force upload settings when they change locally
+  Future<void> syncSettingsToFirebase() async {
+    if (_isOnline && _currentUserId != null && _firestore != null) {
+      try {
+        await _uploadUserSettings();
+      } catch (e) {
+        debugPrint('Failed to sync settings to Firebase: $e');
+        // Don't rethrow to prevent app crashes
+      }
+    }
+  }
+
+  /// Manual settings sync for immediate updates
+  Future<void> forceSyncSettings() async {
+    try {
+      await _syncUserSettings();
+    } catch (e) {
+      debugPrint('Failed to force sync settings: $e');
+      // Don't rethrow to prevent app crashes
     }
   }
 }

@@ -20,6 +20,9 @@ class AppConstants {
   static const String keyBiometricEnabled = 'biometric_enabled';
   static const String keyAutoBackup = 'auto_backup';
   static const String keyPremiumUser = 'premium_user';
+  static const String keyBudgetAlertsEnabled = 'budget_alerts_enabled';
+  static const String keyBudgetAlertPercentage = 'budget_alert_percentage';
+  static const String keyLastSyncTime = 'last_sync_time';
 
   // Transaction Types
   static const String transactionTypeExpense = 'expense';

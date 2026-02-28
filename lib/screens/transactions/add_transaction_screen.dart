@@ -66,21 +66,27 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        elevation: 0,
+        centerTitle: false,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).appBarTheme.foregroundColor,
+        ),
         title: Text(
           'Add Transaction',
-          style: const TextStyle(
-            fontSize: 20,
+          style: TextStyle(
+            color: Theme.of(context).appBarTheme.foregroundColor,
+            fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: AppConstants.primaryColor,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppConstants.primaryColor),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).appBarTheme.foregroundColor,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        centerTitle: false,
       ),
       body: Consumer<ExpenseProvider>(
         builder: (context, expenseProvider, child) {
@@ -1619,7 +1625,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 12),

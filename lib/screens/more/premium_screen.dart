@@ -44,11 +44,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(AppConstants.borderRadiusLarge),
           topRight: Radius.circular(AppConstants.borderRadiusLarge),
         ),
@@ -61,7 +64,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: isDarkMode ? Colors.white54 : Colors.grey.shade300,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -103,6 +106,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Widget _buildHeader() {
+    final theme = Theme.of(context);
+
     return Container(
       padding: AppConstants.paddingMedium,
       child: Column(
@@ -145,7 +150,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             'Subscribe to get the full experience',
             style: TextStyle(
               fontSize: AppConstants.fontSizeLarge,
-              color: Colors.grey.shade600,
+              color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -155,15 +160,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Widget _buildFeaturesList() {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Premium Features',
           style: TextStyle(
             fontSize: AppConstants.fontSizeXLarge,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         const SizedBox(height: 16),
@@ -177,6 +184,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Widget _buildFeatureItem({required IconData icon, required String title}) {
+    final theme = Theme.of(context);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -203,10 +212,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppConstants.fontSizeLarge,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: theme.textTheme.bodyLarge?.color,
               ),
             ),
           ),
@@ -216,15 +225,17 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   Widget _buildPricingOptions() {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Choose Your Plan',
           style: TextStyle(
             fontSize: AppConstants.fontSizeXLarge,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
         const SizedBox(height: 16),
@@ -236,6 +247,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
   Widget _buildPricingOption(Map<String, dynamic> option) {
     final bool isSelected = _selectedPlan == option['id'];
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -247,13 +260,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? AppConstants.primaryColor.withOpacity(0.05)
-                  : Colors.white,
+          color: isDarkMode ? theme.colorScheme.surface : Colors.white,
           border: Border.all(
             color:
-                isSelected ? AppConstants.primaryColor : Colors.grey.shade300,
+                isSelected
+                    ? AppConstants.primaryColor
+                    : (isDarkMode
+                        ? theme.colorScheme.outline.withOpacity(0.3)
+                        : Colors.grey.shade300),
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
@@ -268,7 +282,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ]
                   : [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: (isDarkMode ? Colors.black : Colors.grey)
+                          .withOpacity(0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -286,7 +301,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   color:
                       isSelected
                           ? AppConstants.primaryColor
-                          : Colors.grey.shade400,
+                          : (isDarkMode
+                              ? theme.colorScheme.outline.withOpacity(0.5)
+                              : Colors.grey.shade400),
                   width: 2,
                 ),
               ),
@@ -313,10 +330,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 children: [
                   Text(
                     option['price'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppConstants.fontSizeXLarge,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: theme.textTheme.bodyLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -324,7 +341,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     option['description'],
                     style: TextStyle(
                       fontSize: AppConstants.fontSizeMedium,
-                      color: Colors.grey.shade600,
+                      color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                        0.7,
+                      ),
                     ),
                   ),
                 ],
@@ -334,10 +353,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
             // Period
             Text(
               option['period'],
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppConstants.fontSizeLarge,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: theme.textTheme.bodyLarge?.color,
               ),
             ),
           ],
@@ -383,7 +402,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
             'Maybe Later',
             style: TextStyle(
               fontSize: AppConstants.fontSizeMedium,
-              color: Colors.grey.shade600,
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withOpacity(0.7),
             ),
           ),
         ),

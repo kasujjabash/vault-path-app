@@ -22,6 +22,12 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    // Add listener to update UI when tab changes
+    _tabController.addListener(() {
+      setState(() {
+        // This will trigger a rebuild when tab index changes
+      });
+    });
   }
 
   @override
@@ -32,8 +38,11 @@ class _CategoriesScreenState extends State<CategoriesScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(
           'Categories',
@@ -56,7 +65,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           Container(
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color:
+                  isDarkMode ? theme.colorScheme.surface : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(25),
             ),
             child: Row(
@@ -80,7 +90,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                           color:
                               _tabController.index == 0
                                   ? Colors.white
-                                  : Colors.black,
+                                  : (isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black),
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -107,7 +119,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                           color:
                               _tabController.index == 1
                                   ? Colors.white
-                                  : Colors.black,
+                                  : (isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black),
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -262,10 +276,18 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   }
 
   void _showCategoryDetailDialog(models.Category category) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
+            backgroundColor:
+                isDarkMode ? theme.colorScheme.surface : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             title: Row(
               children: [
                 Container(
@@ -280,9 +302,10 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                 Expanded(
                   child: Text(
                     category.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
+                      color: theme.textTheme.titleLarge?.color,
                     ),
                   ),
                 ),
@@ -328,6 +351,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   }
 
   Widget _buildDetailRow(String label, String value) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -337,16 +362,19 @@ class _CategoriesScreenState extends State<CategoriesScreen>
             width: 80,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.grey,
+                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: theme.textTheme.bodyLarge?.color,
+              ),
             ),
           ),
         ],
@@ -355,15 +383,19 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   }
 
   void _showCategoryOptionsDialog(models.Category category) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder:
           (context) => Container(
             padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: theme.scaffoldBackgroundColor,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
@@ -375,7 +407,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: isDarkMode ? Colors.white54 : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -401,9 +433,10 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                     Expanded(
                       child: Text(
                         category.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
+                          color: theme.textTheme.titleLarge?.color,
                         ),
                       ),
                     ),
@@ -444,15 +477,19 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDestructive ? Colors.red.shade50 : Colors.grey.shade50,
+          color: isDarkMode ? theme.colorScheme.surface : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isDestructive ? Colors.red.shade200 : Colors.grey.shade200,
+            color: theme.colorScheme.outline.withOpacity(0.2),
+            width: 1,
           ),
         ),
         child: Row(
@@ -530,16 +567,29 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   }
 
   void _showDeleteCategoryDialog(models.Category category) {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text(
+            backgroundColor:
+                theme.brightness == Brightness.dark
+                    ? theme.colorScheme.surface
+                    : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
               'Delete Category',
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: theme.textTheme.titleLarge?.color,
+              ),
             ),
             content: Text(
               'Are you sure you want to delete "${category.name}"? This action cannot be undone.',
+              style: TextStyle(color: theme.textTheme.bodyMedium?.color),
             ),
             actions: [
               TextButton(
@@ -581,8 +631,11 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: theme.colorScheme.error,
                   foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: const Text('Delete'),
               ),

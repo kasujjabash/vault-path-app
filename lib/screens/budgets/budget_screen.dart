@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/expense_provider.dart';
 import '../../utils/format_utils.dart';
+import '../../utils/app_constants.dart';
 import '../../models/budget.dart';
+import '../../services/firebase_sync_service.dart';
+import '../../services/auth_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:go_router/go_router.dart';
 
@@ -43,6 +47,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
   @override
   void initState() {
     super.initState();
+    _loadBudgetSettings();
     _loadMonthlyIncome();
   }
 
@@ -64,6 +69,40 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return Theme.of(context).brightness == Brightness.light
         ? Colors.black.withOpacity(0.05)
         : Theme.of(context).colorScheme.secondary.withOpacity(0.1);
+  }
+
+  /// Load budget alert settings from SharedPreferences
+  Future<void> _loadBudgetSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _receiveAlerts =
+            prefs.getBool(AppConstants.keyBudgetAlertsEnabled) ?? true;
+        _alertPercentage =
+            prefs.getDouble(AppConstants.keyBudgetAlertPercentage) ?? 80.0;
+      });
+    } catch (e) {
+      debugPrint('Error loading budget settings: $e');
+    }
+  }
+
+  /// Save budget alert settings to SharedPreferences
+  Future<void> _saveBudgetSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(AppConstants.keyBudgetAlertsEnabled, _receiveAlerts);
+      await prefs.setDouble(
+        AppConstants.keyBudgetAlertPercentage,
+        _alertPercentage,
+      );
+
+      // Sync settings to Firebase if user is signed in
+      if (AuthService().isSignedIn) {
+        FirebaseSyncService().syncSettingsToFirebase();
+      }
+    } catch (e) {
+      debugPrint('Error saving budget settings: $e');
+    }
   }
 
   Future<void> _loadMonthlyIncome() async {
@@ -186,6 +225,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   setState(() {
                     _receiveAlerts = value;
                   });
+                  _saveBudgetSettings(); // Save when changed
                 },
                 activeThumbColor: Theme.of(context).colorScheme.secondary,
               ),
@@ -236,6 +276,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   setState(() {
                     _alertPercentage = value;
                   });
+                  _saveBudgetSettings(); // Save when changed
                 },
               ),
             ),

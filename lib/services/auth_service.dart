@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
+import 'firebase_sync_service.dart';
 
 /// Firebase Authentication Service
 /// Handles user authentication with email/password and Google Sign-In
@@ -99,6 +100,24 @@ class AuthService extends ChangeNotifier {
     _clearError();
     notifyListeners();
     debugPrint('Auth state changed: ${user?.email ?? 'signed out'}');
+
+    // Initialize or cleanup sync service based on auth state
+    if (user != null) {
+      // User signed in - initialize sync service
+      FirebaseSyncService()
+          .initialize(user.uid)
+          .then((_) {
+            debugPrint(
+              'Firebase sync service initialized for user: ${user.uid}',
+            );
+          })
+          .catchError((e) {
+            debugPrint('Failed to initialize sync service: $e');
+          });
+    } else {
+      // User signed out - cleanup sync service if needed
+      debugPrint('User signed out - sync service will be cleaned up');
+    }
   }
 
   /// Set email sign-in loading state

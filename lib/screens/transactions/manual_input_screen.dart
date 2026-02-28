@@ -38,16 +38,25 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text(
-          'Add Transaction',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color(0xFF006E1F), // Dark green
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        foregroundColor: Colors.white,
-        centerTitle: true,
+        centerTitle: false,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).appBarTheme.foregroundColor,
+        ),
+        title: Text(
+          'Add Transaction',
+          style: TextStyle(
+            color: Theme.of(context).appBarTheme.foregroundColor,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: Icon(
+            Icons.close,
+            color: Theme.of(context).appBarTheme.foregroundColor,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
@@ -367,7 +376,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1A1A),
+                    color: Colors.white,
                   ),
                 ),
               ),
