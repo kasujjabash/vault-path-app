@@ -25,8 +25,8 @@ class _MoreScreenState extends State<MoreScreen> {
       appBar: AppBar(
         title: const Text('Profile & Settings'),
         elevation: 0,
-        backgroundColor: const Color(0xFF006E1F), // Dark green
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
       ),
       body: Consumer<AuthService>(
         builder: (context, authService, child) {
@@ -40,21 +40,23 @@ class _MoreScreenState extends State<MoreScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
+                      color:
+                          Theme.of(context).brightness == Brightness.light
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: Theme.of(
                           context,
                         ).colorScheme.outline.withOpacity(0.2),
+                        width: 1,
                       ),
                     ),
                     child: Row(
                       children: [
                         CircleAvatar(
                           radius: 30,
-                          backgroundColor: const Color(
-                            0xFF006E1F,
-                          ), // Dark green
+                          backgroundColor: const Color(0xFF006E1F),
                           child: Text(
                             (authService.userDisplayName?.isNotEmpty ?? false)
                                 ? authService.userDisplayName![0].toUpperCase()
@@ -198,7 +200,7 @@ class _MoreScreenState extends State<MoreScreen> {
       title,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
         fontWeight: FontWeight.bold,
-        color: const Color(0xFF006E1F), // Dark green
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -214,10 +216,14 @@ class _MoreScreenState extends State<MoreScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color:
+            Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          width: 1,
         ),
       ),
       child: ListTile(
@@ -226,7 +232,7 @@ class _MoreScreenState extends State<MoreScreen> {
           color:
               isDestructive
                   ? Theme.of(context).colorScheme.error
-                  : const Color(0xFF006E1F), // Dark green
+                  : const Color(0xFF006E1F),
         ),
         title: Text(
           title,
@@ -235,7 +241,10 @@ class _MoreScreenState extends State<MoreScreen> {
           ),
         ),
         subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+        ),
         onTap: onTap,
       ),
     );
@@ -270,10 +279,14 @@ class _MoreScreenState extends State<MoreScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color:
+            Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          width: 1,
         ),
       ),
       child: ListTile(
@@ -320,19 +333,15 @@ class _MoreScreenState extends State<MoreScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF006E1F), Color(0xFF00A040)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color:
+            Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF006E1F).withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: const Color(0xFF006E1F).withOpacity(0.3),
+          width: 2,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -348,12 +357,12 @@ class _MoreScreenState extends State<MoreScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: const Color(0xFF006E1F).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.diamond,
-                    color: Colors.white,
+                    color: const Color(0xFF006E1F),
                     size: 28,
                   ),
                 ),
@@ -364,12 +373,12 @@ class _MoreScreenState extends State<MoreScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Vault Path Premium',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -377,7 +386,9 @@ class _MoreScreenState extends State<MoreScreen> {
                         'Unlock unlimited features',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -387,7 +398,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 // Arrow
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white.withOpacity(0.8),
+                  color: const Color(0xFF006E1F),
                   size: 18,
                 ),
               ],
@@ -403,15 +414,35 @@ class _MoreScreenState extends State<MoreScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Select Theme'),
+            backgroundColor:
+                Theme.of(context).brightness == Brightness.light
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.surface,
+            title: Text(
+              'Select Theme',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 RadioListTile<ThemeMode>(
-                  title: const Text('Light'),
-                  subtitle: const Text('Use light mode'),
+                  title: Text(
+                    'Light',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Use light mode',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
                   value: ThemeMode.light,
                   groupValue: themeProvider.themeMode,
+                  activeColor: const Color(0xFF006E1F),
                   onChanged: (value) {
                     if (value != null) {
                       themeProvider.setThemeMode(value);
@@ -420,10 +451,23 @@ class _MoreScreenState extends State<MoreScreen> {
                   },
                 ),
                 RadioListTile<ThemeMode>(
-                  title: const Text('Dark'),
-                  subtitle: const Text('Use dark mode'),
+                  title: Text(
+                    'Dark',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Use dark mode',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
                   value: ThemeMode.dark,
                   groupValue: themeProvider.themeMode,
+                  activeColor: const Color(0xFF006E1F),
                   onChanged: (value) {
                     if (value != null) {
                       themeProvider.setThemeMode(value);
@@ -432,10 +476,23 @@ class _MoreScreenState extends State<MoreScreen> {
                   },
                 ),
                 RadioListTile<ThemeMode>(
-                  title: const Text('System'),
-                  subtitle: const Text('Follow system settings'),
+                  title: Text(
+                    'System',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Follow system settings',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
                   value: ThemeMode.system,
                   groupValue: themeProvider.themeMode,
+                  activeColor: const Color(0xFF006E1F),
                   onChanged: (value) {
                     if (value != null) {
                       themeProvider.setThemeMode(value);
@@ -471,7 +528,12 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
                 DialogUtils.createDialogText(
                   'Email: ${authService.userEmail ?? 'N/A'}',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.6),
+                  ),
                 ),
               ],
             ),
@@ -514,24 +576,35 @@ class _MoreScreenState extends State<MoreScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withOpacity(0.2),
+                      width: 1,
+                    ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.email_outlined,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
                         size: 20,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           authService.userEmail ?? 'your email',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -614,7 +687,10 @@ class _MoreScreenState extends State<MoreScreen> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                color: Theme.of(context).colorScheme.surface,
+                color:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.surface,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -656,7 +732,10 @@ class _MoreScreenState extends State<MoreScreen> {
                                             currencyService.currentCurrency ==
                                                     currency
                                                 ? const Color(0xFF006E1F)
-                                                : Colors.grey.shade300,
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .outline
+                                                    .withOpacity(0.3),
                                         width:
                                             currencyService.currentCurrency ==
                                                     currency
@@ -701,7 +780,10 @@ class _MoreScreenState extends State<MoreScreen> {
                                               currencyService.currentCurrency ==
                                                       currency
                                                   ? const Color(0xFF006E1F)
-                                                  : Colors.grey.shade600,
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface
+                                                      .withOpacity(0.6),
                                         ),
                                       ),
                                       trailing:
@@ -761,7 +843,9 @@ class _MoreScreenState extends State<MoreScreen> {
                         child: Text(
                           'Close',
                           style: TextStyle(
-                            color: Colors.grey.shade700,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.8),
                             fontWeight: FontWeight.w600,
                           ),
                         ),

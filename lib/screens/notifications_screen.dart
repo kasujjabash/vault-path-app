@@ -30,19 +30,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         final notifications = notificationService.notifications;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F9FA),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF006E1F),
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             elevation: 0,
-            title: const Text(
+            title: Text(
               'Notifications',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).appBarTheme.foregroundColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).appBarTheme.foregroundColor,
+              ),
               onPressed: () => context.pop(),
             ),
           ),
@@ -74,7 +77,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Icon(
             Icons.notifications_none_outlined,
             size: 80,
-            color: Colors.grey.shade400,
+            color: Theme.of(
+              context,
+            ).colorScheme.onBackground.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -82,13 +87,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onBackground,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'You\'ll see updates about your finances here',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(
+                context,
+              ).colorScheme.onBackground.withValues(alpha: 0.6),
+            ),
           ),
         ],
       ),
@@ -145,7 +155,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Notification deleted'),
-                backgroundColor: const Color(0xFF006E1F),
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 4),
                 action: SnackBarAction(
@@ -161,23 +171,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         },
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color:
+                Theme.of(context).brightness == Brightness.light
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.08),
-                spreadRadius: 0,
-                blurRadius: 12,
-                offset: const Offset(0, 2),
-              ),
-            ],
-            border:
-                notification.isRead
-                    ? null
-                    : Border.all(
-                      color: const Color(0xFF006E1F).withOpacity(0.2),
-                      width: 1.5,
-                    ),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+              width: 1,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -232,7 +234,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     notification.isRead
                                         ? FontWeight.w600
                                         : FontWeight.bold,
-                                color: const Color(0xFF1A1A1A),
+                                color: Theme.of(context).colorScheme.onSurface,
                                 height: 1.2,
                               ),
                             ),
@@ -242,7 +244,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             _formatNotificationTime(notification.createdAt),
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade500,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -256,7 +260,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         notification.message,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade700,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.8),
                           height: 1.4,
                         ),
                       ),

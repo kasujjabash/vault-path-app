@@ -14,7 +14,7 @@ class HomeDrawer extends StatelessWidget {
     return Consumer2<AuthService, ExpenseProvider>(
       builder: (context, authService, expenseProvider, child) {
         return Drawer(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0,
           child: SafeArea(
             child: Column(
@@ -83,7 +83,9 @@ class HomeDrawer extends StatelessWidget {
                                 authService.userDisplayName ?? 'Welcome User',
                                 style: TextStyle(
                                   color:
-                                      Theme.of(context).colorScheme.onSurface,
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onBackground,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
@@ -98,7 +100,7 @@ class HomeDrawer extends StatelessWidget {
                                       Icons.email_rounded,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onSurface
+                                          .onBackground
                                           .withValues(alpha: 0.6),
                                       size: 14,
                                     ),
@@ -109,7 +111,7 @@ class HomeDrawer extends StatelessWidget {
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .onSurface
+                                              .onBackground
                                               .withValues(alpha: 0.7),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w400,
@@ -284,7 +286,7 @@ class HomeDrawer extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: Theme.of(context).colorScheme.onBackground,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -294,7 +296,7 @@ class HomeDrawer extends StatelessWidget {
                           fontSize: 12,
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ).colorScheme.onBackground.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -306,13 +308,15 @@ class HomeDrawer extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryDark.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 12,
-                    color: AppColors.primaryDark,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],
@@ -332,7 +336,9 @@ class HomeDrawer extends StatelessWidget {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: AppColors.primaryDark,
+          color: Theme.of(
+            context,
+          ).colorScheme.onBackground.withValues(alpha: 0.6),
           letterSpacing: 1.2,
         ),
       ),
@@ -368,7 +374,7 @@ class HomeDrawer extends StatelessWidget {
           children: [
             Icon(
               Icons.insights_rounded,
-              color: AppColors.primaryDark,
+              color: Theme.of(context).colorScheme.primary,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -377,7 +383,7 @@ class HomeDrawer extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppColors.primaryDark,
+                color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
           ],
@@ -435,7 +441,7 @@ class HomeDrawer extends StatelessWidget {
                 fontSize: 12,
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ).colorScheme.onBackground.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w500,
               ),
             ),
