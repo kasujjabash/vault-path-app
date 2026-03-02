@@ -282,9 +282,9 @@ class _MainScreenState extends State<MainScreen> {
                 icon: Icons.account_balance_wallet_outlined,
                 title: 'Add Account',
                 subtitle: 'Create new account',
+                isEnabled: false,
                 onTap: () {
-                  Navigator.pop(context);
-                  context.push('/add-account');
+                  // Account creation disabled
                 },
               ),
               const SizedBox(height: 20),
@@ -301,6 +301,7 @@ class _MainScreenState extends State<MainScreen> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    bool isEnabled = true,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -316,19 +317,39 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF006E1F)),
-        title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
+        leading: Icon(
+          icon,
+          color:
+              isEnabled
+                  ? const Color(0xFF006E1F)
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+        ),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color:
+                isEnabled
+                    ? null
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+          ),
+        ),
         subtitle: Text(
           subtitle,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color:
+                isEnabled
+                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
           ),
         ),
         trailing: Icon(
           Icons.chevron_right,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          color:
+              isEnabled
+                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
         ),
-        onTap: onTap,
+        onTap: isEnabled ? onTap : null,
       ),
     );
   }

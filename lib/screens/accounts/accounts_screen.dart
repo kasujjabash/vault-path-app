@@ -104,13 +104,11 @@ class _AccountsScreenState extends State<AccountsScreen> {
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: () {
-              _showAddAccountDialog();
-            },
+            onPressed: null, // Disabled
             icon: const Icon(Icons.add),
             label: const Text('Add First Account'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppConstants.primaryColor,
+              backgroundColor: Colors.grey,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
@@ -399,185 +397,12 @@ class _AccountsScreenState extends State<AccountsScreen> {
   }
 
   void _showAddAccountDialog() {
-    final nameController = TextEditingController();
-    final balanceController = TextEditingController();
-    final descriptionController = TextEditingController();
-    String selectedType = 'checking';
-    String selectedColor = '#6C63FF';
-    String selectedIcon = 'account_balance';
-    bool isPrimary = false;
-
-    showDialog(
-      context: context,
-      builder:
-          (context) => StatefulBuilder(
-            builder:
-                (context, setState) => DialogUtils.createModernDialog(
-                  title: 'Add New Account',
-                  titleIcon: Icons.add_card,
-                  content: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        DialogUtils.createDialogTextField(
-                          controller: nameController,
-                          labelText: 'Account Name',
-                          hintText: 'e.g., Main Checking',
-                          prefixIcon: Icons.account_balance,
-                        ),
-                        DialogUtils.createDialogDropdown<String>(
-                          value: selectedType,
-                          labelText: 'Account Type',
-                          prefixIcon: Icons.category_outlined,
-                          items: const [
-                            DropdownMenuItem(
-                              value: 'checking',
-                              child: Text('Checking'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'savings',
-                              child: Text('Savings'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'credit',
-                              child: Text('Credit Card'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'cash',
-                              child: Text('Cash'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'investment',
-                              child: Text('Investment'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              selectedType = value!;
-                            });
-                          },
-                        ),
-                        DialogUtils.createDialogTextField(
-                          controller: balanceController,
-                          labelText: 'Initial Balance',
-                          hintText: '0.00',
-                          prefixIcon: Icons.attach_money,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                            signed: true,
-                          ),
-                        ),
-                        DialogUtils.createDialogTextField(
-                          controller: descriptionController,
-                          labelText: 'Description (Optional)',
-                          hintText: 'Brief description of the account',
-                          prefixIcon: Icons.description_outlined,
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? Theme.of(context).colorScheme.surface
-                                    : Theme.of(
-                                      context,
-                                    ).colorScheme.surface.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.outline.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Checkbox(
-                                value: isPrimary,
-                                activeColor: AppConstants.primaryColor,
-                                onChanged: (value) {
-                                  setState(() {
-                                    isPrimary = value ?? false;
-                                  });
-                                },
-                              ),
-                              Expanded(
-                                child: Text(
-                                  'Set as primary account',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    DialogUtils.createSecondaryButton(
-                      text: 'Cancel',
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    const SizedBox(width: 8),
-                    DialogUtils.createPrimaryButton(
-                      text: 'Add Account',
-                      icon: Icons.add,
-                      onPressed: () {
-                        if (nameController.text.trim().isEmpty) {
-                          CustomSnackBar.showError(
-                            context,
-                            'Please enter an account name',
-                          );
-                          return;
-                        }
-
-                        final balance =
-                            double.tryParse(balanceController.text) ?? 0.0;
-                        final account = Account(
-                          id: DateTime.now().millisecondsSinceEpoch.toString(),
-                          name: nameController.text.trim(),
-                          type: selectedType,
-                          balance: balance,
-                          description:
-                              descriptionController.text.trim().isEmpty
-                                  ? null
-                                  : descriptionController.text.trim(),
-                          color: selectedColor,
-                          icon: selectedIcon,
-                          isPrimary: isPrimary,
-                          createdAt: DateTime.now(),
-                          updatedAt: DateTime.now(),
-                        );
-
-                        final navigator = Navigator.of(context);
-                        Provider.of<ExpenseProvider>(context, listen: false)
-                            .addAccount(account)
-                            .then((_) {
-                              if (mounted) {
-                                navigator.pop();
-                                CustomSnackBar.showSuccess(
-                                  context,
-                                  'Account added successfully!',
-                                );
-                              }
-                            })
-                            .catchError((error) {
-                              if (mounted) {
-                                CustomSnackBar.showError(
-                                  context,
-                                  'Error adding account: $error',
-                                );
-                              }
-                            });
-                      },
-                    ),
-                  ],
-                ),
-          ),
+    // Account creation temporarily disabled
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Account creation is currently disabled'),
+        backgroundColor: Colors.orange,
+      ),
     );
   }
 

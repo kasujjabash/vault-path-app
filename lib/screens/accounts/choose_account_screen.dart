@@ -101,7 +101,15 @@ class ChooseAccountScreen extends StatelessWidget {
                     'Create an account manually and add transactions using our calculator.',
                 icon: Icons.edit,
                 isPremium: false,
-                onTap: () => context.push('/manual-input'),
+                onTap: () {
+                  // Account creation temporarily disabled
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Account creation is currently disabled'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 32),
@@ -110,9 +118,9 @@ class ChooseAccountScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => context.push('/add-account'),
+                  onPressed: null, // Disabled
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppConstants.primaryColor,
+                    backgroundColor: Colors.grey,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
