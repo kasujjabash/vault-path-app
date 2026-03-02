@@ -64,7 +64,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
@@ -1384,10 +1384,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       children: [
         Text(
           'Transaction Type',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 16),
@@ -1516,10 +1516,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       children: [
         Text(
           'Amount',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 16),
@@ -1578,10 +1578,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       RegExp(r'^\d*\.?\d{0,2}'),
                     ),
                   ],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
                     hintText: '0.00',
@@ -1622,10 +1622,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       children: [
         Text(
           'Category',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -1664,8 +1664,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       fontWeight: FontWeight.w500,
                       color:
                           _selectedCategoryId != null
-                              ? Colors.black87
-                              : Colors.grey,
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.5),
                     ),
                   ),
                 ),
@@ -1704,10 +1706,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             Expanded(
               child: Text(
                 FormatUtils.formatDate(_selectedDate),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1736,10 +1738,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             Expanded(
               child: Text(
                 _repeatOption,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1761,10 +1763,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       children: [
         Text(
           'Payment Method',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -1789,10 +1791,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 Expanded(
                   child: Text(
                     _paymentMethod,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -1816,10 +1818,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       children: [
         Text(
           'Note (Optional)',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -1831,10 +1833,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           child: TextFormField(
             controller: _noteController,
             maxLines: 3,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             decoration: InputDecoration(
               hintText: 'Add a note...',
-              hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+              hintStyle: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.all(16),
             ),
@@ -1897,139 +1905,205 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: Row(
-              children: [
-                Text(
-                  'Select Category',
-                  style: TextStyle(
-                    color: AppConstants.primaryColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showCreateCategoryDialog();
-                  },
-                  icon: Icon(Icons.add, color: AppConstants.primaryColor),
-                  tooltip: 'Add New Category',
-                ),
-              ],
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            content: SizedBox(
-              width: double.maxFinite,
-              height: 450,
-              child:
-                  categories.isEmpty
-                      ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.category_outlined,
-                            size: 64,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No $_transactionType categories found',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Add one to get started',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _showCreateCategoryDialog();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppConstants.primaryColor,
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text('Add Category'),
-                          ),
-                        ],
-                      )
-                      : ListView.builder(
-                        itemCount: categories.length,
-                        itemBuilder: (context, index) {
-                          final category = categories[index];
-                          final isSelected = _selectedCategoryId == category.id;
-                          return ListTile(
-                            leading: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: Color(
-                                  FormatUtils.parseColorString(category.color),
-                                ),
-                                shape: BoxShape.circle,
-                                border:
-                                    isSelected
-                                        ? Border.all(
-                                          color: AppConstants.primaryColor,
-                                          width: 3,
-                                        )
-                                        : null,
-                              ),
-                              child: Icon(
-                                _getIconData(category.icon),
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                            title: Text(
-                              category.name,
-                              style: TextStyle(
-                                fontWeight:
-                                    isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                color:
-                                    isSelected
-                                        ? AppConstants.primaryColor
-                                        : Colors.black87,
-                              ),
-                            ),
-                            trailing:
-                                isSelected
-                                    ? Icon(
-                                      Icons.check,
-                                      color: AppConstants.primaryColor,
-                                    )
-                                    : null,
-                            onTap: () {
-                              setState(() {
-                                _selectedCategoryId = category.id;
-                              });
-                              Navigator.of(context).pop();
-                            },
-                          );
-                        },
-                      ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Close',
-                  style: TextStyle(color: AppConstants.primaryColor),
-                ),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.surface,
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.category_outlined,
+                        color: const Color(0xFF006E1F),
+                        size: 28,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Select Category',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF006E1F),
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showCreateCategoryDialog();
+                        },
+                        icon: Icon(Icons.add, color: const Color(0xFF006E1F)),
+                        tooltip: 'Add New Category',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.maxFinite,
+                    height: 400,
+                    child:
+                        categories.isEmpty
+                            ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.category_outlined,
+                                  size: 64,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.4),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No $_transactionType categories found',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Add one to get started',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.6),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _showCreateCategoryDialog();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF006E1F),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Add Category'),
+                                ),
+                              ],
+                            )
+                            : ListView.builder(
+                              itemCount: categories.length,
+                              itemBuilder: (context, index) {
+                                final category = categories[index];
+                                final isSelected =
+                                    _selectedCategoryId == category.id;
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).brightness ==
+                                                Brightness.light
+                                            ? Colors.white
+                                            : Theme.of(
+                                              context,
+                                            ).colorScheme.surface,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          isSelected
+                                              ? const Color(0xFF006E1F)
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .outline
+                                                  .withOpacity(0.2),
+                                      width: isSelected ? 2 : 1,
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    leading: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: Color(
+                                          FormatUtils.parseColorString(
+                                            category.color,
+                                          ),
+                                        ),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        _getIconData(category.icon),
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      category.name,
+                                      style: TextStyle(
+                                        fontWeight:
+                                            isSelected
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                        color:
+                                            isSelected
+                                                ? const Color(0xFF006E1F)
+                                                : Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    trailing:
+                                        isSelected
+                                            ? Icon(
+                                              Icons.check,
+                                              color: const Color(0xFF006E1F),
+                                            )
+                                            : Icon(
+                                              Icons.chevron_right,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.6),
+                                            ),
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedCategoryId = category.id;
+                                      });
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          'Close',
+                          style: TextStyle(
+                            color: const Color(0xFF006E1F),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
     );
   }
@@ -2043,84 +2117,171 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: const Text(
-              'Create Category',
-              style: TextStyle(
-                color: AppConstants.primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _categoryNameController,
-                    decoration: InputDecoration(
-                      labelText: 'Category Name',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.surface,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.add_circle_outline,
+                          color: const Color(0xFF006E1F),
+                          size: 28,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Create Category',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF006E1F),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    TextField(
+                      controller: _categoryNameController,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Category Name',
+                        labelStyle: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outline.withOpacity(0.5),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outline.withOpacity(0.3),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: const Color(0xFF006E1F),
+                            width: 2,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Color selection
-                  const Text('Choose Color'),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children:
-                        [
-                          Colors.red,
-                          Colors.blue,
-                          Colors.green,
-                          Colors.orange,
-                          Colors.purple,
-                          Colors.teal,
-                        ].map((color) {
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedCategoryColor = color;
-                              });
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: color,
-                                shape: BoxShape.circle,
-                                border:
-                                    _selectedCategoryColor == color
-                                        ? Border.all(
-                                          color: Colors.black,
-                                          width: 3,
-                                        )
-                                        : null,
+                    const SizedBox(height: 24),
+                    Text(
+                      'Choose Color',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children:
+                          [
+                            Colors.red,
+                            Colors.blue,
+                            Colors.green,
+                            Colors.orange,
+                            Colors.purple,
+                            Colors.teal,
+                          ].map((color) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedCategoryColor = color;
+                                });
+                              },
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                  border:
+                                      _selectedCategoryColor == color
+                                          ? Border.all(
+                                            color: const Color(0xFF006E1F),
+                                            width: 3,
+                                          )
+                                          : Border.all(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .outline
+                                                .withOpacity(0.2),
+                                            width: 1,
+                                          ),
+                                ),
                               ),
+                            );
+                          }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.7),
+                              fontWeight: FontWeight.w600,
                             ),
-                          );
-                        }).toList(),
-                  ),
-                ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: _createCustomCategory,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF006E1F),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text('Create'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: _createCustomCategory,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppConstants.primaryColor,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Create'),
-              ),
-            ],
           ),
     );
   }
@@ -2368,50 +2529,102 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: const Text(
-              'Payment Method',
-              style: TextStyle(
-                color: AppConstants.primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children:
-                  paymentMethods.map((method) {
-                    final isSelected = _paymentMethod == method['name'];
-                    return ListTile(
-                      leading: Icon(
-                        method['icon'] as IconData,
-                        color: AppConstants.primaryColor,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.surface,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.payment,
+                        color: const Color(0xFF006E1F),
+                        size: 28,
                       ),
-                      title: Text(
-                        method['name'] as String,
-                        style: TextStyle(
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color:
-                              isSelected
-                                  ? AppConstants.primaryColor
-                                  : Colors.black87,
+                      const SizedBox(width: 12),
+                      Text(
+                        'Payment Method',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF006E1F),
                         ),
                       ),
-                      trailing:
-                          isSelected
-                              ? Icon(
-                                Icons.check_circle,
-                                color: AppConstants.primaryColor,
-                              )
-                              : null,
-                      onTap: () {
-                        setState(() {
-                          _paymentMethod = method['name'] as String;
-                        });
-                        Navigator.pop(context);
-                      },
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ...paymentMethods.map((method) {
+                    final isSelected = _paymentMethod == method['name'];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color:
+                            Theme.of(context).brightness == Brightness.light
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color:
+                              isSelected
+                                  ? const Color(0xFF006E1F)
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.outline.withOpacity(0.2),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Icon(
+                          method['icon'] as IconData,
+                          color: const Color(0xFF006E1F),
+                        ),
+                        title: Text(
+                          method['name'] as String,
+                          style: TextStyle(
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w500,
+                            color:
+                                isSelected
+                                    ? const Color(0xFF006E1F)
+                                    : Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        trailing:
+                            isSelected
+                                ? Icon(
+                                  Icons.check,
+                                  color: const Color(0xFF006E1F),
+                                )
+                                : Icon(
+                                  Icons.chevron_right,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                        onTap: () {
+                          setState(() {
+                            _paymentMethod = method['name'] as String;
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
                     );
                   }).toList(),
+                ],
+              ),
             ),
           ),
     );
@@ -2424,50 +2637,102 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
-            title: const Text(
-              'Repeat Option',
-              style: TextStyle(
-                color: AppConstants.primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
+          (context) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children:
-                  repeatOptions.map((option) {
-                    final isSelected = _repeatOption == option;
-                    return ListTile(
-                      leading: Icon(
-                        _getRepeatIcon(option),
-                        color: AppConstants.primaryColor,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.surface,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.repeat,
+                        color: const Color(0xFF006E1F),
+                        size: 28,
                       ),
-                      title: Text(
-                        option,
-                        style: TextStyle(
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color:
-                              isSelected
-                                  ? AppConstants.primaryColor
-                                  : Colors.black87,
+                      const SizedBox(width: 12),
+                      Text(
+                        'Repeat Option',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF006E1F),
                         ),
                       ),
-                      trailing:
-                          isSelected
-                              ? Icon(
-                                Icons.check_circle,
-                                color: AppConstants.primaryColor,
-                              )
-                              : null,
-                      onTap: () {
-                        setState(() {
-                          _repeatOption = option;
-                        });
-                        Navigator.pop(context);
-                      },
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ...repeatOptions.map((option) {
+                    final isSelected = _repeatOption == option;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color:
+                            Theme.of(context).brightness == Brightness.light
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color:
+                              isSelected
+                                  ? const Color(0xFF006E1F)
+                                  : Theme.of(
+                                    context,
+                                  ).colorScheme.outline.withOpacity(0.2),
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Icon(
+                          _getRepeatIcon(option),
+                          color: const Color(0xFF006E1F),
+                        ),
+                        title: Text(
+                          option,
+                          style: TextStyle(
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w500,
+                            color:
+                                isSelected
+                                    ? const Color(0xFF006E1F)
+                                    : Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        trailing:
+                            isSelected
+                                ? Icon(
+                                  Icons.check,
+                                  color: const Color(0xFF006E1F),
+                                )
+                                : Icon(
+                                  Icons.chevron_right,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                        onTap: () {
+                          setState(() {
+                            _repeatOption = option;
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
                     );
                   }).toList(),
+                ],
+              ),
             ),
           ),
     );

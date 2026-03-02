@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../../services/currency_service.dart';
 import '../../services/firebase_sync_service.dart';
 import '../../utils/dialog_utils.dart';
+import '../../utils/premium_utils.dart';
 import '../../utils/custom_snackbar.dart';
 import '../../theme/app_theme.dart';
 import 'premium_screen.dart';
@@ -973,27 +974,49 @@ class _MoreScreenState extends State<MoreScreen> {
                         syncService.isSyncing
                             ? null
                             : () async {
+                              // Check premium access first
+                              if (!PremiumUtils.checkFirebaseSync(context)) {
+                                Navigator.of(context).pop();
+                                return;
+                              }
+
                               Navigator.of(context).pop();
 
-                              // Show sync in progress
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Syncing your data...'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-
-                              // Trigger manual sync
-                              await FirebaseSyncService().forceSyncSettings();
-
-                              // Show result
-                              if (context.mounted) {
+                              try {
+                                // Show sync in progress
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Sync completed!'),
-                                    backgroundColor: Colors.green,
+                                    content: Text('Syncing your data...'),
+                                    backgroundColor: Color(0xFF006E1F),
                                   ),
                                 );
+
+                                // Trigger manual sync
+                                await FirebaseSyncService().forceSyncSettings();
+
+                                // Show success result
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Sync completed successfully!',
+                                      ),
+                                      backgroundColor: Color(0xFF006E1F),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                // Show error
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Sync failed: ${e.toString()}',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               }
                             },
                     child: Text(

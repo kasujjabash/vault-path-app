@@ -10,6 +10,7 @@ import 'services/firebase_sync_service.dart';
 import 'services/currency_service.dart';
 import 'services/notification_service.dart';
 import 'services/ad_service.dart';
+import 'services/premium_service.dart';
 import 'router/app_router.dart';
 
 /// Main entry point of the Budjar expense tracker application
@@ -80,6 +81,9 @@ class VaultPathApp extends StatelessWidget {
         // Notification service - Initialize early
         ChangeNotifierProvider(create: (context) => NotificationService()),
 
+        // Premium service - Initialize early
+        ChangeNotifierProvider(create: (context) => PremiumService()),
+
         // Firebase sync service - conditional creation
         ChangeNotifierProvider(create: (context) => FirebaseSyncService()),
 
@@ -92,6 +96,7 @@ class VaultPathApp extends StatelessWidget {
           final authService = context.read<AuthService>();
           final currencyService = context.read<CurrencyService>();
           final notificationService = context.read<NotificationService>();
+          final premiumService = context.read<PremiumService>();
 
           // Initialize services in sequence to avoid race conditions
           if (!authService.isInitialized) {
@@ -99,6 +104,7 @@ class VaultPathApp extends StatelessWidget {
               try {
                 await authService.initialize(firebaseEnabled: firebaseEnabled);
                 await currencyService.initialize();
+                await premiumService.initialize();
 
                 if (!notificationService.isInitialized) {
                   await notificationService.initialize();

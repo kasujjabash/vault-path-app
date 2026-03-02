@@ -15,23 +15,23 @@ class CustomSnackBar {
 
     switch (type) {
       case SnackBarType.success:
-        backgroundColor = const Color(0xFF006E1F); // Dark green
-        textColor = Colors.white;
+        backgroundColor = Theme.of(context).colorScheme.primary;
+        textColor = Theme.of(context).colorScheme.onPrimary;
         icon = Icons.check_circle_outline;
         break;
       case SnackBarType.error:
-        backgroundColor = const Color(0xFFD32F2F); // Dark red
-        textColor = Colors.white;
+        backgroundColor = Theme.of(context).colorScheme.error;
+        textColor = Theme.of(context).colorScheme.onError;
         icon = Icons.error_outline;
         break;
       case SnackBarType.warning:
-        backgroundColor = const Color(0xFFF57C00); // Dark orange
+        backgroundColor = const Color(0xFFF57C00);
         textColor = Colors.white;
         icon = Icons.warning_outlined;
         break;
       case SnackBarType.info:
-        backgroundColor = const Color(0xFF006E1F); // Dark green
-        textColor = Colors.white;
+        backgroundColor = Theme.of(context).colorScheme.primary;
+        textColor = Theme.of(context).colorScheme.onPrimary;
         icon = Icons.info_outline;
         break;
     }

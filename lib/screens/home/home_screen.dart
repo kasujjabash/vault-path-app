@@ -218,6 +218,16 @@ class _HomeScreenState extends State<HomeScreen> {
             final totalExpense = snapshot.data?[1] ?? 0.0;
             final balance = totalIncome - totalExpense;
 
+            // Debug: Log balance calculation
+            debugPrint(
+              'Balance calculation - Income: $totalIncome, Expense: $totalExpense, Balance: $balance',
+            );
+
+            // Debug: Log balance calculation
+            debugPrint(
+              'Balance calculation - Income: $totalIncome, Expense: $totalExpense, Balance: $balance',
+            );
+
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Container(
                 height: 180,
@@ -227,16 +237,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withOpacity(0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-
+                child: const Center(child: CircularProgressIndicator()),
               );
             }
 
@@ -247,7 +256,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -375,7 +386,9 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -386,7 +399,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(
                   Icons.receipt_long_outlined,
                   size: 48,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.4),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -401,8 +416,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'Add your first transaction to get started',
                   style: TextStyle(
-                    fontSize: 14, 
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                    fontSize: 14,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
               ],
@@ -442,7 +459,6 @@ class _HomeScreenState extends State<HomeScreen> {
       size: 250,
       showLegend: true,
       showCenterText: true,
-      
     );
   }
 
@@ -453,10 +469,12 @@ class _HomeScreenState extends State<HomeScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Theme.of(context).colorScheme.secondary, width: 2),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.secondary,
+            width: 2,
+          ),
           boxShadow: [
             BoxShadow(
               color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
@@ -476,7 +494,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.secondary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(

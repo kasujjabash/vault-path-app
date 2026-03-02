@@ -594,9 +594,11 @@ class _CategoriesScreenState extends State<CategoriesScreen>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
+                child: Text(
                   'Cancel',
-                  style: TextStyle(color: Color(0xFF006E1F)),
+                  style: TextStyle(
+                    color: theme.textTheme.bodyLarge?.color?.withOpacity(0.6),
+                  ),
                 ),
               ),
               ElevatedButton(

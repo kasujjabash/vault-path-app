@@ -20,11 +20,11 @@ class _AccountsScreenState extends State<AccountsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Accounts'),
-        backgroundColor: const Color(0xFF006E1F), // Dark green
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         actions: [
           IconButton(
@@ -82,7 +82,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
           Icon(
             Icons.account_balance_wallet_outlined,
             size: 80,
-            color: Colors.grey.shade400,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
           ),
           const SizedBox(height: 24),
           Text(
@@ -90,7 +90,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
             style: TextStyle(
               fontSize: AppConstants.fontSizeXXLarge,
               fontWeight: FontWeight.bold,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 12),
@@ -98,7 +98,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
             'Add your first account to start tracking your finances',
             style: TextStyle(
               fontSize: AppConstants.fontSizeMedium,
-              color: Colors.grey.shade500,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             ),
             textAlign: TextAlign.center,
           ),
@@ -127,11 +127,11 @@ class _AccountsScreenState extends State<AccountsScreen> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF006E1F), // Solid dark green
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusMedium),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF006E1F).withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -144,14 +144,16 @@ class _AccountsScreenState extends State<AccountsScreen> {
             children: [
               Icon(
                 Icons.account_balance_wallet,
-                color: Colors.white.withOpacity(0.9),
+                color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
                 size: AppConstants.iconSizeMedium,
               ),
               const SizedBox(width: 12),
               Text(
                 'Total Balance',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onPrimary.withOpacity(0.9),
                   fontSize: AppConstants.fontSizeLarge,
                   fontWeight: FontWeight.w500,
                 ),
@@ -161,8 +163,8 @@ class _AccountsScreenState extends State<AccountsScreen> {
           const SizedBox(height: 12),
           Text(
             FormatUtils.formatCurrency(totalBalance),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
               fontSize: AppConstants.fontSizeXXXLarge,
               fontWeight: FontWeight.bold,
             ),
@@ -171,7 +173,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
           Text(
             '${provider.accounts.length} ${provider.accounts.length == 1 ? 'Account' : 'Accounts'}',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
               fontSize: AppConstants.fontSizeMedium,
             ),
           ),
@@ -208,9 +210,10 @@ class _AccountsScreenState extends State<AccountsScreen> {
         ),
         title: Text(
           account.name,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: AppConstants.fontSizeLarge,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -225,7 +228,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
                   child: Text(
                     account.type.toUpperCase(),
                     style: TextStyle(
-                      color: Colors.grey.shade600,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                       fontSize: AppConstants.fontSizeSmall,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -263,7 +268,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
               Text(
                 account.description!,
                 style: TextStyle(
-                  color: Colors.grey.shade500,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.5),
                   fontSize: AppConstants.fontSizeSmall,
                 ),
                 maxLines: 2,
@@ -294,7 +301,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
                 Text(
                   'Balance',
                   style: TextStyle(
-                    color: Colors.grey.shade500,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withOpacity(0.5),
                     fontSize: AppConstants.fontSizeSmall,
                   ),
                 ),
@@ -302,7 +311,10 @@ class _AccountsScreenState extends State<AccountsScreen> {
             ),
             const SizedBox(width: 8),
             PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, color: Colors.grey.shade600),
+              icon: Icon(
+                Icons.more_vert,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
               onSelected: (value) {
                 switch (value) {
                   case 'edit':
@@ -465,9 +477,18 @@ class _AccountsScreenState extends State<AccountsScreen> {
                           margin: const EdgeInsets.only(bottom: 16),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? Theme.of(context).colorScheme.surface
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.surface.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outline.withOpacity(0.3),
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -485,7 +506,8 @@ class _AccountsScreenState extends State<AccountsScreen> {
                                   'Set as primary account',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.grey.shade700,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -623,12 +645,19 @@ class _AccountsScreenState extends State<AccountsScreen> {
                 '$label:',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             ),
             Expanded(
-              child: Text(value, style: TextStyle(color: Colors.grey.shade800)),
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
             ),
           ],
         ),

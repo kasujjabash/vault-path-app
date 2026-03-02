@@ -12,15 +12,19 @@ class ChooseAccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Add Account',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).appBarTheme.foregroundColor,
+          ),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        foregroundColor: Color(0xFF1A1A1A),
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         centerTitle: true,
       ),
       body: SafeArea(
@@ -35,13 +39,18 @@ class ChooseAccountScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A1A),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Select how you\'d like to add your account',
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
               const SizedBox(height: 32),
 
@@ -148,7 +157,10 @@ class ChooseAccountScreen extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color:
+              Theme.of(context).brightness == Brightness.light
+                  ? Colors.white
+                  : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border:
               isPremium
@@ -156,10 +168,14 @@ class ChooseAccountScreen extends StatelessWidget {
                     color: AppColors.primary.withOpacity(0.3),
                     width: 2,
                   )
-                  : Border.all(color: Colors.grey.shade200),
+                  : Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withOpacity(0.2),
+                  ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -199,7 +215,7 @@ class ChooseAccountScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       if (isPremium) ...[
@@ -230,7 +246,9 @@ class ChooseAccountScreen extends StatelessWidget {
                     description,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade600,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                       height: 1.3,
                     ),
                   ),
@@ -242,7 +260,7 @@ class ChooseAccountScreen extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               size: 16,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
             ),
           ],
         ),
@@ -279,12 +297,12 @@ class ChooseAccountScreen extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
               const SizedBox(height: 8),
-              _buildFeatureItem('🏦 Bank account synchronization'),
-              _buildFeatureItem('📈 Investment portfolio tracking'),
-              _buildFeatureItem('📁 File import capabilities'),
-              _buildFeatureItem('📊 Advanced analytics & reports'),
-              _buildFeatureItem('♾️ Unlimited accounts & categories'),
-              _buildFeatureItem('☁️ Cloud sync across devices'),
+              _buildFeatureItem(context, '🏦 Bank account synchronization'),
+              _buildFeatureItem(context, '📈 Investment portfolio tracking'),
+              _buildFeatureItem(context, '📁 File import capabilities'),
+              _buildFeatureItem(context, '📊 Advanced analytics & reports'),
+              _buildFeatureItem(context, '♾️ Unlimited accounts & categories'),
+              _buildFeatureItem(context, '☁️ Cloud sync across devices'),
             ],
           ),
           actions: [
@@ -292,7 +310,11 @@ class ChooseAccountScreen extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 'Maybe Later',
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
             ),
             ElevatedButton(
@@ -319,12 +341,15 @@ class ChooseAccountScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem(String text) {
+  Widget _buildFeatureItem(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Text(
         text,
-        style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+        style: TextStyle(
+          fontSize: 14,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+        ),
       ),
     );
   }

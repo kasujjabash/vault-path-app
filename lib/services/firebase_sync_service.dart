@@ -8,6 +8,7 @@ import '../models/transaction.dart' as app_models;
 import '../models/budget.dart';
 import '../database/data_repository.dart';
 import '../utils/app_constants.dart';
+import 'premium_service.dart';
 
 /// Firebase Sync Service
 /// Handles synchronization between local database and Firestore
@@ -37,6 +38,19 @@ class FirebaseSyncService extends ChangeNotifier {
     if (_isInitialized) return;
 
     try {
+      _currentUserId = userId;
+      await _localRepo.initialize();
+
+      // Check premium status first
+      final premiumService = PremiumService();
+      if (!premiumService.canUseFirebaseSync()) {
+        debugPrint('Firebase sync not available - premium feature only');
+        _isInitialized = true;
+        _isOnline = false;
+        notifyListeners();
+        return;
+      }
+
       // Check if Firebase is available before accessing Firestore
       try {
         _firestore = FirebaseFirestore.instance;
@@ -49,9 +63,6 @@ class FirebaseSyncService extends ChangeNotifier {
         notifyListeners();
         return;
       }
-
-      _currentUserId = userId;
-      await _localRepo.initialize();
 
       // Enable Firestore offline persistence (different methods for web vs mobile)
       try {
@@ -83,12 +94,15 @@ class FirebaseSyncService extends ChangeNotifier {
         debugPrint('Firestore connection test failed: $e');
         _isOnline = false;
 
-        // Check for specific permission/API errors
+        // Check for specific errors that indicate permanent or temporary issues
         if (e.toString().contains('PERMISSION_DENIED') ||
             e.toString().contains('Cloud Firestore API has not been used') ||
-            e.toString().contains('firestore.googleapis.com')) {
+            e.toString().contains('firestore.googleapis.com') ||
+            e.toString().contains('offline') ||
+            e.toString().contains('unavailable') ||
+            e.toString().contains('client is offline')) {
           debugPrint(
-            'Firestore API not enabled - sync service will remain offline',
+            'Firestore API not enabled or offline - sync service will remain offline',
           );
           _isInitialized = true; // Mark as initialized but offline
           notifyListeners();
@@ -130,10 +144,12 @@ class FirebaseSyncService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Initial sync failed: $e');
 
-      // If it's a permission error, disable sync service to prevent retries
+      // If it's a permission error or offline error, disable sync service to prevent retries
       if (e.toString().contains('PERMISSION_DENIED') ||
           e.toString().contains('Cloud Firestore API has not been used') ||
-          e.toString().contains('unavailable')) {
+          e.toString().contains('unavailable') ||
+          e.toString().contains('offline') ||
+          e.toString().contains('client is offline')) {
         debugPrint('Disabling sync due to Firestore error: $e');
         _isOnline = false;
         // Don't disable _isInitialized to allow retry later
@@ -191,26 +207,40 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Sync accounts between local and remote
   Future<void> _syncAccounts() async {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null || !_isOnline) {
+      debugPrint('Skipping account sync - offline or no user');
+      return;
+    }
 
     final collection = _getUserCollection('accounts');
     if (collection == null) return;
 
-    final localAccounts = await _localRepo.getAccounts();
-    final remoteSnapshot = await collection.get();
+    try {
+      final localAccounts = await _localRepo.getAccounts();
+      final remoteSnapshot = await collection.get();
 
-    final remoteAccounts =
-        remoteSnapshot.docs
-            .map(
-              (doc) => Account.fromMap({
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id,
-              }),
-            )
-            .toList();
+      final remoteAccounts =
+          remoteSnapshot.docs
+              .map(
+                (doc) => Account.fromMap({
+                  ...doc.data() as Map<String, dynamic>,
+                  'id': doc.id,
+                }),
+              )
+              .toList();
 
-    // Merge accounts (remote takes precedence for conflicts)
-    await _mergeAccounts(localAccounts, remoteAccounts, collection);
+      // Merge accounts (remote takes precedence for conflicts)
+      await _mergeAccounts(localAccounts, remoteAccounts, collection);
+    } catch (e) {
+      debugPrint('Failed to sync accounts: $e');
+      // If it's an offline error, update our online status
+      if (e.toString().contains('offline') ||
+          e.toString().contains('unavailable')) {
+        _isOnline = false;
+        notifyListeners();
+      }
+      // Don't rethrow - let the safe wrapper handle it
+    }
   }
 
   /// Merge local and remote accounts
@@ -252,25 +282,39 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Sync categories between local and remote
   Future<void> _syncCategories() async {
-    if (_currentUserId == null || !_isInitialized) return;
+    if (_currentUserId == null || !_isOnline) {
+      debugPrint('Skipping category sync - offline or no user');
+      return;
+    }
 
     final collection = _getUserCollection('categories');
     if (collection == null) return;
 
-    final localCategories = await _localRepo.getCategories();
-    final remoteSnapshot = await collection.get();
+    try {
+      final localCategories = await _localRepo.getCategories();
+      final remoteSnapshot = await collection.get();
 
-    final remoteCategories =
-        remoteSnapshot.docs
-            .map(
-              (doc) => app_models.Category.fromMap({
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id,
-              }),
-            )
-            .toList();
+      final remoteCategories =
+          remoteSnapshot.docs
+              .map(
+                (doc) => app_models.Category.fromMap({
+                  ...doc.data() as Map<String, dynamic>,
+                  'id': doc.id,
+                }),
+              )
+              .toList();
 
-    await _mergeCategories(localCategories, remoteCategories, collection);
+      await _mergeCategories(localCategories, remoteCategories, collection);
+    } catch (e) {
+      debugPrint('Failed to sync categories: $e');
+      // If it's an offline error, update our online status
+      if (e.toString().contains('offline') ||
+          e.toString().contains('unavailable')) {
+        _isOnline = false;
+        notifyListeners();
+      }
+      // Don't rethrow - let the safe wrapper handle it
+    }
   }
 
   /// Merge local and remote categories
@@ -309,25 +353,43 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Sync transactions between local and remote
   Future<void> _syncTransactions() async {
-    if (_currentUserId == null || !_isInitialized) return;
+    if (_currentUserId == null || !_isOnline) {
+      debugPrint('Skipping transaction sync - offline or no user');
+      return;
+    }
 
     final collection = _getUserCollection('transactions');
     if (collection == null) return;
 
-    final localTransactions = await _localRepo.getTransactions();
-    final remoteSnapshot = await collection.get();
+    try {
+      final localTransactions = await _localRepo.getTransactions();
+      final remoteSnapshot = await collection.get();
 
-    final remoteTransactions =
-        remoteSnapshot.docs
-            .map(
-              (doc) => app_models.Transaction.fromMap({
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id,
-              }),
-            )
-            .toList();
+      final remoteTransactions =
+          remoteSnapshot.docs
+              .map(
+                (doc) => app_models.Transaction.fromMap({
+                  ...doc.data() as Map<String, dynamic>,
+                  'id': doc.id,
+                }),
+              )
+              .toList();
 
-    await _mergeTransactions(localTransactions, remoteTransactions, collection);
+      await _mergeTransactions(
+        localTransactions,
+        remoteTransactions,
+        collection,
+      );
+    } catch (e) {
+      debugPrint('Failed to sync transactions: $e');
+      // If it's an offline error, update our online status
+      if (e.toString().contains('offline') ||
+          e.toString().contains('unavailable')) {
+        _isOnline = false;
+        notifyListeners();
+      }
+      // Don't rethrow - let the safe wrapper handle it
+    }
   }
 
   /// Merge local and remote transactions
@@ -368,25 +430,39 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Sync budgets between local and remote
   Future<void> _syncBudgets() async {
-    if (_currentUserId == null || !_isInitialized) return;
+    if (_currentUserId == null || !_isOnline) {
+      debugPrint('Skipping budget sync - offline or no user');
+      return;
+    }
 
     final collection = _getUserCollection('budgets');
     if (collection == null) return;
 
-    final localBudgets = await _localRepo.getBudgets();
-    final remoteSnapshot = await collection.get();
+    try {
+      final localBudgets = await _localRepo.getBudgets();
+      final remoteSnapshot = await collection.get();
 
-    final remoteBudgets =
-        remoteSnapshot.docs
-            .map(
-              (doc) => Budget.fromMap({
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id,
-              }),
-            )
-            .toList();
+      final remoteBudgets =
+          remoteSnapshot.docs
+              .map(
+                (doc) => Budget.fromMap({
+                  ...doc.data() as Map<String, dynamic>,
+                  'id': doc.id,
+                }),
+              )
+              .toList();
 
-    await _mergeBudgets(localBudgets, remoteBudgets, collection);
+      await _mergeBudgets(localBudgets, remoteBudgets, collection);
+    } catch (e) {
+      debugPrint('Failed to sync budgets: $e');
+      // If it's an offline error, update our online status
+      if (e.toString().contains('offline') ||
+          e.toString().contains('unavailable')) {
+        _isOnline = false;
+        notifyListeners();
+      }
+      // Don't rethrow - let the safe wrapper handle it
+    }
   }
 
   /// Merge local and remote budgets
@@ -423,6 +499,11 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Manual sync trigger
   Future<void> syncNow() async {
+    final premiumService = PremiumService();
+    if (!premiumService.canUseFirebaseSync()) {
+      throw Exception(premiumService.getFirebaseSyncErrorMessage());
+    }
+
     if (_currentUserId == null) {
       debugPrint('Cannot sync: no user signed in');
       return;
@@ -740,11 +821,21 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Manual settings sync for immediate updates
   Future<void> forceSyncSettings() async {
+    final premiumService = PremiumService();
+    if (!premiumService.canUseFirebaseSync()) {
+      throw Exception(premiumService.getFirebaseSyncErrorMessage());
+    }
+
+    if (_firestore == null || _currentUserId == null || !_isOnline) {
+      throw Exception('Sync service is offline or not properly initialized');
+    }
+
     try {
       await _syncUserSettings();
+      debugPrint('Settings sync completed successfully');
     } catch (e) {
       debugPrint('Failed to force sync settings: $e');
-      // Don't rethrow to prevent app crashes
+      rethrow;
     }
   }
 }

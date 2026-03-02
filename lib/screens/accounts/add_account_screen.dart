@@ -169,11 +169,11 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Add Account'),
-        backgroundColor: const Color(0xFF006E1F), // Dark green
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         elevation: 0,
         actions: [
           TextButton(
@@ -188,10 +188,10 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                         color: Colors.white,
                       ),
                     )
-                    : const Text(
+                    : Text(
                       'Save',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).appBarTheme.foregroundColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -234,13 +234,18 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                 title: 'Account Type',
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(
                       AppConstants.borderRadiusMedium,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -268,7 +273,10 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                 color:
                                     isSelected
                                         ? AppConstants.primaryColor
-                                        : Colors.grey.shade600,
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.6),
                               ),
                               title: Text(
                                 type['label'] as String,
@@ -280,7 +288,9 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                   color:
                                       isSelected
                                           ? AppConstants.primaryColor
-                                          : Colors.grey.shade800,
+                                          : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                 ),
                               ),
                               trailing:
@@ -437,13 +447,18 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color:
+                        Theme.of(context).brightness == Brightness.light
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(
                       AppConstants.borderRadiusMedium,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -559,10 +574,10 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A1A),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
