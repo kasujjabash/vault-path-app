@@ -81,6 +81,12 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+      ),
       cardTheme: const CardThemeData(
         color: AppColors.lightSurface,
         elevation: 2,
@@ -206,6 +212,12 @@ class AppTheme {
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: AppColors.darkOnSurface,
+        ),
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: AppColors.darkSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
       cardTheme: const CardThemeData(

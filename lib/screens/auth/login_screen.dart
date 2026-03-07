@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../services/auth_service.dart';
 import '../../components/transparent_text_field.dart';
 import '../../components/auth_button.dart';
-import '../../components/auth_divider.dart';
 import '../../components/auth_link.dart';
 import '../../components/auth_error_message.dart';
 
@@ -216,25 +214,6 @@ class _LoginScreenState extends State<LoginScreen>
             isPrimary: true,
           ),
 
-          const SizedBox(height: 24),
-
-          // Divider
-          const AuthDivider(),
-
-          const SizedBox(height: 24),
-
-          // Google Sign In Button
-          AuthButton(
-            text: 'Continue with Google',
-            onPressed: () => _handleGoogleSignIn(authService),
-            isLoading: authService.isGoogleLoading,
-            isPrimary: false,
-            icon: const FaIcon(
-              FontAwesomeIcons.google,
-              size: 20,
-              color: Colors.white,
-            ),
-          ),
         ],
       ),
     );
@@ -266,24 +245,4 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  Future<void> _handleGoogleSignIn(AuthService authService) async {
-    try {
-      final success = await authService.signInWithGoogle();
-      if (success && mounted) {
-        if (context.mounted) context.go('/');
-      }
-    } catch (e) {
-      debugPrint('Error during Google sign-in: $e');
-      // AuthService already handles error display, so we don't need to show additional error here
-      if (mounted) {
-        // Optionally show a snackbar for critical errors that slip through
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Google sign-in failed. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
 }

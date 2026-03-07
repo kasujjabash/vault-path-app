@@ -96,7 +96,9 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
           padding: const EdgeInsets.all(20),
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(

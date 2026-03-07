@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../services/auth_service.dart';
 import '../../utils/custom_snackbar.dart';
 import '../../components/transparent_text_field.dart';
 import '../../components/auth_button.dart';
-import '../../components/auth_divider.dart';
 import '../../components/auth_link.dart';
 import '../../components/auth_error_message.dart';
 
@@ -313,27 +311,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                                 isEnabled: _acceptTerms,
                               ),
 
-                              const SizedBox(height: 24),
-
-                              // Divider
-                              const AuthDivider(),
-
-                              const SizedBox(height: 24),
-
-                              // Google Sign-Up Button
-                              AuthButton(
-                                text: 'Sign up with Google',
-                                onPressed:
-                                    () => _handleGoogleSignUp(authService),
-                                isLoading: authService.isGoogleLoading,
-                                isPrimary: false,
-                                icon: const FaIcon(
-                                  FontAwesomeIcons.google,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                              ),
-
                               const SizedBox(height: 32),
 
                               // Sign In Link
@@ -378,10 +355,4 @@ class _RegisterScreenState extends State<RegisterScreen>
     }
   }
 
-  Future<void> _handleGoogleSignUp(AuthService authService) async {
-    final success = await authService.signInWithGoogle();
-    if (success && mounted) {
-      if (context.mounted) context.go('/');
-    }
-  }
 }

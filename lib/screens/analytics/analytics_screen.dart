@@ -6,6 +6,8 @@ import '../../providers/expense_provider.dart';
 import '../../models/category_spending_data.dart';
 import '../../models/transaction.dart';
 import '../../utils/format_utils.dart';
+import '../../utils/premium_utils.dart';
+import '../../services/premium_service.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -175,6 +177,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               },
               underline: const SizedBox.shrink(),
               icon: const Icon(Icons.keyboard_arrow_down, size: 16),
+              dropdownColor: Theme.of(context).brightness == Brightness.light
+                  ? Colors.white
+                  : const Color(0xFF2B3C29),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
@@ -625,28 +630,40 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
     );
   }
 
-  // Chart Toggle Buttons
+  // Chart Toggle Buttons — pie is free, line/bar/daily are premium
   Widget _buildChartToggle(IconData icon, String type) {
     final isSelected = _chartType == type;
+    final isPremiumChart = type != 'pie';
+    final isPremium = PremiumService().isPremium;
+
     return GestureDetector(
-      onTap: () => setState(() => _chartType = type),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color:
-              isSelected
+      onTap: () {
+        if (isPremiumChart && !isPremium) {
+          PremiumUtils.showPremiumBottomSheet(context, 'Advanced Charts');
+          return;
+        }
+        setState(() => _chartType = type);
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isSelected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Icon(
-          icon,
-          size: 20,
-          color:
-              isSelected
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isSelected
                   ? Theme.of(context).colorScheme.onPrimary
                   : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -382,7 +382,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container(
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.white
+                  : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -420,6 +422,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextButton(
+                  onPressed: () => context.push('/add-transaction'),
+                  child: const Text(
+                    'Add Transaction',
+                    style: TextStyle(
+                      color: Color(0xFF006E1F),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

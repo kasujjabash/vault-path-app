@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/expense_provider.dart';
 import '../../utils/format_utils.dart';
 import '../../utils/app_constants.dart';
+import '../../utils/premium_utils.dart';
+import '../../services/premium_service.dart';
 import '../../models/budget.dart';
 import '../../services/firebase_sync_service.dart';
 import '../../services/auth_service.dart';
@@ -108,10 +110,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
   Future<void> _loadMonthlyIncome() async {
     final provider = Provider.of<ExpenseProvider>(context, listen: false);
     final income = await provider.getCurrentMonthIncome();
-    final balance = provider.totalBalance;
+    final expenses = await provider.getCurrentMonthExpenses();
     setState(() {
       _monthlyIncome = income;
-      _totalBalance = balance;
+      _totalBalance = income - expenses;
     });
   }
 
@@ -165,10 +167,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
                 // Set Budget Limit Card
                 _buildSetLimitCard(categories),
-                const SizedBox(height: 20),
-
-                // Budget Calculator - Below budget creation
-                _buildSavingsCalculator(),
 
                 const SizedBox(height: 100), // Space for navigation
               ],
@@ -381,6 +379,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
               child: DropdownButton<String>(
                 value: _selectedCategoryId,
                 hint: const Text('Choose a category'),
+                dropdownColor:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : const Color(0xFF2B3C29),
                 items:
                     categories.map((category) {
                       return DropdownMenuItem<String>(
@@ -420,6 +422,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 value: _selectedMonth,
+                dropdownColor:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white
+                        : const Color(0xFF2B3C29),
                 items:
                     _months.map((month) {
                       return DropdownMenuItem<String>(
@@ -556,7 +562,16 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   _selectedCategoryId != null &&
                           _limitController.text.isNotEmpty &&
                           _isBudgetValid()
-                      ? _createBudget
+                      ? () {
+                          if (!PremiumService().isPremium) {
+                            PremiumUtils.showPremiumBottomSheet(
+                              context,
+                              'Budget Creation',
+                            );
+                            return;
+                          }
+                          _createBudget();
+                        }
                       : null,
               style: ElevatedButton.styleFrom(
                 // backgroundColor: Theme.of(context).colorScheme.secondary,

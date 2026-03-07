@@ -13,6 +13,8 @@ import '../../components/swipeable_transaction_item.dart';
 import '../../components/banner_ad_widget.dart';
 import '../reports/financial_report_screen.dart';
 import '../../services/currency_service.dart';
+import '../../utils/premium_utils.dart';
+import '../../services/premium_service.dart';
 
 /// Transactions screen for viewing and managing all transactions
 /// Redesigned to match the modern green-themed interface from the reference image
@@ -176,6 +178,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               color: Theme.of(context).appBarTheme.foregroundColor,
             ),
             onPressed: () async {
+              if (!PremiumService().isPremium) {
+                PremiumUtils.showPremiumBottomSheet(context, 'PDF Export');
+                return;
+              }
               final provider = Provider.of<ExpenseProvider>(
                 context,
                 listen: false,
@@ -216,7 +222,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: const Color(0xFF006E1F),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -225,7 +231,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           child: Text(
                             'See your financial report',
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -233,7 +239,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         ),
                         Icon(
                           Icons.arrow_forward_ios,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Colors.white,
                           size: 16,
                         ),
                       ],
@@ -855,320 +861,42 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  /// Build beautiful and engaging empty state when there are no transactions
   Widget _buildEmptyState() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Beautiful animated illustration
-          Container(
-            width: 180,
-            height: 180,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                  Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(90),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.secondary.withOpacity(0.15),
-                  blurRadius: 30,
-                  offset: const Offset(0, 15),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                // Background circles for depth
-                Positioned(
-                  top: 20,
-                  right: 30,
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.secondary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 40,
-                  left: 20,
-                  child: Container(
-                    width: 35,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(17.5),
-                    ),
-                  ),
-                ),
-                // Main content
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Main icon with beautiful styling
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Theme.of(context).colorScheme.secondary,
-                              Theme.of(
-                                context,
-                              ).colorScheme.secondary.withOpacity(0.8),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(25),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.secondary.withOpacity(0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.receipt_long_outlined,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                          size: 30,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Secondary icons floating around
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildFloatingIcon(Icons.add_circle_outline, -10),
-                          const SizedBox(width: 40),
-                          _buildFloatingIcon(Icons.trending_up, 10),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 64,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No transactions yet',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-
-          const SizedBox(height: 24),
-
-          // Main heading with gradient text effect
-          ShaderMask(
-            shaderCallback:
-                (bounds) => LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.secondary,
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.8),
-                  ],
-                ).createShader(bounds),
-            child: Text(
-              '🎯 Ready to Track?',
+          const SizedBox(height: 8),
+          Text(
+            'Add your first transaction to get started',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            onPressed: () => context.push('/add-transaction'),
+            child: const Text(
+              'Add Transaction',
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.surface,
-                letterSpacing: -0.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Beautiful description
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              'Your financial journey starts here!\nAdd your first transaction and watch your money insights come to life.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontWeight: FontWeight.w500,
-                height: 1.4,
-                letterSpacing: 0.2,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Action buttons with beautiful design
-          Column(
-            children: [
-              // Primary action button
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.push('/add-transaction');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 8,
-                    shadowColor: Theme.of(
-                      context,
-                    ).colorScheme.secondary.withOpacity(0.4),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSecondary.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.add,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.onSecondary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Add Your First Transaction',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Secondary tips
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 32),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            Icons.lightbulb_outline,
-                            size: 18,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Quick Tips',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildTipItem('💰', 'Track both income and expenses'),
-                    _buildTipItem('📊', 'Use categories to organize better'),
-                    _buildTipItem('🎯', 'Set budgets to stay on track'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Build floating icon animation
-  Widget _buildFloatingIcon(IconData icon, double offset) {
-    return Transform.translate(
-      offset: Offset(0, offset),
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.secondary,
-          size: 20,
-        ),
-      ),
-    );
-  }
-
-  /// Build tip item
-  Widget _buildTipItem(String emoji, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontWeight: FontWeight.w500,
+                color: Color(0xFF006E1F),
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

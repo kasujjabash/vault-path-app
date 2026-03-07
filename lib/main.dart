@@ -120,6 +120,9 @@ class VaultPathApp extends StatelessWidget {
             });
           }
 
+          // Create router once outside Consumer to prevent recreation on theme change
+          final router = AppRouter.createRouter(authService);
+
           return Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {
               return MaterialApp.router(
@@ -128,7 +131,7 @@ class VaultPathApp extends StatelessWidget {
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
                 themeMode: themeProvider.themeMode,
-                routerConfig: AppRouter.createRouter(authService),
+                routerConfig: router,
               );
             },
           );

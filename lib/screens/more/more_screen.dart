@@ -349,7 +349,7 @@ class _MoreScreenState extends State<MoreScreen> {
             Text(
               getThemeText(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF006E1F),
+                color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -364,7 +364,7 @@ class _MoreScreenState extends State<MoreScreen> {
                   value ? ThemeMode.dark : ThemeMode.light,
                 );
               },
-              activeThumbColor: const Color(0xFF006E1F),
+              activeThumbColor: Theme.of(context).colorScheme.secondary,
             ),
           ],
         ),
