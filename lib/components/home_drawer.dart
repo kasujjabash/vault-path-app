@@ -85,7 +85,7 @@ class HomeDrawer extends StatelessWidget {
                                   color:
                                       Theme.of(
                                         context,
-                                      ).colorScheme.onBackground,
+                                      ).colorScheme.onSurface,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.3,
@@ -100,7 +100,7 @@ class HomeDrawer extends StatelessWidget {
                                       Icons.email_rounded,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onBackground
+                                          .onSurface
                                           .withValues(alpha: 0.6),
                                       size: 14,
                                     ),
@@ -111,7 +111,7 @@ class HomeDrawer extends StatelessWidget {
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
-                                              .onBackground
+                                              .onSurface
                                               .withValues(alpha: 0.7),
                                           fontSize: 13,
                                           fontWeight: FontWeight.w400,
@@ -286,7 +286,7 @@ class HomeDrawer extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -296,7 +296,7 @@ class HomeDrawer extends StatelessWidget {
                           fontSize: 12,
                           color: Theme.of(
                             context,
-                          ).colorScheme.onBackground.withValues(alpha: 0.6),
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -338,7 +338,7 @@ class HomeDrawer extends StatelessWidget {
           fontWeight: FontWeight.w700,
           color: Theme.of(
             context,
-          ).colorScheme.onBackground.withValues(alpha: 0.6),
+          ).colorScheme.onSurface.withValues(alpha: 0.6),
           letterSpacing: 1.2,
         ),
       ),
@@ -383,7 +383,7 @@ class HomeDrawer extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -441,7 +441,7 @@ class HomeDrawer extends StatelessWidget {
                 fontSize: 12,
                 color: Theme.of(
                   context,
-                ).colorScheme.onBackground.withValues(alpha: 0.7),
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w500,
               ),
             ),

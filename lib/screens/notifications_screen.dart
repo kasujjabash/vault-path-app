@@ -79,7 +79,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             size: 80,
             color: Theme.of(
               context,
-            ).colorScheme.onBackground.withValues(alpha: 0.3),
+            ).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -87,7 +87,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -97,7 +97,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               fontSize: 14,
               color: Theme.of(
                 context,
-              ).colorScheme.onBackground.withValues(alpha: 0.6),
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],

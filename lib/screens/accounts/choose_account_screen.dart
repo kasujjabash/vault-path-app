@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../utils/app_constants.dart';
 import '../../utils/custom_snackbar.dart';
 import '../../theme/app_theme.dart';

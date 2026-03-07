@@ -2622,7 +2622,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         },
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
@@ -2730,7 +2730,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         },
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
