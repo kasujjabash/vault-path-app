@@ -177,7 +177,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -197,10 +197,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       colors: [
                         _getNotificationColor(
                           notification.type,
-                        ).withOpacity(0.15),
+                        ).withValues(alpha: 0.15),
                         _getNotificationColor(
                           notification.type,
-                        ).withOpacity(0.25),
+                        ).withValues(alpha: 0.25),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),

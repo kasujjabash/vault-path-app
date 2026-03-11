@@ -68,7 +68,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                 backgroundColor:
                     _canSaveTransaction()
                         ? Colors.white
-                        : Colors.white.withOpacity(0.3),
+                        : Colors.white.withValues(alpha: 0.3),
                 foregroundColor:
                     _canSaveTransaction()
                         ? AppConstants.primaryColor
@@ -102,7 +102,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF006E1F).withOpacity(0.2),
+                    color: const Color(0xFF006E1F).withValues(alpha: 0.2),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -116,7 +116,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                         : 'Expense Amount',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -137,7 +137,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                       _calculatedAmount,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -153,7 +153,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -276,7 +276,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -313,7 +313,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                       decoration: BoxDecoration(
                         color: Color(
                           FormatUtils.parseColorString(account.color),
-                        ).withOpacity(0.2),
+                        ).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -360,7 +360,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -388,7 +388,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                     decoration: BoxDecoration(
                       color: Color(
                         FormatUtils.parseColorString(category.color),
-                      ).withOpacity(0.2),
+                      ).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -433,7 +433,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -486,7 +486,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 25,
             offset: const Offset(0, -12),
           ),
@@ -588,7 +588,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
       textColor = Colors.white;
       fontWeight = FontWeight.bold;
     } else if (isOperator && !isEquals) {
-      buttonColor = AppConstants.primaryColor.withOpacity(0.1);
+      buttonColor = AppConstants.primaryColor.withValues(alpha: 0.1);
       textColor = AppConstants.primaryColor;
       fontWeight = FontWeight.bold;
     } else if (isClear) {

@@ -130,10 +130,10 @@ class _MainScreenState extends State<MainScreen> {
                     ? (Theme.of(context).brightness == Brightness.light
                         ? Theme.of(
                           context,
-                        ).colorScheme.secondary.withOpacity(0.2)
+                        ).colorScheme.secondary.withValues(alpha: 0.2)
                         : Theme.of(
                           context,
-                        ).colorScheme.primary.withOpacity(0.8))
+                        ).colorScheme.primary.withValues(alpha: 0.8))
                     : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
@@ -149,7 +149,7 @@ class _MainScreenState extends State<MainScreen> {
                             : Theme.of(context).colorScheme.secondary)
                         : Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                 size: isSmallScreen ? 20 : 24,
               ),
               const SizedBox(height: 2),
@@ -164,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
                                 : Theme.of(context).colorScheme.secondary)
                             : Theme.of(
                               context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: isSmallScreen ? 10 : 12,
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   ),
@@ -246,7 +246,7 @@ class _MainScreenState extends State<MainScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -312,7 +312,7 @@ class _MainScreenState extends State<MainScreen> {
                 : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -322,7 +322,7 @@ class _MainScreenState extends State<MainScreen> {
           color:
               isEnabled
                   ? const Color(0xFF006E1F)
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
         ),
         title: Text(
           title,
@@ -330,7 +330,7 @@ class _MainScreenState extends State<MainScreen> {
             color:
                 isEnabled
                     ? null
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           ),
         ),
         subtitle: Text(
@@ -338,16 +338,16 @@ class _MainScreenState extends State<MainScreen> {
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color:
                 isEnabled
-                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
         ),
         trailing: Icon(
           Icons.chevron_right,
           color:
               isEnabled
-                  ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                  ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
         ),
         onTap: isEnabled ? onTap : null,
       ),
@@ -375,7 +375,7 @@ class _MainScreenState extends State<MainScreen> {
                       fontWeight: FontWeight.w500,
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.7),
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],

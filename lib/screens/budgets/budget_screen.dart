@@ -69,8 +69,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
   /// Get adaptive card shadow color
   Color _getAdaptiveCardShadow(BuildContext context) {
     return Theme.of(context).brightness == Brightness.light
-        ? Colors.black.withOpacity(0.05)
-        : Theme.of(context).colorScheme.secondary.withOpacity(0.1);
+        ? Colors.black.withValues(alpha: 0.05)
+        : Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1);
   }
 
   /// Load budget alert settings from SharedPreferences
@@ -204,7 +204,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         ? Theme.of(context).colorScheme.secondary
                         : Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.5),
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -236,7 +236,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             CustomPaint(
               size: const Size(double.infinity, 2),
               painter: DottedLinePainter(
-                color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 16),
@@ -247,7 +247,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
               'Receive alert when it reaches ${_alertPercentage.round()}% of the spending',
               style: TextStyle(
                 fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 height: 1.4,
               ),
             ),
@@ -268,7 +268,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 activeColor: Theme.of(context).colorScheme.secondary,
                 inactiveColor: Theme.of(
                   context,
-                ).colorScheme.secondary.withOpacity(0.2),
+                ).colorScheme.secondary.withValues(alpha: 0.2),
                 label: '${_alertPercentage.round()}%',
                 onChanged: (value) {
                   setState(() {
@@ -288,7 +288,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   style: TextStyle(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                 ),
@@ -297,7 +297,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   style: TextStyle(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                 ),
@@ -306,7 +306,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   style: TextStyle(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 12,
                   ),
                 ),
@@ -462,7 +462,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   fontSize: 12,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -523,10 +523,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -609,12 +609,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
           colors:
               exceedsBalance
                   ? [
-                    Theme.of(context).colorScheme.error.withOpacity(0.1),
-                    Theme.of(context).colorScheme.error.withOpacity(0.05),
+                    Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                    Theme.of(context).colorScheme.error.withValues(alpha: 0.05),
                   ]
                   : [
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+                    Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                    Theme.of(context).colorScheme.secondary.withValues(alpha: 0.05),
                   ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -720,10 +720,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -752,12 +752,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: Theme.of(
                     context,
-                  ).colorScheme.tertiary.withOpacity(0.3),
+                  ).colorScheme.tertiary.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -796,10 +796,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
-        color: _getAdaptiveCardColor(context).withOpacity(0.3),
+        color: _getAdaptiveCardColor(context).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _getAdaptiveCardColor(context).withOpacity(0.2),
+          color: _getAdaptiveCardColor(context).withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -807,7 +807,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 18),
@@ -905,7 +905,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     size: 48,
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.4),
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -914,7 +914,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       fontSize: 16,
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -924,7 +924,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       fontSize: 13,
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.5),
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -953,10 +953,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
         border: Border.all(
           color:
               isExceeded
-                  ? Theme.of(context).colorScheme.error.withOpacity(0.3)
+                  ? Theme.of(context).colorScheme.error.withValues(alpha: 0.3)
                   : isNearLimit
-                  ? Theme.of(context).colorScheme.tertiary.withOpacity(0.3)
-                  : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  ? Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.3)
+                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -1042,7 +1042,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   fontSize: 13,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               Text(
@@ -1051,7 +1051,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   fontSize: 13,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -1069,7 +1069,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           ? Theme.of(context).colorScheme.error
                           : Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.6),
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),

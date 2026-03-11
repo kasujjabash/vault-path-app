@@ -5,14 +5,18 @@ import 'app_constants.dart';
 /// Utility class for creating modern, consistently styled dialogs
 class DialogUtils {
   /// Create a modern styled AlertDialog with app theme
-  static AlertDialog createModernDialog({
+  static AlertDialog createModernDialog(
+    BuildContext context, {
     required String title,
     required Widget content,
     required List<Widget> actions,
     IconData? titleIcon,
     Color? titleColor,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return AlertDialog(
+      backgroundColor: isDark ? theme.colorScheme.surface : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
       contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -33,7 +37,7 @@ class DialogUtils {
               style: GoogleFonts.inter(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: titleColor ?? AppConstants.primaryColor,
+                color: titleColor ?? theme.colorScheme.onSurface,
               ),
             ),
           ),
@@ -45,7 +49,8 @@ class DialogUtils {
   }
 
   /// Create a modern text input field for dialogs
-  static Widget createDialogTextField({
+  static Widget createDialogTextField(
+    BuildContext context, {
     required TextEditingController controller,
     required String labelText,
     String? hintText,
@@ -54,6 +59,8 @@ class DialogUtils {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
@@ -61,18 +68,33 @@ class DialogUtils {
         obscureText: obscureText,
         keyboardType: keyboardType,
         validator: validator,
-        style: GoogleFonts.inter(fontSize: 16),
+        style: GoogleFonts.inter(
+          fontSize: 16,
+          color: theme.colorScheme.onSurface,
+        ),
         decoration: InputDecoration(
           labelText: labelText,
           hintText: hintText,
-          prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+          labelStyle: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+          hintStyle: TextStyle(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+          ),
+          prefixIcon: prefixIcon != null
+              ? Icon(prefixIcon, color: AppConstants.primaryColor)
+              : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: BorderSide(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey.shade300),
+            borderSide: BorderSide(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -87,7 +109,9 @@ class DialogUtils {
             borderSide: BorderSide(color: AppConstants.errorColor, width: 2),
           ),
           filled: true,
-          fillColor: Colors.grey.shade50,
+          fillColor: isDark
+              ? theme.colorScheme.surfaceContainerHighest
+              : Colors.grey.shade50,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 12,
@@ -128,15 +152,17 @@ class DialogUtils {
   }
 
   /// Create a modern secondary action button for dialogs
-  static Widget createSecondaryButton({
+  static Widget createSecondaryButton(
+    BuildContext context, {
     required String text,
     required VoidCallback onPressed,
     IconData? icon,
   }) {
+    final theme = Theme.of(context);
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: Colors.grey.shade600,
+        foregroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       ),
@@ -195,14 +221,18 @@ class DialogUtils {
   }
 
   /// Create modern dialog content text
-  static Widget createDialogText(String text, {TextStyle? style}) {
+  static Widget createDialogText(
+    BuildContext context,
+    String text, {
+    TextStyle? style,
+  }) {
+    final theme = Theme.of(context);
     return Text(
       text,
-      style:
-          style ??
+      style: style ??
           GoogleFonts.inter(
             fontSize: 16,
-            color: Colors.grey.shade700,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
             height: 1.4,
           ),
     );
@@ -222,12 +252,14 @@ class DialogUtils {
       context: context,
       builder:
           (context) => createModernDialog(
+            context,
             title: title,
             titleIcon: titleIcon,
             titleColor: isDestructive ? AppConstants.errorColor : null,
-            content: createDialogText(message),
+            content: createDialogText(context, message),
             actions: [
               createSecondaryButton(
+                context,
                 text: cancelText,
                 onPressed: () => Navigator.of(context).pop(false),
               ),

@@ -102,7 +102,7 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -204,7 +204,7 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
                       color: color,
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.3),
+                          color: color.withValues(alpha: 0.3),
                           blurRadius: 2,
                           offset: const Offset(0, 1),
                         ),
@@ -264,7 +264,7 @@ class _ExpenseDonutChartState extends State<ExpenseDonutChart>
           'Add some expenses to see\nyour spending breakdown',
           style: TextStyle(
             fontSize: 14,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
             height: 1.4,
           ),
           textAlign: TextAlign.center,

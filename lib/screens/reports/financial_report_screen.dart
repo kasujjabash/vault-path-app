@@ -176,7 +176,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                 Text(
                   'You Earned',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 24,
                     fontWeight: FontWeight.w300,
                   ),
@@ -199,7 +199,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                   Text(
                     'Your biggest income is from',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
@@ -213,7 +213,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
@@ -229,7 +229,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                   Text(
                     'Add more income transactions to see insights',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
@@ -285,7 +285,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                 Text(
                   'You Spent',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 24,
                     fontWeight: FontWeight.w300,
                   ),
@@ -308,7 +308,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                   Text(
                     'Your biggest spending is from',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
@@ -322,7 +322,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
@@ -338,7 +338,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                   Text(
                     'Add more expense transactions to see insights',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
@@ -409,7 +409,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
               Text(
                 'Create a budget to start tracking your spending goals',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
@@ -434,7 +434,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                     ? 'Budget exceeded'
                     : 'Budgets exceeded',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 24,
                   fontWeight: FontWeight.w300,
                 ),
@@ -450,7 +450,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Text(
@@ -471,7 +471,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Text(

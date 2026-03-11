@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
+import '../../utils/dialog_utils.dart';
 import '../more/about_screen.dart';
 
 /// Profile screen showing user information and settings
@@ -113,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -149,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.7),
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
               ],
@@ -186,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -207,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         subtitle: Text(subtitle),
         trailing: Icon(
           Icons.chevron_right,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
         ),
         onTap: onTap,
       ),
@@ -221,62 +222,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor:
-                Theme.of(context).brightness == Brightness.light
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.surface,
-            title: Text(
-              'Edit Profile',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      builder: (context) => DialogUtils.createModernDialog(
+        context,
+        title: 'Edit Profile',
+        titleIcon: Icons.person_outline,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DialogUtils.createDialogTextField(
+              context,
+              controller: nameController,
+              labelText: 'Display Name',
+              hintText: 'Enter your display name',
+              prefixIcon: Icons.person_outlined,
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Display Name',
-                    hintText: 'Enter your display name',
-                    prefixIcon: const Icon(Icons.person_outlined),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Email: ${authService.userEmail ?? 'N/A'}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
-                  ),
-                ),
-              ],
+            DialogUtils.createDialogText(
+              context,
+              'Email: ${authService.userEmail ?? 'N/A'}',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showComingSoonSnackBar(context, 'Profile update feature');
-                },
-                child: const Text(
-                  'Save',
-                  style: TextStyle(color: Color(0xFF006E1F)),
-                ),
-              ),
-            ],
+          ],
+        ),
+        actions: [
+          DialogUtils.createSecondaryButton(
+            context,
+            text: 'Cancel',
+            onPressed: () => Navigator.pop(context),
           ),
+          const SizedBox(width: 8),
+          DialogUtils.createPrimaryButton(
+            text: 'Save',
+            icon: Icons.save_outlined,
+            onPressed: () {
+              Navigator.pop(context);
+              _showComingSoonSnackBar(context, 'Profile update feature');
+            },
+          ),
+        ],
+      ),
     );
   }
 

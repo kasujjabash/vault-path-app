@@ -50,7 +50,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       border: Border.all(
                         color: Theme.of(
                           context,
-                        ).colorScheme.outline.withOpacity(0.2),
+                        ).colorScheme.outline.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -87,7 +87,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                 ).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(
                                     context,
-                                  ).colorScheme.onSurface.withOpacity(0.7),
+                                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -262,7 +262,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -290,7 +290,7 @@ class _MoreScreenState extends State<MoreScreen> {
                       ? Theme.of(context).colorScheme.error
                       : Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
         onTap: onTap,
       ),
@@ -332,7 +332,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -386,7 +386,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF006E1F).withOpacity(0.3),
+          color: const Color(0xFF006E1F).withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -404,7 +404,7 @@ class _MoreScreenState extends State<MoreScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF006E1F).withOpacity(0.1),
+                    color: const Color(0xFF006E1F).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -435,7 +435,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           fontSize: 14,
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.7),
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -484,7 +484,7 @@ class _MoreScreenState extends State<MoreScreen> {
                     style: TextStyle(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   value: ThemeMode.light,
@@ -509,7 +509,7 @@ class _MoreScreenState extends State<MoreScreen> {
                     style: TextStyle(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   value: ThemeMode.dark,
@@ -534,7 +534,7 @@ class _MoreScreenState extends State<MoreScreen> {
                     style: TextStyle(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   value: ThemeMode.system,
@@ -562,30 +562,34 @@ class _MoreScreenState extends State<MoreScreen> {
       context: context,
       builder:
           (context) => DialogUtils.createModernDialog(
+            context,
             title: 'Edit Profile',
             titleIcon: Icons.person_outline,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DialogUtils.createDialogTextField(
+                  context,
                   controller: nameController,
                   labelText: 'Display Name',
                   hintText: 'Enter your display name',
                   prefixIcon: Icons.person_outlined,
                 ),
                 DialogUtils.createDialogText(
+                  context,
                   'Email: ${authService.userEmail ?? 'N/A'}',
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
             ),
             actions: [
               DialogUtils.createSecondaryButton(
+                context,
                 text: 'Cancel',
                 onPressed: () => Navigator.pop(context),
               ),
@@ -611,27 +615,26 @@ class _MoreScreenState extends State<MoreScreen> {
       context: context,
       builder:
           (context) => DialogUtils.createModernDialog(
-            title: 'Reset Password',
+            context,
+            title: 'Change Password',
             titleIcon: Icons.lock_reset,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DialogUtils.createDialogText(
+                  context,
                   'A password reset email will be sent to:',
                 ),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).brightness == Brightness.light
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.surface,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: Theme.of(
                         context,
-                      ).colorScheme.outline.withOpacity(0.2),
+                      ).colorScheme.outline.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
@@ -641,7 +644,7 @@ class _MoreScreenState extends State<MoreScreen> {
                         Icons.email_outlined,
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -662,6 +665,7 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
             actions: [
               DialogUtils.createSecondaryButton(
+                context,
                 text: 'Cancel',
                 onPressed: () => Navigator.pop(context),
               ),
@@ -757,7 +761,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           context,
                         ).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF006E1F),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -782,7 +786,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                                 : Theme.of(context)
                                                     .colorScheme
                                                     .outline
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                         width:
                                             currencyService.currentCurrency ==
                                                     currency
@@ -794,7 +798,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                                   currency
                                               ? const Color(
                                                 0xFF006E1F,
-                                              ).withOpacity(0.1)
+                                              ).withValues(alpha: 0.1)
                                               : Colors.transparent,
                                     ),
                                     child: ListTile(
@@ -830,7 +834,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                                   : Theme.of(context)
                                                       .colorScheme
                                                       .onSurface
-                                                      .withOpacity(0.6),
+                                                      .withValues(alpha: 0.6),
                                         ),
                                       ),
                                       trailing:
@@ -892,7 +896,7 @@ class _MoreScreenState extends State<MoreScreen> {
                           style: TextStyle(
                             color: Theme.of(
                               context,
-                            ).colorScheme.onSurface.withOpacity(0.8),
+                            ).colorScheme.onSurface.withValues(alpha: 0.8),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -965,6 +969,9 @@ class _MoreScreenState extends State<MoreScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                ),
                 child: const Text('Close'),
               ),
               Consumer<FirebaseSyncService>(
@@ -974,51 +981,53 @@ class _MoreScreenState extends State<MoreScreen> {
                         syncService.isSyncing
                             ? null
                             : () async {
-                              // Check premium access first
                               if (!PremiumUtils.checkFirebaseSync(context)) {
                                 Navigator.of(context).pop();
+                                PremiumUtils.showPremiumBottomSheet(
+                                  context,
+                                  'Cloud Sync',
+                                );
                                 return;
                               }
 
                               Navigator.of(context).pop();
 
                               try {
-                                // Show sync in progress
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Syncing your data...'),
                                     backgroundColor: Color(0xFF006E1F),
+                                    behavior: SnackBarBehavior.floating,
                                   ),
                                 );
 
-                                // Trigger manual sync
                                 await FirebaseSyncService().forceSyncSettings();
 
-                                // Show success result
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text(
-                                        'Sync completed successfully!',
-                                      ),
+                                      content: Text('Sync completed successfully!'),
                                       backgroundColor: Color(0xFF006E1F),
+                                      behavior: SnackBarBehavior.floating,
                                     ),
                                   );
                                 }
                               } catch (e) {
-                                // Show error
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(
-                                        'Sync failed: ${e.toString()}',
-                                      ),
+                                      content: Text('Sync failed: ${e.toString()}'),
                                       backgroundColor: Colors.red,
+                                      behavior: SnackBarBehavior.floating,
                                     ),
                                   );
                                 }
                               }
                             },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF006E1F),
+                      foregroundColor: Colors.white,
+                    ),
                     child: Text(
                       syncService.isSyncing ? 'Syncing...' : 'Sync Now',
                     ),

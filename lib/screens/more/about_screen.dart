@@ -32,7 +32,7 @@ class AboutScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF006E1F).withOpacity(0.3),
+                          color: const Color(0xFF006E1F).withValues(alpha: 0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -58,7 +58,7 @@ class AboutScreen extends StatelessWidget {
                     'Track Smarter. Spend Wiser.',
                     style: TextStyle(
                       fontSize: 18,
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -129,7 +129,7 @@ class AboutScreen extends StatelessWidget {
             content,
             style: TextStyle(
               fontSize: 16,
-              color: theme.colorScheme.onSurface.withOpacity(0.8),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
               height: 1.6,
               letterSpacing: 0.2,
             ),
@@ -184,7 +184,7 @@ class AboutScreen extends StatelessWidget {
                       feature,
                       style: TextStyle(
                         fontSize: 16,
-                        color: theme.colorScheme.onSurface.withOpacity(0.8),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                         height: 1.5,
                       ),
                     ),
@@ -208,7 +208,7 @@ class AboutScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF006E1F).withOpacity(0.1),
+              color: const Color(0xFF006E1F).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -265,7 +265,7 @@ class AboutScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Mobile Developer & Financial Wellness Advocate',
+                'Mobile Developer',
                 style: TextStyle(
                   fontSize: 16,
                   color: const Color(0xFF006E1F),
@@ -274,10 +274,10 @@ class AboutScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Passionate about creating intuitive digital solutions that empower people to take control of their financial lives. Through thoughtful design and user-centered development, I believe technology should simplify complexity, not add to it.',
+                'Bashir is passionate about technology and loves tackling big challenges. As a Software Engineering enthusiast, he finds joy in the dynamic world of coding, always eager to learn and build meaningful projects. Whether leading a team or collaborating, he thrives in problem-solving, combining creativity with innovative solutions.\n\nHis dream is to be a recognised and respected software engineer, celebrated for impactful contributions and a commitment to excellence. Beyond individual success, he aspires to leave a positive mark on the tech community by contributing to advancements and innovation.',
                 style: TextStyle(
                   fontSize: 16,
-                  color: theme.colorScheme.onSurface.withOpacity(0.8),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                   height: 1.5,
                 ),
               ),
@@ -285,10 +285,10 @@ class AboutScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF006E1F).withOpacity(0.05),
+                  color: const Color(0xFF006E1F).withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFF006E1F).withOpacity(0.2),
+                    color: const Color(0xFF006E1F).withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -342,7 +342,7 @@ class AboutScreen extends StatelessWidget {
                       'Bashir Kasujja founded Boldly Applied Tech (bApp), a leading mobile app development company that specializes in creating transformative digital experiences. bApp focuses on building innovative solutions that not only serve business needs but also empower users to achieve their personal and professional goals.',
                       style: TextStyle(
                         fontSize: 16,
-                        color: theme.colorScheme.onSurface.withOpacity(0.8),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                         height: 1.5,
                       ),
                     ),
@@ -351,7 +351,7 @@ class AboutScreen extends StatelessWidget {
                       'The company\'s philosophy centers on the belief that technology should be a catalyst for human growth and platform excellence. Every app developed under bApp combines cutting-edge technical expertise with deep understanding of user psychology and business dynamics.',
                       style: TextStyle(
                         fontSize: 16,
-                        color: theme.colorScheme.onSurface.withOpacity(0.8),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                         height: 1.5,
                       ),
                     ),
@@ -374,7 +374,7 @@ class AboutScreen extends StatelessWidget {
         children: [
           Icon(
             Icons.info_outline,
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             size: 20,
           ),
           const SizedBox(width: 8),
@@ -382,7 +382,7 @@ class AboutScreen extends StatelessWidget {
             'Version 1.0.0',
             style: TextStyle(
               fontSize: 16,
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
             ),
           ),

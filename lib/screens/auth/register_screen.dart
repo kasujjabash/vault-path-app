@@ -84,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7), // Solid dark overlay
+                  color: Colors.black.withValues(alpha: 0.7),
                 ),
                 child: SafeArea(
                   child: Center(
@@ -98,26 +98,31 @@ class _RegisterScreenState extends State<RegisterScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // App Logo or Title
-                              const Text(
-                                'Join Vault Path',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
+                              const SizedBox(height: 24),
+
+                              // Title — left-aligned
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Join Vault Path',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Start your financial journey today',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 40),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Start your financial journey today',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white70,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 48),
 
                               // Register Form
                               Form(
@@ -172,7 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                           _isPasswordVisible
                                               ? Icons.visibility_outlined
                                               : Icons.visibility_off_outlined,
-                                          color: Colors.white.withOpacity(0.7),
+                                          color: Colors.white.withValues(alpha: 0.7),
                                         ),
                                         onPressed: () {
                                           setState(() {
@@ -204,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                           _isConfirmPasswordVisible
                                               ? Icons.visibility_outlined
                                               : Icons.visibility_off_outlined,
-                                          color: Colors.white.withOpacity(0.7),
+                                          color: Colors.white.withValues(alpha: 0.7),
                                         ),
                                         onPressed: () {
                                           setState(() {
@@ -245,12 +250,10 @@ class _RegisterScreenState extends State<RegisterScreen>
                                                         )
                                                         ? Colors.white
                                                         : Colors.white
-                                                            .withOpacity(0.1),
+                                                            .withValues(alpha: 0.1),
                                               ),
                                           side: BorderSide(
-                                            color: Colors.white.withOpacity(
-                                              0.5,
-                                            ),
+                                            color: Colors.white.withValues(alpha: 0.5),
                                           ),
                                         ),
                                         Expanded(
@@ -342,17 +345,14 @@ class _RegisterScreenState extends State<RegisterScreen>
         _nameController.text,
       );
       if (success && mounted) {
-        // Show success message
         if (mounted) {
           CustomSnackBar.showSuccess(
             context,
             'Account created successfully! Please sign in.',
           );
         }
-        // Navigate to login
         if (context.mounted) context.go('/login');
       }
     }
   }
-
 }

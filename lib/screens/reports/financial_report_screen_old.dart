@@ -128,7 +128,7 @@
 //                       width: 40,
 //                       height: 40,
 //                       decoration: BoxDecoration(
-//                         color: Colors.white.withOpacity(0.2),
+//                         color: Colors.white.withValues(alpha: 0.2),
 //                         shape: BoxShape.circle,
 //                       ),
 //                       child: const Icon(
@@ -157,7 +157,7 @@
 //                           color:
 //                               _currentPage == index
 //                                   ? Colors.white
-//                                   : Colors.white.withOpacity(0.4),
+//                                   : Colors.white.withValues(alpha: 0.4),
 //                           borderRadius: BorderRadius.circular(4),
 //                         ),
 //                       ),
@@ -177,14 +177,14 @@
 //                           'Auto-advancing • Tap to pause',
 //                           textAlign: TextAlign.center,
 //                           style: TextStyle(
-//                             color: Colors.white.withOpacity(0.7),
+//                             color: Colors.white.withValues(alpha: 0.7),
 //                             fontSize: 14,
 //                           ),
 //                         ),
 //                         const SizedBox(height: 8),
 //                         LinearProgressIndicator(
 //                           value: _autoScrollController.value,
-//                           backgroundColor: Colors.white.withOpacity(0.3),
+//                           backgroundColor: Colors.white.withValues(alpha: 0.3),
 //                           valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
 //                           minHeight: 2,
 //                         ),
@@ -240,7 +240,7 @@
 //                 Text(
 //                   'You Earned',
 //                   style: TextStyle(
-//                     color: Colors.white.withOpacity(0.9),
+//                     color: Colors.white.withValues(alpha: 0.9),
 //                     fontSize: 24,
 //                     fontWeight: FontWeight.w300,
 //                   ),
@@ -263,7 +263,7 @@
 //                   Text(
 //                     'Your biggest income is from',
 //                     style: TextStyle(
-//                       color: Colors.white.withOpacity(0.8),
+//                       color: Colors.white.withValues(alpha: 0.8),
 //                       fontSize: 16,
 //                     ),
 //                     textAlign: TextAlign.center,
@@ -277,7 +277,7 @@
 //                       vertical: 12,
 //                     ),
 //                     decoration: BoxDecoration(
-//                       color: Colors.white.withOpacity(0.2),
+//                       color: Colors.white.withValues(alpha: 0.2),
 //                       borderRadius: BorderRadius.circular(24),
 //                     ),
 //                     child: Text(
@@ -293,7 +293,7 @@
 //                   Text(
 //                     'Add more income transactions to see insights',
 //                     style: TextStyle(
-//                       color: Colors.white.withOpacity(0.7),
+//                       color: Colors.white.withValues(alpha: 0.7),
 //                       fontSize: 16,
 //                     ),
 //                     textAlign: TextAlign.center,
@@ -349,7 +349,7 @@
 //                 Text(
 //                   'You Spent',
 //                   style: TextStyle(
-//                     color: Colors.white.withOpacity(0.9),
+//                     color: Colors.white.withValues(alpha: 0.9),
 //                     fontSize: 24,
 //                     fontWeight: FontWeight.w300,
 //                   ),
@@ -372,7 +372,7 @@
 //                   Text(
 //                     'Your biggest spending is from',
 //                     style: TextStyle(
-//                       color: Colors.white.withOpacity(0.8),
+//                       color: Colors.white.withValues(alpha: 0.8),
 //                       fontSize: 16,
 //                     ),
 //                     textAlign: TextAlign.center,
@@ -386,7 +386,7 @@
 //                       vertical: 12,
 //                     ),
 //                     decoration: BoxDecoration(
-//                       color: Colors.white.withOpacity(0.2),
+//                       color: Colors.white.withValues(alpha: 0.2),
 //                       borderRadius: BorderRadius.circular(24),
 //                     ),
 //                     child: Text(
@@ -402,7 +402,7 @@
 //                   Text(
 //                     'Add more expense transactions to see insights',
 //                     style: TextStyle(
-//                       color: Colors.white.withOpacity(0.7),
+//                       color: Colors.white.withValues(alpha: 0.7),
 //                       fontSize: 16,
 //                     ),
 //                     textAlign: TextAlign.center,
@@ -473,7 +473,7 @@
 //               Text(
 //                 'Create a budget to start tracking your spending goals',
 //                 style: TextStyle(
-//                   color: Colors.white.withOpacity(0.8),
+//                   color: Colors.white.withValues(alpha: 0.8),
 //                   fontSize: 16,
 //                 ),
 //                 textAlign: TextAlign.center,
@@ -498,7 +498,7 @@
 //                     ? 'Budget exceeded'
 //                     : 'Budgets exceeded',
 //                 style: TextStyle(
-//                   color: Colors.white.withOpacity(0.9),
+//                   color: Colors.white.withValues(alpha: 0.9),
 //                   fontSize: 24,
 //                   fontWeight: FontWeight.w300,
 //                 ),
@@ -514,7 +514,7 @@
 //                     vertical: 12,
 //                   ),
 //                   decoration: BoxDecoration(
-//                     color: Colors.white.withOpacity(0.2),
+//                     color: Colors.white.withValues(alpha: 0.2),
 //                     borderRadius: BorderRadius.circular(24),
 //                   ),
 //                   child: Text(
@@ -535,7 +535,7 @@
 //                     vertical: 12,
 //                   ),
 //                   decoration: BoxDecoration(
-//                     color: Colors.white.withOpacity(0.2),
+//                     color: Colors.white.withValues(alpha: 0.2),
 //                     borderRadius: BorderRadius.circular(24),
 //                   ),
 //                   child: const Text(

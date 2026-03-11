@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 import 'firebase_sync_service.dart';
@@ -67,7 +68,11 @@ class AuthService extends ChangeNotifier {
         final testUser = _auth?.currentUser;
 
         _user = testUser;
-        _auth?.authStateChanges().listen(_onAuthStateChanged);
+        _auth?.authStateChanges().listen(
+          _onAuthStateChanged,
+          onError: (e) => debugPrint('Auth state stream error (ignored): $e'),
+          cancelOnError: false,
+        );
         _isInitialized = true;
         _isMockMode = false;
         debugPrint('AuthService initialized with Firebase');
@@ -218,37 +223,21 @@ class AuthService extends ChangeNotifier {
       debugPrint('Signed in: ${credential.user?.email}');
       return true;
     } on FirebaseAuthException catch (e) {
-      String errorMessage = _getErrorMessage(e);
-      _setError(errorMessage, context: 'login');
+      _setError(_getErrorMessage(e), context: 'login');
       debugPrint('Firebase Auth error: ${e.code} - ${e.message}');
       return false;
+    } on PlatformException catch (e) {
+      _setError(_getPlatformErrorMessage(e), context: 'login');
+      debugPrint('Platform error during sign in: ${e.code} - ${e.message}');
+      return false;
     } catch (e) {
-      // Enhanced error handling with network detection
-      String errorMessage =
-          'Login failed. Please try again or check your credentials.';
-
-      // Handle case where Firebase Auth is not properly configured
-      if (e.toString().contains('No Firebase App') ||
-          e.toString().contains('app/no-app')) {
-        errorMessage =
-            'Firebase Authentication is not properly configured. The app will work in offline mode.';
-        debugPrint('Firebase Auth not configured: $e');
-      } else if (_isNetworkError(e)) {
-        errorMessage =
-            'Network error. Please check your internet connection and try again. If you\'re still having trouble, try restarting the app.';
-        debugPrint('Network error during sign in: $e');
-
-        // Additional logging for network issues
-        if (e.toString().contains('timeout')) {
-          debugPrint('Request timed out - check network stability');
-        } else if (e.toString().contains('unreachable')) {
-          debugPrint('Firebase servers may be unreachable');
-        }
+      final msg = e.toString();
+      if (msg.contains('No Firebase App') || msg.contains('app/no-app')) {
+        _setError('Authentication service is not available.', context: 'login');
       } else {
-        debugPrint('Unexpected sign in error: $e');
+        _setError('Sign-in failed. Please try again.', context: 'login');
       }
-
-      _setError(errorMessage, context: 'login');
+      debugPrint('Unexpected sign in error: $e');
       return false;
     } finally {
       _setEmailLoading(false);
@@ -303,52 +292,20 @@ class AuthService extends ChangeNotifier {
       );
       return true;
     } on FirebaseAuthException catch (e) {
-      String errorMessage = _getErrorMessage(e);
-      _setError(errorMessage, context: 'register');
-      debugPrint('Create account error: $errorMessage');
+      _setError(_getErrorMessage(e), context: 'register');
+      debugPrint('Create account error: ${e.code} - ${e.message}');
+      return false;
+    } on PlatformException catch (e) {
+      _setError(_getPlatformErrorMessage(e), context: 'register');
+      debugPrint('Platform error during account creation: ${e.code}');
       return false;
     } catch (e) {
-      // Enhanced network error handling
-      String errorMessage = 'An unexpected error occurred. Please try again.';
-
-      // Handle case where Firebase Auth is not properly configured
-      if (e.toString().contains('No Firebase App') ||
-          e.toString().contains('app/no-app')) {
-        errorMessage =
-            'Firebase Authentication is not properly configured. Please enable Authentication in Firebase Console.';
-        debugPrint('Firebase Auth not configured: $e');
-      } else if (_isNetworkError(e)) {
-        errorMessage =
-            'Network error. Please check your internet connection and try again. If the problem persists, try restarting the app.';
-        debugPrint('Network error during account creation: $e');
-
-        // Attempt to fallback to mock mode for development
-        if (!_isMockMode && kDebugMode) {
-          debugPrint(
-            'Considering fallback to mock mode due to persistent network issues',
-          );
-        }
-      } else {
-        debugPrint('Unexpected create account error: $e');
-      }
-
-      _setError(errorMessage, context: 'register');
+      _setError('An unexpected error occurred. Please try again.', context: 'register');
+      debugPrint('Unexpected create account error: $e');
       return false;
     } finally {
       _setEmailLoading(false);
     }
-  }
-
-  /// Check if an error is network-related
-  bool _isNetworkError(dynamic error) {
-    final errorString = error.toString().toLowerCase();
-    return errorString.contains('network') ||
-        errorString.contains('connection') ||
-        errorString.contains('timeout') ||
-        errorString.contains('unreachable') ||
-        errorString.contains('dns') ||
-        errorString.contains('socket') ||
-        errorString.contains('internet');
   }
 
   /// Get network troubleshooting steps for users
@@ -359,8 +316,21 @@ class AuthService extends ChangeNotifier {
       'Disable VPN if you\'re using one',
       'Restart the app and try again',
       'Clear app cache (Android) or restart device',
-      'Check if Firebase services are accessible in your region',
     ];
+  }
+
+  /// Convert PlatformException to user-friendly message
+  String _getPlatformErrorMessage(PlatformException e) {
+    switch (e.code) {
+      case 'network-request-failed':
+        return 'No internet connection. Please check your WiFi or mobile data and try again.';
+      case 'sign_in_failed':
+        return 'Google sign-in failed. Please ensure Google Play Services is up to date.';
+      case 'sign_in_canceled':
+        return '';
+      default:
+        return 'Something went wrong. Please try again.';
+    }
   }
 
   /// Sign in with Google
@@ -404,54 +374,23 @@ class AuthService extends ChangeNotifier {
 
       debugPrint('Signed in with Google: ${currentUser?.email}');
       return true;
-    } catch (e) {
-      String errorMessage = 'Failed to sign in with Google. Please try again.';
-
-      // Handle specific Google sign-in errors
-      String errorString = e.toString().toLowerCase();
-
-      if (errorString.contains('network-request-failed') ||
-          errorString.contains('network')) {
-        errorMessage =
-            'Network error. Please check your internet connection and try again.';
-      } else if (errorString.contains('sign_in_canceled') ||
-          errorString.contains('cancelled')) {
-        // User cancelled, don't show error message
+    } on FirebaseAuthException catch (e) {
+      _setError(_getErrorMessage(e), context: 'google-signin');
+      debugPrint('Firebase error during Google sign-in: ${e.code}');
+      return false;
+    } on PlatformException catch (e) {
+      final msg = _getPlatformErrorMessage(e);
+      if (msg.isEmpty) {
+        // User cancelled — no error to show
         debugPrint('Google sign-in cancelled by user');
         return false;
-      } else if (errorString.contains('sign_in_failed')) {
-        errorMessage =
-            'Google sign-in failed. Please ensure Google Play Services is up to date and try again.';
-      } else if (errorString.contains(
-        'account-exists-with-different-credential',
-      )) {
-        errorMessage =
-            'An account already exists with this email using a different sign-in method. Please try signing in with email/password.';
-      } else if (errorString.contains('popup-blocked')) {
-        errorMessage =
-            'Sign-in popup was blocked. Please allow popups and try again.';
-      } else if (errorString.contains('popup-closed')) {
-        errorMessage =
-            'Sign-in was cancelled. Please complete the sign-in process.';
-      } else if (errorString.contains('unauthorized-domain')) {
-        errorMessage =
-            'Sign-in not allowed from this domain. Please contact support.';
-      } else if (errorString.contains('operation-not-allowed')) {
-        errorMessage = 'Google sign-in is not enabled. Please contact support.';
-      } else if (errorString.contains('invalid-credential')) {
-        errorMessage = 'Google authentication failed. Please try again.';
-      } else if (errorString.contains('user-disabled')) {
-        errorMessage =
-            'Your account has been disabled. Please contact support for assistance.';
-      } else if (errorString.contains('too-many-requests')) {
-        errorMessage =
-            'Too many sign-in attempts. Please wait a moment and try again.';
-      } else if (errorString.contains('internal-error')) {
-        errorMessage = 'Internal error occurred. Please try again later.';
       }
-
-      _setError(errorMessage, context: 'google-signin');
-      debugPrint('Google sign in error: $e');
+      _setError(msg, context: 'google-signin');
+      debugPrint('Platform error during Google sign-in: ${e.code}');
+      return false;
+    } catch (e) {
+      _setError('Failed to sign in with Google. Please try again.', context: 'google-signin');
+      debugPrint('Unexpected Google sign-in error: $e');
       return false;
     } finally {
       _setGoogleLoading(false);

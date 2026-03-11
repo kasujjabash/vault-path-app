@@ -71,7 +71,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         decoration: BoxDecoration(
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.3),
+                          ).colorScheme.onSurface.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -261,7 +261,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       BoxShadow(
                         color: Theme.of(
                           context,
-                        ).colorScheme.primary.withOpacity(0.08),
+                        ).colorScheme.primary.withValues(alpha: 0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -308,7 +308,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       BoxShadow(
                         color: Theme.of(
                           context,
-                        ).colorScheme.primary.withOpacity(0.08),
+                        ).colorScheme.primary.withValues(alpha: 0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -321,7 +321,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       hintStyle: TextStyle(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.5),
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
                       ),
@@ -331,7 +331,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           Icons.search_rounded,
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.5),
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
                           size: 20,
                         ),
                       ),
@@ -350,7 +350,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                     Icons.clear_rounded,
                                     color: Theme.of(
                                       context,
-                                    ).colorScheme.onSurface.withOpacity(0.5),
+                                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                                     size: 18,
                                   ),
                                 ),
@@ -444,7 +444,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     BoxShadow(
                       color: Theme.of(
                         context,
-                      ).colorScheme.secondary.withOpacity(0.3),
+                      ).colorScheme.secondary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -453,7 +453,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     BoxShadow(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.05),
+                      ).colorScheme.onSurface.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -470,7 +470,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       ? Theme.of(context).colorScheme.onSecondary
                       : Theme.of(
                         context,
-                      ).colorScheme.secondary.withOpacity(0.7),
+                      ).colorScheme.secondary.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 6),
             Text(
@@ -542,7 +542,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 ? Theme.of(context).colorScheme.secondary
                                 : Theme.of(
                                   context,
-                                ).colorScheme.secondary.withOpacity(0.3),
+                                ).colorScheme.secondary.withValues(alpha: 0.3),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -611,7 +611,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 style: TextStyle(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               )
             else
@@ -656,7 +656,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                       ? Theme.of(context).colorScheme.secondary
                                       : Theme.of(
                                         context,
-                                      ).colorScheme.secondary.withOpacity(0.3),
+                                      ).colorScheme.secondary.withValues(alpha: 0.3),
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -805,7 +805,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     size: 50,
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.4),
+                    ).colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -824,7 +824,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     fontSize: 14,
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -869,7 +869,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           Icon(
             Icons.receipt_long_outlined,
             size: 64,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -885,7 +885,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             'Add your first transaction to get started',
             style: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             textAlign: TextAlign.center,
           ),

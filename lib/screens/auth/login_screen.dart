@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         child: Container(
-          decoration: BoxDecoration(color: Colors.black.withOpacity(0.7)),
+          decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7)),
           child: Consumer<AuthService>(
             builder: (context, authService, child) {
               return SingleChildScrollView(
@@ -94,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen>
                           FadeTransition(
                             opacity: _fadeAnimation,
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
                                   'Welcome Back',
@@ -102,7 +103,6 @@ class _LoginScreenState extends State<LoginScreen>
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 const Text(
@@ -111,7 +111,6 @@ class _LoginScreenState extends State<LoginScreen>
                                     fontSize: 16,
                                     color: Colors.white70,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 48),
                               ],
@@ -185,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen>
                 _isPasswordVisible
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
               ),
               onPressed: () {
                 setState(() {
@@ -213,36 +212,54 @@ class _LoginScreenState extends State<LoginScreen>
             isLoading: authService.isEmailLoading,
             isPrimary: true,
           ),
-
         ],
       ),
     );
   }
 
   Future<void> _handleSignIn(AuthService authService) async {
+    if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
     try {
-      if (_formKey.currentState!.validate()) {
-        final success = await authService.signInWithEmail(
-          _emailController.text,
-          _passwordController.text,
-        );
-        if (success && mounted) {
-          if (context.mounted) context.go('/');
-        }
+      final success = await authService.signInWithEmail(
+        _emailController.text,
+        _passwordController.text,
+      );
+      if (!mounted) return;
+      if (success) {
+        context.go('/');
+      } else {
+        _showError(authService.error ?? 'Sign-in failed. Please try again.');
       }
     } catch (e) {
-      debugPrint('Error during email sign-in: $e');
-      // AuthService already handles error display, so we don't need to show additional error here
-      if (mounted) {
-        // Optionally show a snackbar for critical errors that slip through
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign-in failed. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      _showError(_friendlyError(e));
     }
   }
 
+  void _showError(String message) {
+    if (message.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+  String _friendlyError(dynamic e) {
+    final s = e.toString().toLowerCase();
+    if (s.contains('network') || s.contains('socket') || s.contains('timeout')) {
+      return 'No internet connection. Please check your WiFi or mobile data.';
+    }
+    return 'Sign-in failed. Please try again.';
+  }
 }

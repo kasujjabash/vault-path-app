@@ -181,29 +181,32 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   }
 
   Widget _buildSectionHeader(String title, int count) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: theme.colorScheme.onSurface,
           ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFF006E1F).withOpacity(0.1),
+            color: const Color(0xFF006E1F).withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             '$count',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF006E1F),
+              color: theme.brightness == Brightness.dark
+                  ? Colors.white
+                  : const Color(0xFF006E1F),
             ),
           ),
         ),
@@ -364,7 +367,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
               label,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -488,7 +491,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           color: isDarkMode ? theme.colorScheme.surface : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.2),
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -597,7 +600,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                 child: Text(
                   'Cancel',
                   style: TextStyle(
-                    color: theme.textTheme.bodyLarge?.color?.withOpacity(0.6),
+                    color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.6),
                   ),
                 ),
               ),

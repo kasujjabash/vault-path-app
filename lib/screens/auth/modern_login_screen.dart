@@ -95,7 +95,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
           'Lorem ipsum dolor sit amet consectetur,\nLorem sit',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 16,
             fontWeight: FontWeight.w400,
           ),
@@ -109,11 +109,11 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -275,9 +275,9 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.1),
+                    color: AppColors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                    border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     authService.error!,
@@ -296,7 +296,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF006E1F).withOpacity(0.3),
+                      color: const Color(0xFF006E1F).withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -506,7 +506,7 @@ class CurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Colors.white.withOpacity(0.1);
+    paint.color = Colors.white.withValues(alpha: 0.1);
     paint.style = PaintingStyle.fill;
 
     var path = Path();

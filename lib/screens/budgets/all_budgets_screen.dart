@@ -91,7 +91,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).shadowColor.withOpacity(0.04),
+                      color: Theme.of(context).shadowColor.withValues(alpha: 0.04),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -188,14 +188,14 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                     BoxShadow(
                       color: Theme.of(
                         context,
-                      ).colorScheme.secondary.withOpacity(0.3),
+                      ).colorScheme.secondary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
                   ]
                   : [
                     BoxShadow(
-                      color: Theme.of(context).shadowColor.withOpacity(0.05),
+                      color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -212,7 +212,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                       ? Theme.of(context).colorScheme.onSecondary
                       : Theme.of(
                         context,
-                      ).colorScheme.secondary.withOpacity(0.7),
+                      ).colorScheme.secondary.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 6),
             Text(
@@ -225,7 +225,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                         ? Theme.of(context).colorScheme.onSecondary
                         : Theme.of(
                           context,
-                        ).colorScheme.secondary.withOpacity(0.8),
+                        ).colorScheme.secondary.withValues(alpha: 0.8),
               ),
             ),
           ],
@@ -264,10 +264,10 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
         border: Border.all(
           color:
               isExceeded
-                  ? Theme.of(context).colorScheme.error.withOpacity(0.3)
+                  ? Theme.of(context).colorScheme.error.withValues(alpha: 0.3)
                   : isNearLimit
-                  ? Theme.of(context).colorScheme.tertiary.withOpacity(0.3)
-                  : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                  ? Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.3)
+                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -353,7 +353,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                   fontSize: 13,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               Text(
@@ -362,7 +362,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                   fontSize: 13,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -380,7 +380,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                           ? Theme.of(context).colorScheme.error
                           : Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.6),
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -431,7 +431,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen> {
                   : 'No budgets found for $_selectedMonth',
               style: TextStyle(
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               textAlign: TextAlign.center,
             ),

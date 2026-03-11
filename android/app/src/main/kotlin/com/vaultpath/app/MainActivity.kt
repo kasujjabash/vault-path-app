@@ -1,4 +1,4 @@
-package com.example.budjar
+package com.vaultpath.app
 
 import android.content.Intent
 import android.net.Uri

@@ -248,14 +248,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             Icon(
               Icons.analytics_outlined,
               size: 64,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             const SizedBox(height: 16),
             Text(
               'No ${type == 'expense' ? 'expenses' : 'income'} data available',
               style: TextStyle(
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -359,14 +359,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             Icon(
               Icons.receipt_long,
               size: 64,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             const SizedBox(height: 16),
             Text(
               'No recent $typeDisplayName transactions',
               style: TextStyle(
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -385,7 +385,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ),
@@ -398,7 +398,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               (context, index) => Divider(
                 height: 1,
                 thickness: 1,
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                 indent: 16,
                 endIndent: 16,
               ),
@@ -426,7 +426,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                                 ),
                               )
                               : Colors.pink)
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -463,7 +463,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                             fontSize: 12,
                             color: Theme.of(
                               context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -513,14 +513,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             Icon(
               Icons.analytics_outlined,
               size: 64,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             const SizedBox(height: 16),
             Text(
               'No $typeDisplayName data available',
               style: TextStyle(
                 fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -541,7 +541,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ),
@@ -660,7 +660,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               size: 20,
               color: isSelected
                   ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -772,7 +772,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                                 fontSize: 9,
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.onSurface.withOpacity(0.6),
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -884,7 +884,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               horizontalInterval: maxValue / 4,
               getDrawingHorizontalLine: (value) {
                 return FlLine(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withValues(alpha: 0.2),
                   strokeWidth: 1,
                 );
               },
@@ -892,8 +892,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             borderData: FlBorderData(
               show: true,
               border: Border(
-                left: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                left: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+                bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
               ),
             ),
             barGroups:
@@ -1052,7 +1052,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
             ),
             borderData: FlBorderData(
               show: true,
-              border: Border.all(color: Colors.grey.withOpacity(0.3)),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
             ),
             barGroups:
                 sortedDates.asMap().entries.map((entry) {
@@ -1081,7 +1081,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
               horizontalInterval: maxY / 4,
               getDrawingHorizontalLine: (value) {
                 return FlLine(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withValues(alpha: 0.2),
                   strokeWidth: 1,
                 );
               },
@@ -1301,7 +1301,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
                 barGroups:
                     sortedDates.asMap().entries.map((entry) {
@@ -1342,7 +1342,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
                   horizontalInterval: maxY / 4,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Colors.grey.withOpacity(0.2),
+                      color: Colors.grey.withValues(alpha: 0.2),
                       strokeWidth: 1,
                     );
                   },
@@ -1392,16 +1392,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(
-              context,
-            ).colorScheme.copyWith(primary: const Color(0xFF006E1F)),
-          ),
-          child: child!,
-        );
-      },
+      builder: (context, child) => child!,
     );
 
     if (picked != null && picked != _selectedDate) {

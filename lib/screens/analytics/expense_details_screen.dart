@@ -130,7 +130,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF006E1F).withOpacity(0.2),
+            color: const Color(0xFF006E1F).withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -143,7 +143,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
             'Total Spent This Month',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -161,7 +161,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
             children: [
               Icon(
                 Icons.calendar_today,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 size: 16,
               ),
               const SizedBox(width: 8),
@@ -169,7 +169,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
                 _getCurrentMonthYear(),
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -188,7 +188,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -276,7 +276,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -405,7 +405,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -481,9 +481,9 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -491,7 +491,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 20),

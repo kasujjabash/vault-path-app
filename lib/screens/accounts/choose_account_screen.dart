@@ -48,7 +48,7 @@ class ChooseAccountScreen extends StatelessWidget {
                   fontSize: 16,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 32),
@@ -172,17 +172,17 @@ class ChooseAccountScreen extends StatelessWidget {
           border:
               isPremium
                   ? Border.all(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     width: 2,
                   )
                   : Border.all(
                     color: Theme.of(
                       context,
-                    ).colorScheme.outline.withOpacity(0.2),
+                    ).colorScheme.outline.withValues(alpha: 0.2),
                   ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -197,8 +197,8 @@ class ChooseAccountScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color:
                     isPremium
-                        ? AppColors.primary.withOpacity(0.1)
-                        : AppConstants.primaryColor.withOpacity(0.1),
+                        ? AppColors.primary.withValues(alpha: 0.1)
+                        : AppConstants.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
@@ -255,7 +255,7 @@ class ChooseAccountScreen extends StatelessWidget {
                       fontSize: 14,
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                       height: 1.3,
                     ),
                   ),
@@ -267,7 +267,7 @@ class ChooseAccountScreen extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               size: 16,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ],
         ),
@@ -320,7 +320,7 @@ class ChooseAccountScreen extends StatelessWidget {
                 style: TextStyle(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ),
@@ -355,7 +355,7 @@ class ChooseAccountScreen extends StatelessWidget {
         text,
         style: TextStyle(
           fontSize: 14,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
         ),
       ),
     );

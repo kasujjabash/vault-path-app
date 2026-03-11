@@ -245,7 +245,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                       BoxShadow(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.05),
+                        ).colorScheme.onSurface.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -276,7 +276,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                                         : Theme.of(context)
                                             .colorScheme
                                             .onSurface
-                                            .withOpacity(0.6),
+                                            .withValues(alpha: 0.6),
                               ),
                               title: Text(
                                 type['label'] as String,
@@ -458,7 +458,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                       BoxShadow(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.05),
+                        ).colorScheme.onSurface.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),

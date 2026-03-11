@@ -261,7 +261,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
                             fontSize: 14,
                             color: Theme.of(
                               context,
-                            ).colorScheme.onSurface.withOpacity(0.7),
+                            ).colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -290,7 +290,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
                           fontSize: 12,
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.7),
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -301,7 +301,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
               Divider(
                 height: 1,
                 thickness: 1,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
               ),
             ],
           ),
@@ -330,7 +330,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
     if (category != null) {
       try {
         iconColor = Color(FormatUtils.parseColorString(category.color));
-        backgroundColor = iconColor.withOpacity(0.1);
+        backgroundColor = iconColor.withValues(alpha: 0.1);
 
         // Map category icon names to IconData
         switch (category.icon.toLowerCase()) {
@@ -389,7 +389,7 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: iconColor.withOpacity(0.2), width: 1),
+        border: Border.all(color: iconColor.withValues(alpha: 0.2), width: 1),
       ),
       child: Icon(iconData, color: iconColor, size: 20),
     );

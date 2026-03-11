@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -15,8 +17,21 @@ import 'router/app_router.dart';
 
 /// Main entry point of the Budjar expense tracker application
 /// This app helps users track their expenses, manage budgets, and analyze spending patterns
-void main() async {
+void main() {
+  runZonedGuarded(_appMain, (error, stack) {
+    // Any uncaught exception (including PlatformException from Firebase) lands here
+    debugPrint('Unhandled error caught by zone: $error');
+  });
+}
+
+Future<void> _appMain() async {
   WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
+
+  // Catch Flutter framework errors without crashing
+  FlutterError.onError = (FlutterErrorDetails details) {
+    debugPrint('Flutter error: ${details.exception}');
+  };
 
   bool firebaseInitialized = false;
 

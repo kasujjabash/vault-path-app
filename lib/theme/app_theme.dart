@@ -87,6 +87,10 @@ class AppTheme {
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
+      snackBarTheme: const SnackBarThemeData(
+        contentTextStyle: TextStyle(color: Colors.white),
+        actionTextColor: Colors.white,
+      ),
       cardTheme: const CardThemeData(
         color: AppColors.lightSurface,
         elevation: 2,
@@ -171,6 +175,22 @@ class AppTheme {
           return null;
         }),
       ),
+      datePickerTheme: DatePickerThemeData(
+        headerBackgroundColor: const Color(0xFF006E1F),
+        headerForegroundColor: Colors.white,
+        todayForegroundColor: const WidgetStatePropertyAll(Color(0xFF006E1F)),
+        todayBorder: const BorderSide(color: Color(0xFF006E1F)),
+        dayForegroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return AppColors.lightOnSurface;
+        }),
+        dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF006E1F);
+          }
+          return null;
+        }),
+      ),
     );
   }
 
@@ -219,6 +239,10 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        contentTextStyle: TextStyle(color: Colors.white),
+        actionTextColor: Colors.white,
       ),
       cardTheme: const CardThemeData(
         color: AppColors.darkSurface,
@@ -310,6 +334,23 @@ class AppTheme {
           }
           return null;
         }),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        headerBackgroundColor: const Color(0xFF006E1F),
+        headerForegroundColor: Colors.white,
+        todayForegroundColor: const WidgetStatePropertyAll(AppColors.darkGreen),
+        todayBorder: const BorderSide(color: AppColors.darkGreen),
+        dayForegroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return AppColors.darkOnSurface;
+        }),
+        dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF006E1F);
+          }
+          return null;
+        }),
+        backgroundColor: AppColors.darkSurface,
       ),
     );
   }

@@ -166,7 +166,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
           'Unlock the full experience',
           style: TextStyle(
             fontSize: 15,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
           textAlign: TextAlign.center,
         ),
@@ -196,7 +196,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF006E1F).withOpacity(0.1),
+                    color: const Color(0xFF006E1F).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -251,14 +251,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF006E1F).withOpacity(0.06)
+                    ? const Color(0xFF006E1F).withValues(alpha: 0.06)
                     : (isDark
                         ? Theme.of(context).colorScheme.surface
                         : Colors.white),
                 border: Border.all(
                   color: isSelected
                       ? const Color(0xFF006E1F)
-                      : Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                   width: isSelected ? 2 : 1,
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -277,7 +277,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                             : Theme.of(context)
                                 .colorScheme
                                 .outline
-                                .withOpacity(0.5),
+                                .withValues(alpha: 0.5),
                         width: 2,
                       ),
                     ),
@@ -343,7 +343,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.6),
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -385,7 +385,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
               backgroundColor: const Color(0xFF006E1F),
               foregroundColor: Colors.white,
               disabledBackgroundColor:
-                  const Color(0xFF006E1F).withOpacity(0.5),
+                  const Color(0xFF006E1F).withValues(alpha: 0.5),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -434,7 +434,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             foregroundColor: Theme.of(context)
                 .colorScheme
                 .onSurface
-                .withOpacity(0.6),
+                .withValues(alpha: 0.6),
           ),
           child: const Text(
             'Maybe Later',
