@@ -14,6 +14,7 @@ import '../../components/banner_ad_widget.dart';
 import '../reports/financial_report_screen.dart';
 import '../../services/currency_service.dart';
 import '../../utils/premium_utils.dart';
+import '../../utils/custom_snackbar.dart';
 import '../../services/premium_service.dart';
 
 /// Transactions screen for viewing and managing all transactions
@@ -1344,93 +1345,58 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
         // Show success message with open option
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.picture_as_pdf, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  const Text('PDF exported successfully!'),
-                ],
-              ),
-              backgroundColor: const Color(0xFF006E1F),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              action: SnackBarAction(
-                label: 'Open PDF',
-                textColor: Colors.white,
-                onPressed: () async {
-                  try {
-                    // Use platform channel to open PDF
-                    const platform = MethodChannel('com.budjar.file_opener');
-                    await platform.invokeMethod('openFile', {
-                      'path': file.path,
-                    });
-                  } catch (e) {
-                    // Fallback: show file location dialog
-                    if (mounted) {
-                      showDialog(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: const Text('PDF Exported Successfully!'),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Your transaction report has been saved.',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'Location:',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: SelectableText(
-                                      file.path,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: 'monospace',
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  const Text(
-                                    'You can find this file in your device\'s Downloads folder or use a file manager app to open it.',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('OK'),
-                                ),
-                              ],
+          CustomSnackBar.show(
+            context: context,
+            message: 'PDF exported successfully!',
+            type: SnackBarType.success,
+            actionLabel: 'Open PDF',
+            onActionPressed: () async {
+              try {
+                const platform = MethodChannel('com.budjar.file_opener');
+                await platform.invokeMethod('openFile', {'path': file.path});
+              } catch (e) {
+                if (mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('PDF Exported Successfully!'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Your transaction report has been saved.',
+                              style: TextStyle(fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 16),
+                          const Text('Location:',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                      );
-                    }
-                  }
-                },
-              ),
-            ),
+                            child: SelectableText(file.path,
+                                style: const TextStyle(
+                                    fontSize: 12, fontFamily: 'monospace')),
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'You can find this file in your device\'s Downloads folder or use a file manager app to open it.',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('OK')),
+                      ],
+                    ),
+                  );
+                }
+              }
+            },
           );
         }
       }
@@ -1441,16 +1407,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error exporting PDF: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
+        CustomSnackBar.showError(context, 'Error exporting PDF: $e');
       }
     }
   }

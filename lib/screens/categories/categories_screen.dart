@@ -394,7 +394,11 @@ class _CategoriesScreenState extends State<CategoriesScreen>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder:
-          (context) => Container(
+          (context) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: theme.scaffoldBackgroundColor,
@@ -469,6 +473,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                 const SizedBox(height: 20),
               ],
             ),
+          ),
           ),
     );
   }

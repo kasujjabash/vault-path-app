@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../services/notification_service.dart';
 import '../models/notification.dart';
 import '../utils/format_utils.dart';
+import '../utils/custom_snackbar.dart';
 
 /// Screen showing all user notifications
 class NotificationsScreen extends StatefulWidget {
@@ -152,20 +153,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             notification.id,
           );
           if (deletedNotification != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Notification deleted'),
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 4),
-                action: SnackBarAction(
-                  label: 'Undo',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    service.undoDeleteNotification(deletedNotification);
-                  },
-                ),
-              ),
+            CustomSnackBar.show(
+              context: context,
+              message: 'Notification deleted',
+              type: SnackBarType.info,
+              duration: const Duration(seconds: 4),
+              actionLabel: 'Undo',
+              onActionPressed: () {
+                service.undoDeleteNotification(deletedNotification);
+              },
             );
           }
         },

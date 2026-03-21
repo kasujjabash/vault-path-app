@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/premium_features.dart';
 import '../../services/premium_service.dart';
 import '../../utils/app_constants.dart';
+import '../../utils/custom_snackbar.dart';
 
 /// Premium subscription screen for Vault Path Premium
 class PremiumScreen extends StatefulWidget {
@@ -63,12 +64,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Welcome to Vault Path Premium! 🎉'),
-                  backgroundColor: Color(0xFF006E1F),
-                ),
-              );
+              CustomSnackBar.showSuccess(context, 'Welcome to Vault Path Premium!');
             }
           });
         }

@@ -19,34 +19,37 @@ import '../screens/notifications_screen.dart';
 import '../screens/categories/categories_screen.dart';
 import '../screens/budgets/all_budgets_screen.dart';
 import '../services/auth_service.dart';
+import '../screens/splash_screen.dart';
 
 /// App Router configuration using go_router
 /// This handles all navigation throughout the app with auth protection
 class AppRouter {
   static GoRouter createRouter(AuthService authService) => GoRouter(
-    initialLocation: '/login',
-    refreshListenable: authService, // Listen to auth state changes
+    initialLocation: '/splash',
+    refreshListenable: authService,
     redirect: (context, state) {
       final isSignedIn = authService.isSignedIn;
+      final location = state.matchedLocation;
 
-      // Define auth routes
+      // Never redirect away from splash — it handles its own navigation
+      if (location == '/splash') return null;
+
       const authRoutes = ['/login', '/register'];
-      final isAuthRoute = authRoutes.contains(state.matchedLocation);
+      final isAuthRoute = authRoutes.contains(location);
 
-      // If not signed in and not on auth route, redirect to login
-      if (!isSignedIn && !isAuthRoute) {
-        return '/login';
-      }
+      if (!isSignedIn && !isAuthRoute) return '/login';
+      if (isSignedIn && isAuthRoute) return '/';
 
-      // If signed in and on auth route, redirect to home
-      if (isSignedIn && isAuthRoute) {
-        return '/';
-      }
-
-      // No redirect needed
       return null;
     },
     routes: [
+      // Splash route
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+
       // Auth routes
       GoRoute(
         path: '/login',

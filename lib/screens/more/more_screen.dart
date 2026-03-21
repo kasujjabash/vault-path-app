@@ -852,24 +852,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                         );
                                         if (context.mounted) {
                                           Navigator.pop(context);
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Currency changed to ${currency.name}',
-                                              ),
-                                              backgroundColor: const Color(
-                                                0xFF006E1F,
-                                              ),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          );
+                                          CustomSnackBar.showSuccess(context, 'Currency changed to ${currency.name}');
                                         }
                                       },
                                     ),
@@ -993,34 +976,16 @@ class _MoreScreenState extends State<MoreScreen> {
                               Navigator.of(context).pop();
 
                               try {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Syncing your data...'),
-                                    backgroundColor: Color(0xFF006E1F),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
+                                CustomSnackBar.showInfo(context, 'Syncing your data...');
 
                                 await FirebaseSyncService().forceSyncSettings();
 
                                 if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Sync completed successfully!'),
-                                      backgroundColor: Color(0xFF006E1F),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
+                                  CustomSnackBar.showSuccess(context, 'Sync completed successfully!');
                                 }
                               } catch (e) {
                                 if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Sync failed: ${e.toString()}'),
-                                      backgroundColor: Colors.red,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
+                                  CustomSnackBar.showError(context, 'Sync failed: ${e.toString()}');
                                 }
                               }
                             },

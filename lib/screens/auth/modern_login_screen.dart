@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/custom_snackbar.dart';
 
 /// Modern Login Screen with curved gradient background
 /// Inspired by the provided design screenshot
@@ -382,14 +383,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
 
         if (success && mounted) {
           if (context.mounted) {
-            // Show success message briefly
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Welcome back!'),
-                backgroundColor: Colors.green,
-                duration: Duration(seconds: 1),
-              ),
-            );
+            CustomSnackBar.showSuccess(context, 'Welcome back!');
             context.go('/');
           }
         }
@@ -397,12 +391,7 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
       } catch (e) {
         // This should rarely happen as AuthService handles most errors
         if (mounted && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Login failed: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          CustomSnackBar.showError(context, 'Login failed: ${e.toString()}');
         }
       }
     }
@@ -451,46 +440,20 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
                       if (context.mounted) {
                         Navigator.pop(context);
                         if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Password reset email sent! Please check your inbox.',
-                              ),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
+                          CustomSnackBar.showSuccess(context, 'Password reset email sent! Please check your inbox.');
                         } else {
-                          // Show the specific error from AuthService
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                authService.error ??
-                                    'Failed to send reset email',
-                              ),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
+                          CustomSnackBar.showError(context, authService.error ?? 'Failed to send reset email');
                         }
                       }
                     } catch (e) {
                       if (context.mounted) {
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error: ${e.toString()}'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
+                        CustomSnackBar.showError(context, 'Error: ${e.toString()}');
                       }
                     }
                   } else {
                     // Show validation error for empty email
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter your email address'),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
+                    CustomSnackBar.showWarning(context, 'Please enter your email address');
                   }
                 },
                 child: const Text('Send Reset Email'),

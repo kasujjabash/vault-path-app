@@ -6,6 +6,7 @@ import '../../components/transparent_text_field.dart';
 import '../../components/auth_button.dart';
 import '../../components/auth_link.dart';
 import '../../components/auth_error_message.dart';
+import '../../utils/custom_snackbar.dart';
 
 /// Modern Login Screen with clean design
 class LoginScreen extends StatefulWidget {
@@ -239,20 +240,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _showError(String message) {
     if (message.isEmpty) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Colors.red.shade700,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 4),
-      ),
-    );
+    CustomSnackBar.showError(context, message);
   }
 
   String _friendlyError(dynamic e) {
