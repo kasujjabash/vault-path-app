@@ -2,6 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:timezone/timezone.dart' as tz;
 import '../models/notification.dart';
 import '../utils/format_utils.dart';
 
@@ -11,6 +16,13 @@ class NotificationService extends ChangeNotifier {
   static const String _lastBudgetReminderKey = 'last_budget_reminder';
   static const String _deviceIdKey = 'device_id';
   static const String _welcomeShownKey = 'welcome_notification_shown';
+
+  static const _channelId = 'vault_path_channel';
+  static const _channelName = 'Vault Path Notifications';
+  static const int _monthlyReminderId = 999;
+
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   List<AppNotification> _notifications = [];
   SharedPreferences? _prefs;
@@ -32,7 +44,9 @@ class NotificationService extends ChangeNotifier {
       _prefs = await SharedPreferences.getInstance();
       await _loadNotifications();
       await _checkBudgetReminder();
-      await _checkNewDeviceAndShowWelcome(); // Check for new device
+      await _checkNewDeviceAndShowWelcome();
+      await _initLocalNotifications();
+      await _initFCM();
       _isInitialized = true;
       notifyListeners();
       debugPrint(
@@ -40,6 +54,155 @@ class NotificationService extends ChangeNotifier {
       );
     } catch (e) {
       debugPrint('Error initializing NotificationService: $e');
+    }
+  }
+
+  /// Set up flutter_local_notifications and schedule the monthly reminder
+  Future<void> _initLocalNotifications() async {
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const initSettings = InitializationSettings(android: androidSettings);
+
+    await _localNotifications.initialize(initSettings);
+
+    // Create the notification channel on Android
+    const channel = AndroidNotificationChannel(
+      _channelId,
+      _channelName,
+      importance: Importance.high,
+    );
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    await scheduleMonthlyBudgetReminder();
+  }
+
+  /// Schedule a local notification on the 28th of every month at 8 PM
+  Future<void> scheduleMonthlyBudgetReminder() async {
+    await _localNotifications.cancel(_monthlyReminderId);
+
+    final now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      28,
+      20,
+      0,
+    );
+
+    // If the 28th this month has already passed, schedule for next month
+    if (scheduled.isBefore(now)) {
+      scheduled = tz.TZDateTime(tz.local, now.year, now.month + 1, 28, 20, 0);
+    }
+
+    await _localNotifications.zonedSchedule(
+      _monthlyReminderId,
+      '💰 Month-End Budget Reminder',
+      'The end of the month is near — review your spending and plan your budget for next month!',
+      scheduled,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+    );
+
+    debugPrint('Monthly reminder scheduled for the 28th at 8 PM');
+  }
+
+  /// Set up Firebase Cloud Messaging
+  Future<void> _initFCM() async {
+    // Only run if Firebase is available
+    if (Firebase.apps.isEmpty) {
+      debugPrint('FCM skipped — Firebase not initialized');
+      return;
+    }
+
+    final messaging = FirebaseMessaging.instance;
+
+    // Request permission (Android 13+ and iOS)
+    final settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    debugPrint('FCM permission: ${settings.authorizationStatus}');
+
+    if (settings.authorizationStatus != AuthorizationStatus.authorized &&
+        settings.authorizationStatus != AuthorizationStatus.provisional) {
+      debugPrint('FCM permission denied — notifications will not show');
+      return;
+    }
+
+    // Subscribe all users to the broadcast topic
+    await messaging.subscribeToTopic('all_users');
+
+    // Save the FCM token to Firestore for targeted messages
+    final token = await messaging.getToken();
+    if (token != null) {
+      await _saveFCMToken(token);
+    }
+
+    // Refresh token when it changes
+    messaging.onTokenRefresh.listen(_saveFCMToken);
+
+    // Handle foreground FCM messages — add to in-app notification list
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final notification = message.notification;
+      if (notification != null) {
+        addNotification(AppNotification(
+          id: message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          title: notification.title ?? 'Vault Path',
+          message: notification.body ?? '',
+          type: NotificationType.general,
+          createdAt: DateTime.now(),
+          isRead: false,
+        ));
+
+        // Also show as a heads-up local notification while app is open
+        _localNotifications.show(
+          DateTime.now().millisecond,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              _channelId,
+              _channelName,
+              importance: Importance.high,
+              priority: Priority.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  /// Save the FCM token to Firestore under the user's record
+  Future<void> _saveFCMToken(String token) async {
+    try {
+      final deviceId = await _getDeviceIdentifier();
+      await FirebaseFirestore.instance
+          .collection('fcm_tokens')
+          .doc(deviceId)
+          .set({
+        'token': token,
+        'updatedAt': FieldValue.serverTimestamp(),
+        'platform': kIsWeb ? 'web' : Platform.operatingSystem,
+      }, SetOptions(merge: true));
+      debugPrint('FCM token saved to Firestore');
+    } catch (e) {
+      debugPrint('Failed to save FCM token: $e');
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'providers/expense_provider.dart';
@@ -14,6 +15,14 @@ import 'services/notification_service.dart';
 import 'services/ad_service.dart';
 import 'services/premium_service.dart';
 import 'router/app_router.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+
+/// FCM background message handler — must be a top-level function
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint('FCM background message: ${message.notification?.title}');
+}
 
 /// Main entry point of the Budjar expense tracker application
 /// This app helps users track their expenses, manage budgets, and analyze spending patterns
@@ -27,6 +36,12 @@ void main() {
 Future<void> _appMain() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
+
+  // Initialize timezone data for scheduled notifications
+  tz.initializeTimeZones();
+
+  // Register FCM background handler before Firebase initializes
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // Catch Flutter framework errors without crashing
   FlutterError.onError = (FlutterErrorDetails details) {
