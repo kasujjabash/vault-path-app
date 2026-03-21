@@ -243,23 +243,33 @@ class _SplashScreenState extends State<SplashScreen>
                     bottom: 48,
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Percentage counter — updates as bar fills
-                      AnimatedBuilder(
-                        animation: _barProgress,
-                        builder: (context, _) {
-                          final percent = (_barProgress.value * 100).toInt();
-                          return Text(
-                            '$percent%',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
+                      // Percentage — fixed right, fixed width so it never shifts
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            width: 36,
+                            child: AnimatedBuilder(
+                              animation: _barProgress,
+                              builder: (context, _) {
+                                final percent =
+                                    (_barProgress.value * 100).toInt();
+                                return Text(
+                                  '$percent%',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 6),
@@ -297,8 +307,9 @@ class _SplashScreenState extends State<SplashScreen>
 
                       Text(
                         'by bApp',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: Colors.white.withValues(alpha: 0.75),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 1.0,
