@@ -1392,7 +1392,34 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      builder: (context, child) => child!,
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final surface = isDark ? const Color(0xFF2B3C29) : Colors.white;
+        final onSurface = isDark ? Colors.white : Colors.black87;
+        final base = isDark ? ThemeData.dark() : ThemeData.light();
+        return Theme(
+          data: base.copyWith(
+            colorScheme: ColorScheme(
+              brightness: isDark ? Brightness.dark : Brightness.light,
+              primary: const Color(0xFF006E1F),
+              onPrimary: Colors.white,
+              secondary: const Color(0xFF006E1F),
+              onSecondary: Colors.white,
+              surface: surface,
+              onSurface: onSurface,
+              error: Colors.red,
+              onError: Colors.white,
+            ),
+            dialogTheme: DialogThemeData(backgroundColor: surface),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: isDark ? Colors.white : const Color(0xFF006E1F),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (picked != null && picked != _selectedDate) {

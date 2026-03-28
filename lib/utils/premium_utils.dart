@@ -78,7 +78,9 @@ class PremiumUtils {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF006E1F).withValues(alpha: 0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : const Color(0xFF006E1F).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(

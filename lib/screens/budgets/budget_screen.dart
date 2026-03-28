@@ -1021,13 +1021,17 @@ class _BudgetScreenState extends State<BudgetScreen> {
           LinearProgressIndicator(
             value: progress.clamp(0.0, 1.0),
             backgroundColor:
-                Theme.of(context).colorScheme.surfaceContainerHighest,
+                Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey.shade700
+                    : Colors.grey.shade200,
             valueColor: AlwaysStoppedAnimation<Color>(
               isExceeded
                   ? Theme.of(context).colorScheme.error
                   : isNearLimit
-                  ? Theme.of(context).colorScheme.tertiary
-                  : Theme.of(context).colorScheme.secondary,
+                  ? const Color(0xFFFFB74D)
+                  : Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF7DDB7D)
+                  : const Color(0xFF006E1F),
             ),
           ),
 

@@ -587,6 +587,75 @@ class NotificationService extends ChangeNotifier {
     });
   }
 
+  /// Show a system + in-app notification when a recurring transaction fires
+  Future<void> showRecurringTransactionNotification({
+    required String title,
+    required String amount,
+    required String pattern,
+  }) async {
+    final body = 'Your recurring $title of $amount has been auto-recorded.';
+
+    // System notification (shows in notification bar)
+    await _localNotifications.show(
+      DateTime.now().millisecondsSinceEpoch % 100000,
+      '🔄 Recurring Transaction',
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+
+    // In-app notification (shows in the notifications screen)
+    addNotification(AppNotification(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: '🔄 Recurring Transaction',
+      message: body,
+      type: NotificationType.general,
+      createdAt: DateTime.now(),
+      isRead: false,
+    ));
+  }
+
+  /// Schedule a local notification for a recurring transaction's next due date
+  Future<void> scheduleRecurringTransactionNotification({
+    required int id,
+    required String title,
+    required String amount,
+    required DateTime dueDate,
+  }) async {
+    try {
+      final scheduledDate = tz.TZDateTime.from(dueDate, tz.local);
+      if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+      await _localNotifications.zonedSchedule(
+        id,
+        '🔄 Recurring Transaction Due',
+        '$title of $amount is being auto-recorded today.',
+        scheduledDate,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            _channelId,
+            _channelName,
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling recurring notification: $e');
+    }
+  }
+
   /// Reset welcome notification state (useful for testing)
   Future<void> resetWelcomeState() async {
     await _prefs?.remove(_deviceIdKey);

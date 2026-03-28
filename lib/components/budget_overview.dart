@@ -51,7 +51,8 @@ class BudgetOverview extends StatelessWidget {
     final isNearLimit = budget.isNearLimit;
     final isExceeded = budget.isExceeded;
 
-    Color progressColor = AppConstants.successColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    Color progressColor = isDark ? const Color(0xFF7DDB7D) : AppConstants.successColor;
     if (isExceeded) {
       progressColor = AppConstants.errorColor;
     } else if (isNearLimit) {
@@ -124,7 +125,7 @@ class BudgetOverview extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
             child: LinearProgressIndicator(
               value: progress.clamp(0.0, 1.0),
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
               valueColor: AlwaysStoppedAnimation<Color>(progressColor),
               minHeight: 6,
             ),

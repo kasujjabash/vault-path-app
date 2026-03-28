@@ -201,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen>
             },
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 12),
 
           // Error Message
           AuthErrorMessage(error: authService.error),
@@ -212,6 +212,35 @@ class _LoginScreenState extends State<LoginScreen>
             onPressed: () => _handleSignIn(authService),
             isLoading: authService.isEmailLoading,
             isPrimary: true,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Forgot Password
+          GestureDetector(
+            onTap: () => _showForgotPasswordDialog(authService),
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: RichText(
+                text: const TextSpan(
+                  text: 'Forgot your password? ',
+                  style: TextStyle(color: Colors.white60, fontSize: 14),
+                  children: [
+                    TextSpan(
+                      text: 'Reset it here',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -241,6 +270,104 @@ class _LoginScreenState extends State<LoginScreen>
   void _showError(String message) {
     if (message.isEmpty) return;
     CustomSnackBar.showError(context, message);
+  }
+
+  void _showForgotPasswordDialog(AuthService authService) {
+    final emailController = TextEditingController(text: _emailController.text);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor:
+            Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).colorScheme.surface
+                : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Reset Password',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter your email and we\'ll send you a link to reset your password.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              decoration: InputDecoration(
+                labelText: 'Email Address',
+                labelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+                prefixIcon: Icon(
+                  Icons.email_outlined,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final email = emailController.text.trim();
+              if (email.isEmpty || !email.contains('@')) {
+                CustomSnackBar.showError(context, 'Please enter a valid email');
+                return;
+              }
+              Navigator.pop(ctx);
+              final success = await authService.resetPassword(email);
+              if (mounted) {
+                if (success) {
+                  CustomSnackBar.showSuccess(
+                    context,
+                    'Reset link sent! Check your email.',
+                  );
+                } else {
+                  CustomSnackBar.showError(
+                    context,
+                    authService.error ?? 'Failed to send reset email.',
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.secondary,
+            ),
+            child: const Text('Send Link'),
+          ),
+        ],
+      ),
+    );
   }
 
   String _friendlyError(dynamic e) {

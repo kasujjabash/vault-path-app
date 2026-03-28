@@ -7,6 +7,8 @@ import '../models/transaction.dart';
 import '../models/budget.dart';
 import '../models/category_spending_data.dart';
 import '../services/firebase_sync_service.dart';
+import '../services/notification_service.dart';
+import '../utils/format_utils.dart';
 
 /// Main data provider for the expense tracker app
 /// This class manages all data operations and notifies listeners of changes
@@ -231,6 +233,22 @@ class ExpenseProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error adding transaction: $e');
       rethrow;
+    }
+  }
+
+  /// Stop a recurring transaction from repeating (keeps the original entry)
+  Future<void> stopRecurring(Transaction transaction) async {
+    try {
+      final stopped = transaction.copyWith(
+        isRecurring: false,
+        recurringPattern: null,
+        nextDueDate: null,
+        updatedAt: DateTime.now(),
+      );
+      await _repository.updateTransaction(stopped);
+      await loadTransactions();
+    } catch (e) {
+      debugPrint('Error stopping recurring transaction: $e');
     }
   }
 
@@ -580,6 +598,115 @@ class ExpenseProvider extends ChangeNotifier {
       return _categories.firstWhere((category) => category.id == id);
     } catch (e) {
       return null;
+    }
+  }
+
+  /// Process all recurring transactions that are due and create copies
+  Future<int> processRecurringTransactions(NotificationService notificationService) async {
+    try {
+      final now = DateTime.now();
+      int processed = 0;
+
+      // Find all recurring template transactions
+      final recurringTemplates = _transactions
+          .where((t) => t.isRecurring && t.nextDueDate != null)
+          .toList();
+
+      for (final template in recurringTemplates) {
+        DateTime dueDate = template.nextDueDate!;
+
+        // Process all missed occurrences (cap at 30 to avoid runaway)
+        int cap = 0;
+        while (dueDate.isBefore(now) && cap < 30) {
+          cap++;
+
+          // Create a child transaction for this occurrence
+          final child = Transaction(
+            id: '${DateTime.now().millisecondsSinceEpoch}${processed}_r',
+            accountId: template.accountId,
+            categoryId: template.categoryId,
+            type: template.type,
+            amount: template.amount,
+            title: template.title,
+            description: template.description,
+            date: dueDate,
+            location: template.location,
+            tags: template.tags,
+            isRecurring: false,
+            recurringPattern: null,
+            nextDueDate: null,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+
+          await _repository.insertTransaction(child);
+
+          // Update account balance using existing method
+          await _updateAccountBalance(child);
+
+          // Update budget spending if expense
+          if (template.type == 'expense') {
+            await _updateBudgetSpending(template.categoryId, template.amount);
+          }
+
+          // Advance to next due date
+          dueDate = _nextDueDate(dueDate, template.recurringPattern!);
+          processed++;
+        }
+
+        if (cap > 0) {
+          // Update the template's nextDueDate to the next future date
+          final updatedTemplate = template.copyWith(
+            nextDueDate: dueDate,
+            updatedAt: DateTime.now(),
+          );
+          await _repository.updateTransaction(updatedTemplate);
+
+          // Notify
+          final amountStr = FormatUtils.formatCurrency(template.amount);
+          await notificationService.showRecurringTransactionNotification(
+            title: template.title,
+            amount: amountStr,
+            pattern: template.recurringPattern ?? 'daily',
+          );
+
+          // Schedule next notification
+          final notifId = template.id.hashCode.abs() % 90000 + 10000;
+          await notificationService.scheduleRecurringTransactionNotification(
+            id: notifId,
+            title: template.title,
+            amount: amountStr,
+            dueDate: dueDate,
+          );
+        }
+      }
+
+      if (processed > 0) {
+        await loadTransactions();
+        await loadAccounts();
+        await loadBudgets();
+      }
+
+      return processed;
+    } catch (e) {
+      debugPrint('Error processing recurring transactions: $e');
+      return 0;
+    }
+  }
+
+  /// Calculate the next due date based on pattern
+  DateTime _nextDueDate(DateTime from, String pattern) {
+    switch (pattern) {
+      case 'daily':
+        return from.add(const Duration(days: 1));
+      case 'weekly':
+        return from.add(const Duration(days: 7));
+      case 'monthly':
+        return DateTime(from.year, from.month + 1, from.day);
+      case 'yearly':
+        return DateTime(from.year + 1, from.month, from.day);
+      default:
+        return from.add(const Duration(days: 1));
     }
   }
 

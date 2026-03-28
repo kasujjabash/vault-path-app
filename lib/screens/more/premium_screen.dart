@@ -31,14 +31,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
     {
       'id': 'monthly',
       'productId': PremiumFeatures.monthlySubscriptionId,
-      'fallbackPrice': '\$1.09',
+      'fallbackPrice': 'Loading...',
       'period': 'Monthly',
       'description': 'Billed monthly',
     },
     {
       'id': 'yearly',
       'productId': PremiumFeatures.yearlySubscriptionId,
-      'fallbackPrice': '\$7.99',
+      'fallbackPrice': 'Loading...',
       'period': 'Yearly',
       'description': 'Billed annually • Save 40%',
       'popular': true,
@@ -46,7 +46,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
     {
       'id': 'lifetime',
       'productId': PremiumFeatures.lifetimePurchaseId,
-      'fallbackPrice': '\$17.99',
+      'fallbackPrice': 'Loading...',
       'period': 'Lifetime',
       'description': 'Pay once, own forever',
     },
@@ -192,12 +192,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF006E1F).withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     f['icon'] as IconData,
-                    color: const Color(0xFF006E1F),
+                    color: Theme.of(context).colorScheme.secondary,
                     size: 20,
                   ),
                 ),
@@ -353,7 +353,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: isSelected
-                          ? const Color(0xFF006E1F)
+                          ? Theme.of(context).colorScheme.secondary
                           : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),

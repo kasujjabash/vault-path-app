@@ -14,6 +14,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late DateTime _startTime;
 
   late Animation<double> _orbFade;
   late Animation<double> _titleFade;
@@ -30,6 +31,8 @@ class _SplashScreenState extends State<SplashScreen>
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
+
+    _startTime = DateTime.now();
 
     _controller = AnimationController(
       vsync: this,
@@ -90,6 +93,14 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _navigate() {
     if (!mounted) return;
+
+    const minDisplay = Duration(milliseconds: 2500);
+    final elapsed = DateTime.now().difference(_startTime);
+    if (elapsed < minDisplay) {
+      Future.delayed(minDisplay - elapsed, _navigate);
+      return;
+    }
+
     final authService = context.read<AuthService>();
 
     if (!authService.isInitialized) {
@@ -203,7 +214,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 46,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: -0.5,
                                   height: 1,
                                 ),

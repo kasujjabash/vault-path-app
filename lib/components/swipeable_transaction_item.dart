@@ -4,6 +4,7 @@ import '../providers/expense_provider.dart';
 import '../models/transaction.dart';
 import '../utils/format_utils.dart';
 import '../utils/custom_snackbar.dart';
+import '../screens/transactions/add_transaction_screen.dart';
 
 /// Enhanced transaction list item with swipe-to-delete functionality
 /// Simple design matching screenshot layout
@@ -39,11 +40,11 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text(
+            title: Text(
               'Delete Transaction',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             content: Column(
@@ -234,7 +235,24 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
             ],
           ),
         ),
-        child: Container(
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => AddTransactionScreen(
+                  transaction: widget.transaction,
+                ),
+              ),
+            );
+          },
+          onLongPress: widget.transaction.isRecurring
+              ? () => _showRecurringOptions(context)
+              : null,
+          child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           child: Column(
             children: [
@@ -305,6 +323,116 @@ class _SwipeableTransactionItemState extends State<SwipeableTransactionItem> {
               ),
             ],
           ),
+        ),
+        ),
+        ),
+      ),
+    );
+  }
+
+  void _showRecurringOptions(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark
+          ? Theme.of(context).colorScheme.surface
+          : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.repeat, color: Theme.of(context).colorScheme.secondary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  '${widget.transaction.title} · ${widget.transaction.recurringPattern ?? ''} repeat',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.stop_circle_outlined, color: Colors.orange),
+              ),
+              title: Text(
+                'Stop Repeating',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              subtitle: Text(
+                'Keep this transaction but stop future auto-entries',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                final provider = Provider.of<ExpenseProvider>(context, listen: false);
+                await provider.stopRecurring(widget.transaction);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Repeat stopped for "${widget.transaction.title}"'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                }
+              },
+            ),
+            const Divider(),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.delete_outline, color: Colors.red.shade600),
+              ),
+              title: Text(
+                'Delete Transaction',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red.shade600,
+                ),
+              ),
+              subtitle: Text(
+                'Remove this entry and stop future repeats',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                final shouldDelete = await _confirmDismiss(DismissDirection.endToStart);
+                if (shouldDelete && context.mounted) {
+                  await _performDeletion();
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     );

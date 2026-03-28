@@ -130,11 +130,24 @@ class VaultPathApp extends StatelessWidget {
 
           // Initialize services in sequence to avoid race conditions
           if (!authService.isInitialized) {
+            // Capture providers before async gaps to avoid BuildContext across async warning
+            final expenseProvider = context.read<ExpenseProvider>();
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               try {
                 await authService.initialize(firebaseEnabled: firebaseEnabled);
                 await currencyService.initialize();
                 await premiumService.initialize();
+
+                // Process any due recurring transactions
+                if (expenseProvider.isInitialized) {
+                  await expenseProvider.processRecurringTransactions(notificationService);
+                } else {
+                  expenseProvider.addListener(() async {
+                    if (expenseProvider.isInitialized) {
+                      await expenseProvider.processRecurringTransactions(notificationService);
+                    }
+                  });
+                }
 
                 if (!notificationService.isInitialized) {
                   await notificationService.initialize();

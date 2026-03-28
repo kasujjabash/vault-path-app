@@ -13,8 +13,10 @@ import '../../models/category.dart' as models;
 import '../../models/account.dart';
 
 /// Modern Add Transaction Screen with clean interface
+/// Pass [transaction] to open in edit mode
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  final trans.Transaction? transaction;
+  const AddTransactionScreen({super.key, this.transaction});
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -32,6 +34,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   DateTime _selectedDate = DateTime.now();
   String _repeatOption = 'Never';
   bool _isLoading = false;
+  String? _amountError;
 
   // Custom category creation controllers
   final _categoryNameController = TextEditingController();
@@ -41,8 +44,29 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   void initState() {
     super.initState();
-    // Get type from URL query parameter
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Edit mode: pre-fill all fields from existing transaction
+      if (widget.transaction != null) {
+        final t = widget.transaction!;
+        setState(() {
+          _transactionType = t.type;
+          _amountController.text =
+              t.amount % 1 == 0
+                  ? t.amount.toInt().toString()
+                  : t.amount.toString();
+          _noteController.text = t.description ?? '';
+          _selectedCategoryId = t.categoryId;
+          _selectedAccountId = t.accountId;
+          _paymentMethod = (t.tags != null && t.tags!.isNotEmpty) ? t.tags! : 'Cash';
+          _selectedDate = t.date;
+          if (t.isRecurring && t.recurringPattern != null) {
+            final p = t.recurringPattern!;
+            _repeatOption = p[0].toUpperCase() + p.substring(1);
+          }
+        });
+        return;
+      }
+      // Add mode: get type from URL query parameter
       final uri = GoRouterState.of(context).uri;
       final type = uri.queryParameters['type'];
       if (type != null && (type == 'income' || type == 'expense')) {
@@ -73,7 +97,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           color: Theme.of(context).appBarTheme.foregroundColor,
         ),
         title: Text(
-          'Add Transaction',
+          widget.transaction != null ? 'Edit Transaction' : 'Add Transaction',
           style: TextStyle(
             color: Theme.of(context).appBarTheme.foregroundColor,
             fontSize: 18,
@@ -280,7 +304,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: _amountError != null
+                  ? Colors.red.shade400
+                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
@@ -326,6 +352,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       RegExp(r'^\d*\.?\d{0,2}'),
                     ),
                   ],
+                  onChanged: (_) {
+                    if (_amountError != null) {
+                      setState(() => _amountError = null);
+                    }
+                  },
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -339,6 +370,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       color: Colors.grey.shade400,
                     ),
                     border: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    errorStyle: const TextStyle(height: 0, fontSize: 0),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 20,
@@ -346,12 +380,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
+                      setState(() => _amountError = 'Please enter an amount');
+                      return '';
                     }
                     final amount = double.tryParse(value);
                     if (amount == null || amount <= 0) {
-                      return 'Please enter a valid amount';
+                      setState(() => _amountError = 'Please enter a valid amount');
+                      return '';
                     }
+                    setState(() => _amountError = null);
                     return null;
                   },
                 ),
@@ -359,6 +396,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             ],
           ),
         ),
+        if (_amountError != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              _amountError!,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.red.shade600,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -651,9 +701,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-                : const Text(
-                  'Save Transaction',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                : Text(
+                  widget.transaction != null ? 'Update Transaction' : 'Save Transaction',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
       ),
     );
@@ -699,7 +749,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     children: [
                       Icon(
                         Icons.category_outlined,
-                        color: const Color(0xFF006E1F),
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 28,
                       ),
                       const SizedBox(width: 12),
@@ -720,7 +770,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           Navigator.pop(context);
                           _showCreateCategoryDialog();
                         },
-                        icon: Icon(Icons.add, color: const Color(0xFF006E1F)),
+                        icon: Icon(Icons.add, color: Theme.of(context).colorScheme.secondary),
                         tooltip: 'Add New Category',
                       ),
                     ],
@@ -770,7 +820,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                     _showCreateCategoryDialog();
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF006E1F),
+                                    backgroundColor: Theme.of(context).colorScheme.secondary,
                                     foregroundColor: Colors.white,
                                   ),
                                   child: const Text('Add Category'),
@@ -797,7 +847,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                     border: Border.all(
                                       color:
                                           isSelected
-                                              ? const Color(0xFF006E1F)
+                                              ? Theme.of(context).colorScheme.secondary
                                               : Theme.of(context)
                                                   .colorScheme
                                                   .outline
@@ -832,7 +882,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                                 : FontWeight.normal,
                                         color:
                                             isSelected
-                                                ? const Color(0xFF006E1F)
+                                                ? Theme.of(context).colorScheme.secondary
                                                 : Theme.of(
                                                   context,
                                                 ).colorScheme.onSurface,
@@ -842,7 +892,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                         isSelected
                                             ? Icon(
                                               Icons.check,
-                                              color: const Color(0xFF006E1F),
+                                              color: Theme.of(context).colorScheme.secondary,
                                             )
                                             : Icon(
                                               Icons.chevron_right,
@@ -871,7 +921,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         child: Text(
                           'Close',
                           style: TextStyle(
-                            color: const Color(0xFF006E1F),
+                            color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -916,7 +966,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       children: [
                         Icon(
                           Icons.add_circle_outline,
-                          color: const Color(0xFF006E1F),
+                          color: Theme.of(context).colorScheme.secondary,
                           size: 28,
                         ),
                         const SizedBox(width: 12),
@@ -926,7 +976,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                             context,
                           ).textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF006E1F),
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       ],
@@ -963,7 +1013,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: const Color(0xFF006E1F),
+                            color: Theme.of(context).colorScheme.secondary,
                             width: 2,
                           ),
                         ),
@@ -1006,7 +1056,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                   border:
                                       _selectedCategoryColor == color
                                           ? Border.all(
-                                            color: const Color(0xFF006E1F),
+                                            color: Theme.of(context).colorScheme.secondary,
                                             width: 3,
                                           )
                                           : Border.all(
@@ -1041,7 +1091,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ElevatedButton(
                           onPressed: _createCustomCategory,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF006E1F),
+                            backgroundColor: Theme.of(context).colorScheme.secondary,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 24,
@@ -1171,12 +1221,54 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (context, child) => child!,
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final surface = isDark ? const Color(0xFF2B3C29) : Colors.white;
+        final onSurface = isDark ? Colors.white : Colors.black87;
+        final base = isDark ? ThemeData.dark() : ThemeData.light();
+        return Theme(
+          data: base.copyWith(
+            colorScheme: ColorScheme(
+              brightness: isDark ? Brightness.dark : Brightness.light,
+              primary: const Color(0xFF006E1F),
+              onPrimary: Colors.white,
+              secondary: const Color(0xFF006E1F),
+              onSecondary: Colors.white,
+              surface: surface,
+              onSurface: onSurface,
+              error: Colors.red,
+              onError: Colors.white,
+            ),
+            dialogTheme: DialogThemeData(backgroundColor: surface),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: isDark ? Colors.white : const Color(0xFF006E1F),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
       });
+    }
+  }
+
+  DateTime _calculateNextDueDate(DateTime from, String pattern) {
+    switch (pattern) {
+      case 'Daily':
+        return from.add(const Duration(days: 1));
+      case 'Weekly':
+        return from.add(const Duration(days: 7));
+      case 'Monthly':
+        return DateTime(from.year, from.month + 1, from.day);
+      case 'Yearly':
+        return DateTime(from.year + 1, from.month, from.day);
+      default:
+        return from.add(const Duration(days: 1));
     }
   }
 
@@ -1198,57 +1290,89 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     try {
       final provider = Provider.of<ExpenseProvider>(context, listen: false);
-      final amount = double.parse(_amountController.text);
-
-      final transaction = trans.Transaction(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        amount: amount,
-        categoryId: _selectedCategoryId!,
-        accountId:
-            _selectedAccountId ??
-            (provider.accounts.isNotEmpty
-                ? provider.accounts.first.id
-                : await _getOrCreateDefaultAccount(provider)),
-        type: _transactionType,
-        title:
-            _noteController.text.trim().isNotEmpty
-                ? _noteController.text.trim()
-                : _getCategoryName(_selectedCategoryId!),
-        description: _noteController.text.trim(),
-        date: _selectedDate,
-        tags: _paymentMethod, // Store payment method as tags
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      await provider.addTransaction(transaction);
-
-      // Add notification for the transaction
       final notificationService = context.read<NotificationService>();
+      final amount = double.parse(_amountController.text);
+      final accountId =
+          _selectedAccountId ??
+          (provider.accounts.isNotEmpty
+              ? provider.accounts.first.id
+              : await _getOrCreateDefaultAccount(provider));
       final categoryName = _getCategoryName(_selectedCategoryId!);
-      final description = _noteController.text.trim();
+      final noteText = _noteController.text.trim();
+      final isRecurring = _repeatOption != 'Never';
 
-      if (_transactionType == 'income') {
-        await notificationService.addIncomeNotification(
-          amount,
-          description.isEmpty ? categoryName : description,
+      if (widget.transaction != null) {
+        // Edit mode: update existing transaction
+        final old = widget.transaction!;
+        final updated = trans.Transaction(
+          id: old.id,
+          amount: amount,
+          categoryId: _selectedCategoryId!,
+          accountId: accountId,
+          type: _transactionType,
+          title: noteText.isNotEmpty ? noteText : categoryName,
+          description: noteText,
+          date: _selectedDate,
+          tags: _paymentMethod,
+          isRecurring: isRecurring,
+          recurringPattern: isRecurring ? _repeatOption.toLowerCase() : null,
+          nextDueDate: isRecurring ? _calculateNextDueDate(_selectedDate, _repeatOption) : null,
+          createdAt: old.createdAt,
+          updatedAt: DateTime.now(),
         );
+        await provider.updateTransaction(old, updated);
+
+        if (mounted) {
+          CustomSnackBar.show(
+            context: context,
+            message: 'Transaction updated successfully!',
+            type: SnackBarType.success,
+          );
+          Navigator.of(context).pop();
+        }
       } else {
-        await notificationService.addExpenseNotification(
-          amount,
-          categoryName,
-          description.isEmpty ? categoryName : description,
+        // Add mode: create new transaction
+        final transaction = trans.Transaction(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          amount: amount,
+          categoryId: _selectedCategoryId!,
+          accountId: accountId,
+          type: _transactionType,
+          title: noteText.isNotEmpty ? noteText : categoryName,
+          description: noteText,
+          date: _selectedDate,
+          tags: _paymentMethod,
+          isRecurring: isRecurring,
+          recurringPattern: isRecurring ? _repeatOption.toLowerCase() : null,
+          nextDueDate: isRecurring ? _calculateNextDueDate(_selectedDate, _repeatOption) : null,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         );
-      }
 
-      if (mounted) {
-        CustomSnackBar.show(
-          context: context,
-          message: 'Transaction saved successfully!',
-          type: SnackBarType.success,
-        );
+        await provider.addTransaction(transaction);
 
-        context.pop();
+        // Add notification for the new transaction
+        if (_transactionType == 'income') {
+          await notificationService.addIncomeNotification(
+            amount,
+            noteText.isEmpty ? categoryName : noteText,
+          );
+        } else {
+          await notificationService.addExpenseNotification(
+            amount,
+            categoryName,
+            noteText.isEmpty ? categoryName : noteText,
+          );
+        }
+
+        if (mounted) {
+          CustomSnackBar.show(
+            context: context,
+            message: 'Transaction saved successfully!',
+            type: SnackBarType.success,
+          );
+          context.pop();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -1316,7 +1440,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     children: [
                       Icon(
                         Icons.payment,
-                        color: const Color(0xFF006E1F),
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 28,
                       ),
                       const SizedBox(width: 12),
@@ -1326,7 +1450,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           context,
                         ).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF006E1F),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -1345,7 +1469,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         border: Border.all(
                           color:
                               isSelected
-                                  ? const Color(0xFF006E1F)
+                                  ? Theme.of(context).colorScheme.secondary
                                   : Theme.of(
                                     context,
                                   ).colorScheme.outline.withValues(alpha: 0.2),
@@ -1355,24 +1479,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       child: ListTile(
                         leading: Icon(
                           method['icon'] as IconData,
-                          color: const Color(0xFF006E1F),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         title: Text(
                           method['name'] as String,
                           style: TextStyle(
                             fontWeight:
                                 isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color:
-                                isSelected
-                                    ? const Color(0xFF006E1F)
-                                    : Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         trailing:
                             isSelected
                                 ? Icon(
                                   Icons.check,
-                                  color: const Color(0xFF006E1F),
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 )
                                 : Icon(
                                   Icons.chevron_right,
@@ -1424,7 +1545,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     children: [
                       Icon(
                         Icons.repeat,
-                        color: const Color(0xFF006E1F),
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 28,
                       ),
                       const SizedBox(width: 12),
@@ -1434,7 +1555,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           context,
                         ).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF006E1F),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -1453,7 +1574,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         border: Border.all(
                           color:
                               isSelected
-                                  ? const Color(0xFF006E1F)
+                                  ? Theme.of(context).colorScheme.secondary
                                   : Theme.of(
                                     context,
                                   ).colorScheme.outline.withValues(alpha: 0.2),
@@ -1463,24 +1584,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       child: ListTile(
                         leading: Icon(
                           _getRepeatIcon(option),
-                          color: const Color(0xFF006E1F),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         title: Text(
                           option,
                           style: TextStyle(
                             fontWeight:
                                 isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color:
-                                isSelected
-                                    ? const Color(0xFF006E1F)
-                                    : Theme.of(context).colorScheme.onSurface,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         trailing:
                             isSelected
                                 ? Icon(
                                   Icons.check,
-                                  color: const Color(0xFF006E1F),
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 )
                                 : Icon(
                                   Icons.chevron_right,

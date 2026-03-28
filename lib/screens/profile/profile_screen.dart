@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
+import '../../services/firebase_sync_service.dart';
+import '../../services/premium_service.dart';
 import '../../utils/dialog_utils.dart';
+import '../../utils/custom_snackbar.dart';
 import '../more/about_screen.dart';
 
 /// Profile screen showing user information and settings
@@ -64,9 +67,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildProfileItem(
                   icon: Icons.cloud_upload_outlined,
                   title: 'Backup & Sync',
-                  subtitle: 'Backup your data to cloud',
-                  onTap:
-                      () => _showComingSoonSnackBar(context, 'Backup feature'),
+                  subtitle: 'Sync your data across devices',
+                  onTap: () => _showSyncDialog(context),
                 ),
                 _buildProfileItem(
                   icon: Icons.info_outline,
@@ -222,43 +224,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => DialogUtils.createModernDialog(
-        context,
+      builder: (ctx) => DialogUtils.createModernDialog(
+        ctx,
         title: 'Edit Profile',
         titleIcon: Icons.person_outline,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             DialogUtils.createDialogTextField(
-              context,
+              ctx,
               controller: nameController,
               labelText: 'Display Name',
               hintText: 'Enter your display name',
               prefixIcon: Icons.person_outlined,
             ),
+            const SizedBox(height: 8),
             DialogUtils.createDialogText(
-              context,
+              ctx,
               'Email: ${authService.userEmail ?? 'N/A'}',
               style: TextStyle(
                 fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
         ),
         actions: [
           DialogUtils.createSecondaryButton(
-            context,
+            ctx,
             text: 'Cancel',
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
           ),
           const SizedBox(width: 8),
           DialogUtils.createPrimaryButton(
             text: 'Save',
             icon: Icons.save_outlined,
-            onPressed: () {
-              Navigator.pop(context);
-              _showComingSoonSnackBar(context, 'Profile update feature');
+            onPressed: () async {
+              final name = nameController.text.trim();
+              if (name.isEmpty) return;
+              Navigator.pop(ctx);
+              final success = await authService.updateProfile(name);
+              if (mounted) {
+                if (success) {
+                  CustomSnackBar.showSuccess(this.context, 'Profile updated!');
+                } else {
+                  CustomSnackBar.showError(
+                    this.context,
+                    authService.error ?? 'Failed to update profile.',
+                  );
+                }
+              }
             },
           ),
         ],
@@ -266,16 +281,157 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showComingSoonSnackBar(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '$feature coming soon!',
-          style: const TextStyle(color: Colors.white),
+  void _showSyncDialog(BuildContext context) {
+    final syncService = FirebaseSyncService();
+    final premiumService = PremiumService();
+    final isPremium = premiumService.isPremium;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor:
+              Theme.of(ctx).brightness == Brightness.dark
+                  ? Theme.of(ctx).colorScheme.surface
+                  : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(Icons.cloud_sync_outlined, color: Theme.of(ctx).colorScheme.secondary),
+              const SizedBox(width: 10),
+              Text(
+                'Backup & Sync',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(ctx).colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isPremium) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(ctx).colorScheme.secondary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.lock_outline, color: Theme.of(ctx).colorScheme.secondary, size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Cloud sync is a Premium feature. Upgrade to sync across all your devices.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(ctx).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ] else ...[
+                _syncStatusRow(ctx, syncService),
+                const SizedBox(height: 12),
+                Text(
+                  'Your transactions, accounts, budgets and categories are synced automatically when you are online.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                'Close',
+                style: TextStyle(color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.6)),
+              ),
+            ),
+            if (isPremium)
+              ElevatedButton.icon(
+                icon: syncService.isSyncing
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.sync, size: 18),
+                label: Text(syncService.isSyncing ? 'Syncing...' : 'Sync Now'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(ctx).colorScheme.secondary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: syncService.isSyncing
+                    ? null
+                    : () async {
+                        setDialogState(() {});
+                        final nav = Navigator.of(ctx);
+                        try {
+                          await syncService.syncNow();
+                          if (mounted) {
+                            nav.pop();
+                            CustomSnackBar.showSuccess(this.context, 'Sync completed!');
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            nav.pop();
+                            final msg = e.toString().replaceFirst('Exception: ', '');
+                            CustomSnackBar.showError(this.context, msg);
+                          }
+                        }
+                      },
+              ),
+          ],
         ),
-        backgroundColor: const Color(0xFF006E1F),
       ),
     );
+  }
+
+  Widget _syncStatusRow(BuildContext context, FirebaseSyncService syncService) {
+    final lastSync = syncService.lastSyncTime;
+    final isOnline = syncService.isOnline;
+    return Row(
+      children: [
+        Icon(
+          isOnline ? Icons.wifi : Icons.wifi_off,
+          size: 18,
+          color: isOnline ? Colors.green : Colors.grey,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          isOnline ? 'Online' : 'Offline',
+          style: TextStyle(
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        if (lastSync != null)
+          Text(
+            'Last sync: ${_formatSyncTime(lastSync)}',
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+      ],
+    );
+  }
+
+  String _formatSyncTime(DateTime time) {
+    final now = DateTime.now();
+    final diff = now.difference(time);
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${diff.inDays}d ago';
   }
 
   void _showSignOutDialog(BuildContext context, AuthService authService) {

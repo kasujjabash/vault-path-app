@@ -35,7 +35,8 @@ class FirebaseSyncService extends ChangeNotifier {
 
   /// Initialize sync service for a specific user
   Future<void> initialize(String userId) async {
-    if (_isInitialized) return;
+    // Allow re-initialization if user changed or was previously offline
+    if (_isInitialized && _currentUserId == userId && _isOnline) return;
 
     try {
       _currentUserId = userId;
@@ -506,7 +507,17 @@ class FirebaseSyncService extends ChangeNotifier {
 
     if (_currentUserId == null) {
       debugPrint('Cannot sync: no user signed in');
-      return;
+      throw Exception('No user signed in. Please sign in and try again.');
+    }
+
+    // If offline or Firestore not initialized, attempt to reconnect first
+    if (!_isOnline || _firestore == null) {
+      await _attemptReconnect();
+      if (!_isOnline) {
+        throw Exception(
+          'Unable to connect to the server. Please check your internet connection and try again.',
+        );
+      }
     }
 
     _setSyncing(true);
@@ -519,6 +530,26 @@ class FirebaseSyncService extends ChangeNotifier {
       rethrow;
     } finally {
       _setSyncing(false);
+    }
+  }
+
+  /// Attempt to reconnect to Firestore
+  Future<void> _attemptReconnect() async {
+    debugPrint('Attempting to reconnect to Firestore...');
+    try {
+      _firestore ??= FirebaseFirestore.instance;
+      await _firestore!
+          .doc('test/connection')
+          .get()
+          .timeout(const Duration(seconds: 8));
+      await _firestore!.enableNetwork();
+      _isOnline = true;
+      notifyListeners();
+      debugPrint('Reconnected to Firestore successfully');
+    } catch (e) {
+      debugPrint('Reconnect failed: $e');
+      _isOnline = false;
+      notifyListeners();
     }
   }
 

@@ -561,27 +561,28 @@ class _MoreScreenState extends State<MoreScreen> {
     showDialog(
       context: context,
       builder:
-          (context) => DialogUtils.createModernDialog(
-            context,
+          (ctx) => DialogUtils.createModernDialog(
+            ctx,
             title: 'Edit Profile',
             titleIcon: Icons.person_outline,
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DialogUtils.createDialogTextField(
-                  context,
+                  ctx,
                   controller: nameController,
                   labelText: 'Display Name',
                   hintText: 'Enter your display name',
                   prefixIcon: Icons.person_outlined,
                 ),
+                const SizedBox(height: 4),
                 DialogUtils.createDialogText(
-                  context,
+                  ctx,
                   'Email: ${authService.userEmail ?? 'N/A'}',
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(
-                      context,
+                      ctx,
                     ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
@@ -589,20 +590,33 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
             actions: [
               DialogUtils.createSecondaryButton(
-                context,
+                ctx,
                 text: 'Cancel',
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pop(ctx),
               ),
               const SizedBox(width: 8),
               DialogUtils.createPrimaryButton(
                 text: 'Save',
                 icon: Icons.save_outlined,
-                onPressed: () {
-                  Navigator.pop(context);
-                  CustomSnackBar.showInfo(
-                    context,
-                    'Profile update coming soon!',
-                  );
+                onPressed: () async {
+                  final name = nameController.text.trim();
+                  if (name.isEmpty) return;
+                  final nav = Navigator.of(ctx);
+                  final success = await authService.updateProfile(name);
+                  nav.pop();
+                  if (mounted) {
+                    if (success) {
+                      CustomSnackBar.showSuccess(
+                        this.context,
+                        'Profile updated successfully!',
+                      );
+                    } else {
+                      CustomSnackBar.showError(
+                        this.context,
+                        authService.error ?? 'Failed to update profile.',
+                      );
+                    }
+                  }
                 },
               ),
             ],
@@ -751,7 +765,7 @@ class _MoreScreenState extends State<MoreScreen> {
                     children: [
                       Icon(
                         Icons.monetization_on_outlined,
-                        color: const Color(0xFF006E1F),
+                        color: Theme.of(context).colorScheme.secondary,
                         size: 28,
                       ),
                       const SizedBox(width: 12),
@@ -782,7 +796,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                         color:
                                             currencyService.currentCurrency ==
                                                     currency
-                                                ? const Color(0xFF006E1F)
+                                                ? Theme.of(context).colorScheme.secondary
                                                 : Theme.of(context)
                                                     .colorScheme
                                                     .outline
@@ -796,9 +810,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                       color:
                                           currencyService.currentCurrency ==
                                                   currency
-                                              ? const Color(
-                                                0xFF006E1F,
-                                              ).withValues(alpha: 0.1)
+                                              ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
                                               : Colors.transparent,
                                     ),
                                     child: ListTile(
@@ -817,24 +829,16 @@ class _MoreScreenState extends State<MoreScreen> {
                                                       currency
                                                   ? FontWeight.bold
                                                   : FontWeight.normal,
-                                          color:
-                                              currencyService.currentCurrency ==
-                                                      currency
-                                                  ? const Color(0xFF006E1F)
-                                                  : null,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       ),
                                       subtitle: Text(
                                         currency.code,
                                         style: TextStyle(
-                                          color:
-                                              currencyService.currentCurrency ==
-                                                      currency
-                                                  ? const Color(0xFF006E1F)
-                                                  : Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface
-                                                      .withValues(alpha: 0.6),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.6),
                                         ),
                                       ),
                                       trailing:
@@ -842,7 +846,7 @@ class _MoreScreenState extends State<MoreScreen> {
                                                   currency
                                               ? Icon(
                                                 Icons.check_circle,
-                                                color: const Color(0xFF006E1F),
+                                                color: Theme.of(context).colorScheme.secondary,
                                                 size: 24,
                                               )
                                               : null,

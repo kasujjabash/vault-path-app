@@ -43,7 +43,7 @@ class DatabaseHelper implements DatabaseInterface {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDatabase,
       onUpgrade: _upgradeDatabase,
     );
@@ -97,6 +97,7 @@ class DatabaseHelper implements DatabaseInterface {
         tags TEXT,
         isRecurring INTEGER NOT NULL DEFAULT 0,
         recurringPattern TEXT,
+        nextDueDate INTEGER,
         transferToAccountId TEXT,
         createdAt INTEGER NOT NULL,
         updatedAt INTEGER NOT NULL,
@@ -147,8 +148,8 @@ class DatabaseHelper implements DatabaseInterface {
     int newVersion,
   ) async {
     // Handle database migrations here when version changes
-    if (oldVersion < newVersion) {
-      // Add migration logic here
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE transactions ADD COLUMN nextDueDate INTEGER');
     }
   }
 

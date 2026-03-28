@@ -433,6 +433,32 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Update display name for the current user
+  Future<bool> updateProfile(String displayName) async {
+    try {
+      _setEmailLoading(true);
+      _clearError();
+      if (_isMockMode) {
+        if (_user is MockUser) {
+          (_user as MockUser).displayName = displayName.trim();
+        }
+        notifyListeners();
+        return true;
+      }
+      await currentUser?.updateDisplayName(displayName.trim());
+      await currentUser?.reload();
+      _user = _auth?.currentUser;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _setError('Failed to update profile. Please try again.');
+      debugPrint('Update profile error: $e');
+      return false;
+    } finally {
+      _setEmailLoading(false);
+    }
+  }
+
   /// Reset password
   Future<bool> resetPassword(String email) async {
     try {
@@ -571,7 +597,7 @@ class AuthService extends ChangeNotifier {
 /// Simple Mock User class for development when Firebase is not available
 class MockUser {
   final String email;
-  final String displayName;
+  String displayName;
   final String uid;
   final bool emailVerified;
 

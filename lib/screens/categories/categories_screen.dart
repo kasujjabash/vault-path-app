@@ -79,7 +79,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                       decoration: BoxDecoration(
                         color:
                             _tabController.index == 0
-                                ? const Color(0xFF006E1F)
+                                ? Theme.of(context).colorScheme.secondary
                                 : Colors.transparent,
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -108,7 +108,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                       decoration: BoxDecoration(
                         color:
                             _tabController.index == 1
-                                ? const Color(0xFF006E1F)
+                                ? Theme.of(context).colorScheme.secondary
                                 : Colors.transparent,
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -196,7 +196,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFF006E1F).withValues(alpha: 0.15),
+            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -204,9 +204,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: theme.brightness == Brightness.dark
-                  ? Colors.white
-                  : const Color(0xFF006E1F),
+              color: theme.colorScheme.secondary,
             ),
           ),
         ),
@@ -331,9 +329,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
+                child: Text(
                   'Close',
-                  style: TextStyle(color: Color(0xFF006E1F)),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),
               if (!category.isDefault)
@@ -343,7 +341,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                     _showEditCategoryDialog(category);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF006E1F),
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                     foregroundColor: Colors.white,
                   ),
                   child: const Text('Edit'),

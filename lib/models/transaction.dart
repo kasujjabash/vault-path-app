@@ -13,6 +13,7 @@ class Transaction {
   final String? tags; // comma-separated tags for better organization
   final bool isRecurring; // is this a recurring transaction
   final String? recurringPattern; // daily, weekly, monthly, yearly
+  final DateTime? nextDueDate; // next scheduled occurrence for recurring transactions
   final String? transferToAccountId; // for transfer transactions
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -30,6 +31,7 @@ class Transaction {
     this.tags,
     this.isRecurring = false,
     this.recurringPattern,
+    this.nextDueDate,
     this.transferToAccountId,
     required this.createdAt,
     required this.updatedAt,
@@ -50,6 +52,7 @@ class Transaction {
       'tags': tags,
       'isRecurring': isRecurring ? 1 : 0,
       'recurringPattern': recurringPattern,
+      'nextDueDate': nextDueDate?.millisecondsSinceEpoch,
       'transferToAccountId': transferToAccountId,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
@@ -71,6 +74,7 @@ class Transaction {
       tags: map['tags'],
       isRecurring: map['isRecurring'] == 1,
       recurringPattern: map['recurringPattern'],
+      nextDueDate: map['nextDueDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['nextDueDate']) : null,
       transferToAccountId: map['transferToAccountId'],
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt']),
@@ -90,6 +94,7 @@ class Transaction {
     String? tags,
     bool? isRecurring,
     String? recurringPattern,
+    DateTime? nextDueDate,
     String? transferToAccountId,
     DateTime? updatedAt,
   }) {
@@ -106,6 +111,7 @@ class Transaction {
       tags: tags ?? this.tags,
       isRecurring: isRecurring ?? this.isRecurring,
       recurringPattern: recurringPattern ?? this.recurringPattern,
+      nextDueDate: nextDueDate ?? this.nextDueDate,
       transferToAccountId: transferToAccountId ?? this.transferToAccountId,
       createdAt: createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
