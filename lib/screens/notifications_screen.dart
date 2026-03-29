@@ -15,13 +15,19 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  late NotificationService _notificationService;
+
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Mark all as read when user opens notifications
-      context.read<NotificationService>().markAllAsRead();
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _notificationService = context.read<NotificationService>();
+  }
+
+  @override
+  void dispose() {
+    // Mark all as read when user leaves the screen so badges show while viewing
+    _notificationService.markAllAsRead();
+    super.dispose();
   }
 
   @override
@@ -111,15 +117,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     AppNotification notification,
     NotificationService service,
   ) {
-    // Automatically mark as read when displayed
-    if (!notification.isRead) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          service.markAsRead(notification.id);
-        }
-      });
-    }
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Dismissible(
@@ -216,37 +213,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title and timestamp row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              notification.title,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight:
-                                    notification.isRead
-                                        ? FontWeight.w600
-                                        : FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                height: 1.2,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _formatNotificationTime(notification.createdAt),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.6),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                      // Title — full line, no timestamp competing
+                      Text(
+                        notification.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              notification.isRead
+                                  ? FontWeight.w600
+                                  : FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          height: 1.2,
+                        ),
                       ),
 
                       const SizedBox(height: 8),
@@ -263,14 +243,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
-                      // New indicator only
+                      // Time and NEW badge both on the left
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // New indicator
-                          if (!notification.isRead)
+                          Text(
+                            _formatNotificationTime(notification.createdAt),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (!notification.isRead) ...[
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -294,6 +283,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 ),
                               ),
                             ),
+                          ],
                         ],
                       ),
                     ],

@@ -149,7 +149,14 @@ class DatabaseHelper implements DatabaseInterface {
   ) async {
     // Handle database migrations here when version changes
     if (oldVersion < 2) {
-      await db.execute('ALTER TABLE transactions ADD COLUMN nextDueDate INTEGER');
+      try {
+        await db.execute(
+          'ALTER TABLE transactions ADD COLUMN nextDueDate INTEGER',
+        );
+      } catch (e) {
+        // Column already exists — safe to ignore
+        debugPrint('Migration v2: nextDueDate already exists, skipping: $e');
+      }
     }
   }
 

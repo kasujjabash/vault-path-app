@@ -183,31 +183,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              notification.title,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight:
-                                    notification.isRead
-                                        ? FontWeight.w500
-                                        : FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                          if (!notification.isRead)
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF006E1F),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                        ],
+                      Text(
+                        notification.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              notification.isRead
+                                  ? FontWeight.w500
+                                  : FontWeight.w600,
+                          color: Colors.black87,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -218,13 +205,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           height: 1.3,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        _formatTimestamp(notification.timestamp),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                        ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text(
+                            _formatTimestamp(notification.timestamp),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                          const Spacer(),
+                          if (!notification.isRead)
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF006E1F),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),

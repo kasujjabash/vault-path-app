@@ -1349,7 +1349,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           updatedAt: DateTime.now(),
         );
 
-        await provider.addTransaction(transaction);
+        await provider.addTransaction(
+          transaction,
+          notificationService: notificationService,
+        );
 
         // Add notification for the new transaction
         if (_transactionType == 'income') {

@@ -215,7 +215,10 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   /// Add new transaction
-  Future<void> addTransaction(Transaction transaction) async {
+  Future<void> addTransaction(
+    Transaction transaction, {
+    NotificationService? notificationService,
+  }) async {
     try {
       await _repository.insertTransaction(transaction);
 
@@ -224,7 +227,11 @@ class ExpenseProvider extends ChangeNotifier {
 
       // Update budget if it's an expense
       if (transaction.type == 'expense') {
-        await _updateBudgetSpending(transaction.categoryId, transaction.amount);
+        await _updateBudgetSpending(
+          transaction.categoryId,
+          transaction.amount,
+          notificationService: notificationService,
+        );
       }
 
       await loadTransactions();
@@ -424,14 +431,42 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   /// Update budget spending amount
-  Future<void> _updateBudgetSpending(String categoryId, double amount) async {
+  Future<void> _updateBudgetSpending(
+    String categoryId,
+    double amount, {
+    NotificationService? notificationService,
+  }) async {
     final budget =
         _budgets
             .where((b) => b.categoryId == categoryId && b.isActive)
             .firstOrNull;
     if (budget != null) {
+      final wasExceeded = budget.isExceeded;
+      final wasNearLimit = budget.isNearLimit;
       final updatedBudget = budget.copyWith(spent: budget.spent + amount);
       await _repository.updateBudget(updatedBudget);
+
+      if (notificationService != null && amount > 0) {
+        if (!wasExceeded && updatedBudget.isExceeded) {
+          await notificationService.addBudgetExceededNotification(
+            budget.name,
+            budget.amount,
+            updatedBudget.spent,
+          );
+        } else if (!wasNearLimit) {
+          // Use the user's custom alert threshold, not the hardcoded 80%
+          final threshold =
+              await notificationService.getBudgetAlertPercentage();
+          final isNowNearLimit =
+              updatedBudget.progressPercentage * 100 >= threshold;
+          if (isNowNearLimit) {
+            await notificationService.addBudgetWarningNotification(
+              budget.name,
+              updatedBudget.progressPercentage * 100,
+            );
+          }
+        }
+      }
     }
   }
 

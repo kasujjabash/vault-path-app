@@ -140,11 +140,15 @@ class VaultPathApp extends StatelessWidget {
 
                 // Process any due recurring transactions
                 if (expenseProvider.isInitialized) {
-                  await expenseProvider.processRecurringTransactions(notificationService);
+                  await expenseProvider.processRecurringTransactions(
+                    notificationService,
+                  );
                 } else {
                   expenseProvider.addListener(() async {
                     if (expenseProvider.isInitialized) {
-                      await expenseProvider.processRecurringTransactions(notificationService);
+                      await expenseProvider.processRecurringTransactions(
+                        notificationService,
+                      );
                     }
                   });
                 }
@@ -156,6 +160,13 @@ class VaultPathApp extends StatelessWidget {
                   // Schedule follow-up welcome notification for new users
                   // This will run in the background after a delay
                   notificationService.scheduleFollowUpWelcomeNotification();
+                }
+
+                // Check monthly spending summary (fires on last day of month)
+                if (expenseProvider.isInitialized) {
+                  await notificationService.checkMonthlySummary(
+                    expenseProvider.transactions,
+                  );
                 }
               } catch (e) {
                 debugPrint('Error initializing services: $e');

@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../models/notification.dart';
+import '../models/transaction.dart' as app_models;
 import '../utils/format_utils.dart';
 
 /// Service to manage app notifications
@@ -654,6 +655,164 @@ class NotificationService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error scheduling recurring notification: $e');
     }
+  }
+
+  /// Whether the user has enabled budget alerts
+  Future<bool> _areBudgetAlertsEnabled() async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    return prefs.getBool('budget_alerts_enabled') ?? true;
+  }
+
+  /// The user's custom alert threshold percentage (default 80)
+  Future<double> getBudgetAlertPercentage() async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    return prefs.getDouble('budget_alert_percentage') ?? 80.0;
+  }
+
+  /// Notify when a budget is exceeded
+  Future<void> addBudgetExceededNotification(
+    String budgetName,
+    double limit,
+    double spent,
+  ) async {
+    if (!await _areBudgetAlertsEnabled()) return;
+    final over = FormatUtils.formatCurrency(spent - limit);
+    final notification = AppNotification(
+      id: 'budget_exceeded_${budgetName}_${DateTime.now().millisecondsSinceEpoch}',
+      title: '🚨 Budget Exceeded!',
+      message:
+          'You have gone over your "$budgetName" budget by $over. Consider reviewing your spending.',
+      type: NotificationType.budget,
+      createdAt: DateTime.now(),
+      isRead: false,
+    );
+    await addNotification(notification);
+
+    await _localNotifications.show(
+      DateTime.now().millisecondsSinceEpoch % 100000,
+      '🚨 Budget Exceeded!',
+      'You went over your "$budgetName" budget by $over.',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+  }
+
+  /// Notify when a budget reaches the user's alert threshold
+  Future<void> addBudgetWarningNotification(
+    String budgetName,
+    double percentage,
+  ) async {
+    if (!await _areBudgetAlertsEnabled()) return;
+    final pct = percentage.toStringAsFixed(0);
+    final notification = AppNotification(
+      id: 'budget_warning_${budgetName}_${DateTime.now().millisecondsSinceEpoch}',
+      title: '⚠️ Budget Warning',
+      message:
+          'You have used $pct% of your "$budgetName" budget. You are getting close to your limit.',
+      type: NotificationType.budget,
+      createdAt: DateTime.now(),
+      isRead: false,
+    );
+    await addNotification(notification);
+
+    await _localNotifications.show(
+      DateTime.now().millisecondsSinceEpoch % 100000,
+      '⚠️ Budget Warning',
+      'You have used $pct% of your "$budgetName" budget.',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+  }
+
+  /// Check and send monthly spending summary on the last day of the month
+  Future<void> checkMonthlySummary(
+    List<app_models.Transaction> transactions,
+  ) async {
+    final now = DateTime.now();
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0).day;
+    final isLastDay = now.day == lastDayOfMonth;
+
+    final sentKey = 'monthly_summary_${now.year}_${now.month}';
+    final alreadySent = _prefs?.getBool(sentKey) ?? false;
+
+    if (!isLastDay || alreadySent) return;
+
+    // Filter this month's transactions
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final monthlyTransactions = transactions.where(
+      (t) => t.date.isAfter(startOfMonth.subtract(const Duration(seconds: 1))),
+    );
+
+    final totalSpent = monthlyTransactions
+        .where((t) => t.type == 'expense')
+        .fold(0.0, (acc, t) => acc + t.amount);
+
+    final totalIncome = monthlyTransactions
+        .where((t) => t.type == 'income')
+        .fold(0.0, (acc, t) => acc + t.amount);
+
+    final count = monthlyTransactions.where((t) => t.type == 'expense').length;
+
+    if (totalSpent == 0 && totalIncome == 0) return;
+
+    final net = totalIncome - totalSpent;
+    final netText = net >= 0
+        ? 'You saved ${FormatUtils.formatCurrency(net)} this month. Great job!'
+        : 'You overspent by ${FormatUtils.formatCurrency(net.abs())} this month.';
+
+    final monthName = _monthName(now.month);
+
+    final notification = AppNotification(
+      id: sentKey,
+      title: '📅 $monthName Summary',
+      message:
+          'You spent ${FormatUtils.formatCurrency(totalSpent)} across $count transactions '
+          'and earned ${FormatUtils.formatCurrency(totalIncome)}. $netText',
+      type: NotificationType.general,
+      createdAt: now,
+      isRead: false,
+    );
+    await addNotification(notification);
+
+    await _localNotifications.show(
+      _monthlyReminderId + 1,
+      '📅 $monthName Spending Summary',
+      'Spent ${FormatUtils.formatCurrency(totalSpent)} · Earned ${FormatUtils.formatCurrency(totalIncome)} · $netText',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
+
+    await _prefs?.setBool(sentKey, true);
+    debugPrint('Monthly summary sent for $monthName ${now.year}');
+  }
+
+  String _monthName(int month) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return months[month - 1];
   }
 
   /// Reset welcome notification state (useful for testing)
