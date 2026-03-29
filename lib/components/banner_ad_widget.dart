@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../services/ad_service.dart';
+import '../services/premium_service.dart';
 
 /// Reusable banner ad component for the app
 class BannerAdWidget extends StatefulWidget {
@@ -89,6 +90,8 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (PremiumService().isPremium) return const SizedBox.shrink();
+
     if (_bannerAd != null && _isLoaded) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

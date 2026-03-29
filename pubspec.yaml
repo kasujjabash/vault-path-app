@@ -3,7 +3,7 @@ description: "Vault Path - Modern Expense Tracker - Track your expenses and savi
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.0+6
+version: 1.2.1+7
 
 environment:
   sdk: ^3.7.2
