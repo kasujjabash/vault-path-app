@@ -5,6 +5,7 @@ import '../models/account.dart';
 import '../models/category.dart' as models;
 import '../models/transaction.dart';
 import '../models/budget.dart';
+import '../models/savings_goal.dart';
 import '../models/category_spending_data.dart';
 import '../services/firebase_sync_service.dart';
 import '../services/notification_service.dart';
@@ -20,6 +21,7 @@ class ExpenseProvider extends ChangeNotifier {
   List<models.Category> _categories = [];
   List<Transaction> _transactions = [];
   List<Budget> _budgets = [];
+  List<SavingsGoal> _savingsGoals = [];
 
   // Loading states
   bool _isLoading = false;
@@ -30,6 +32,7 @@ class ExpenseProvider extends ChangeNotifier {
   List<models.Category> get categories => _categories;
   List<Transaction> get transactions => _transactions;
   List<Budget> get budgets => _budgets;
+  List<SavingsGoal> get savingsGoals => List.unmodifiable(_savingsGoals);
   bool get isLoading => _isLoading;
   bool get isInitialized => _isInitialized;
 
@@ -69,6 +72,11 @@ class ExpenseProvider extends ChangeNotifier {
       unawaited(
         loadBudgets().catchError((e) {
           debugPrint('Error loading budgets: $e');
+        }),
+      );
+      unawaited(
+        loadSavingsGoals().catchError((e) {
+          debugPrint('Error loading savings goals: $e');
         }),
       );
 
@@ -447,24 +455,26 @@ class ExpenseProvider extends ChangeNotifier {
       await _repository.updateBudget(updatedBudget);
 
       if (notificationService != null && amount > 0) {
-        if (!wasExceeded && updatedBudget.isExceeded) {
-          await notificationService.addBudgetExceededNotification(
-            budget.name,
-            budget.amount,
-            updatedBudget.spent,
-          );
-        } else if (!wasNearLimit) {
-          // Use the user's custom alert threshold, not the hardcoded 80%
-          final threshold =
-              await notificationService.getBudgetAlertPercentage();
-          final isNowNearLimit =
-              updatedBudget.progressPercentage * 100 >= threshold;
-          if (isNowNearLimit) {
-            await notificationService.addBudgetWarningNotification(
+        try {
+          if (!wasExceeded && updatedBudget.isExceeded) {
+            await notificationService.addBudgetExceededNotification(
               budget.name,
-              updatedBudget.progressPercentage * 100,
+              budget.amount,
+              updatedBudget.spent,
             );
+          } else if (!wasNearLimit) {
+            final threshold =
+                await notificationService.getBudgetAlertPercentage();
+            if (updatedBudget.progressPercentage * 100 >= threshold) {
+              await notificationService.addBudgetWarningNotification(
+                budget.name,
+                updatedBudget.progressPercentage * 100,
+              );
+            }
           }
+        } catch (e) {
+          // Never let notification errors block transaction recording
+          debugPrint('Budget notification error (non-fatal): $e');
         }
       }
     }
@@ -743,6 +753,63 @@ class ExpenseProvider extends ChangeNotifier {
       default:
         return from.add(const Duration(days: 1));
     }
+  }
+
+  // SAVINGS GOAL OPERATIONS
+
+  Future<void> loadSavingsGoals() async {
+    try {
+      _savingsGoals = await _repository.getSavingsGoals();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading savings goals: $e');
+    }
+  }
+
+  Future<void> addSavingsGoal(SavingsGoal goal) async {
+    try {
+      await _repository.insertSavingsGoal(goal);
+      await loadSavingsGoals();
+    } catch (e) {
+      debugPrint('Error adding savings goal: $e');
+    }
+  }
+
+  Future<void> updateSavingsGoal(SavingsGoal goal) async {
+    try {
+      await _repository.updateSavingsGoal(goal);
+      await loadSavingsGoals();
+    } catch (e) {
+      debugPrint('Error updating savings goal: $e');
+    }
+  }
+
+  Future<void> deleteSavingsGoal(String id) async {
+    try {
+      await _repository.deleteSavingsGoal(id);
+      await loadSavingsGoals();
+    } catch (e) {
+      debugPrint('Error deleting savings goal: $e');
+    }
+  }
+
+  Future<void> addToSavingsGoal(String id, double amount) async {
+    final goal = _savingsGoals.firstWhere((g) => g.id == id);
+    final updated = goal.copyWith(
+      savedAmount: goal.savedAmount + amount,
+      updatedAt: DateTime.now(),
+    );
+    await updateSavingsGoal(updated);
+  }
+
+  Future<void> withdrawFromSavingsGoal(String id, double amount) async {
+    final goal = _savingsGoals.firstWhere((g) => g.id == id);
+    final newAmount = (goal.savedAmount - amount).clamp(0.0, double.infinity);
+    final updated = goal.copyWith(
+      savedAmount: newAmount,
+      updatedAt: DateTime.now(),
+    );
+    await updateSavingsGoal(updated);
   }
 
   @override

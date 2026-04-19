@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class AppConstants {
   // App Information
   static const String appName = 'Vault Path';
-  static const String appVersion = '1.2.2';
+  static const String appVersion = '1.2.4';
   static const String appDescription = 'Modern Expense Tracker';
 
   // Database

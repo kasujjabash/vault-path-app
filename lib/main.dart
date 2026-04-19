@@ -138,28 +138,32 @@ class VaultPathApp extends StatelessWidget {
                 await currencyService.initialize();
                 await premiumService.initialize();
 
-                // Process any due recurring transactions
-                if (expenseProvider.isInitialized) {
-                  await expenseProvider.processRecurringTransactions(
-                    notificationService,
-                  );
-                } else {
-                  expenseProvider.addListener(() async {
-                    if (expenseProvider.isInitialized) {
-                      await expenseProvider.processRecurringTransactions(
-                        notificationService,
-                      );
-                    }
-                  });
-                }
-
+                // Initialize notification service before anything that posts notifications
                 if (!notificationService.isInitialized) {
                   await notificationService.initialize();
                   await notificationService.setAppInstallDate();
-
-                  // Schedule follow-up welcome notification for new users
-                  // This will run in the background after a delay
                   notificationService.scheduleFollowUpWelcomeNotification();
+                }
+
+                // Process any due recurring transactions (once per app launch)
+                Future<void> runRecurring() async {
+                  await expenseProvider.processRecurringTransactions(
+                    notificationService,
+                  );
+                }
+
+                if (expenseProvider.isInitialized) {
+                  await runRecurring();
+                } else {
+                  // One-shot listener — removes itself after firing
+                  late final VoidCallback listener;
+                  listener = () async {
+                    if (expenseProvider.isInitialized) {
+                      expenseProvider.removeListener(listener);
+                      await runRecurring();
+                    }
+                  };
+                  expenseProvider.addListener(listener);
                 }
 
                 // Check monthly spending summary (fires on last day of month)
@@ -176,6 +180,7 @@ class VaultPathApp extends StatelessWidget {
 
           // Create router once outside Consumer to prevent recreation on theme change
           final router = AppRouter.createRouter(authService);
+          
 
           return Consumer<ThemeProvider>(
             builder: (context, themeProvider, child) {

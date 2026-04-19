@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 import 'firebase_sync_service.dart';
+import 'premium_service.dart';
 
 /// Firebase Authentication Service
 /// Handles user authentication with email/password and Google Sign-In
@@ -23,6 +24,10 @@ class AuthService extends ChangeNotifier {
   bool _isInitialized = false;
   bool _isMockMode = false; // For when Firebase is not available
 
+  // Listener used to trigger a full sync when premium status is confirmed
+  // after an async purchase restore (e.g. after reinstall wipes SharedPreferences).
+  VoidCallback? _premiumSyncListener;
+
   // Getters
   User? get currentUser => _isMockMode ? null : (_user ?? _auth?.currentUser);
   MockUser? get mockUser => _isMockMode ? _user as MockUser? : null;
@@ -32,6 +37,7 @@ class AuthService extends ChangeNotifier {
   bool get isGoogleLoading => _isGoogleLoading;
   String? get error => _error;
   bool get isInitialized => _isInitialized;
+  bool get isMockMode => _isMockMode;
   String? get userDisplayName =>
       _isMockMode
           ? mockUser?.displayName
@@ -106,9 +112,9 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
     debugPrint('Auth state changed: ${user?.email ?? 'signed out'}');
 
-    // Initialize or cleanup sync service based on auth state
     if (user != null) {
-      // User signed in - initialize sync service
+      // Initialize sync — always runs so Firestore data is pulled back even
+      // when the cached premium flag was wiped by an uninstall.
       FirebaseSyncService()
           .initialize(user.uid)
           .then((_) {
@@ -119,9 +125,44 @@ class AuthService extends ChangeNotifier {
           .catchError((e) {
             debugPrint('Failed to initialize sync service: $e');
           });
+
+      // Restore any active Google Play subscriptions for this user.
+      // Runs silently — the purchase stream handler grants premium if found.
+      PremiumService().restorePurchasesOnSignIn();
+
+      // If purchase restoration completes after the sync already ran
+      // (likely on reinstall), trigger a full sync once premium is confirmed.
+      _setupPremiumSyncListener(user.uid);
     } else {
-      // User signed out - cleanup sync service if needed
+      // User signed out — remove the premium listener.
+      _cleanupPremiumSyncListener();
       debugPrint('User signed out - sync service will be cleaned up');
+    }
+  }
+
+  /// Registers a one-shot listener on [PremiumService] that calls [syncNow]
+  /// the first time [isPremium] transitions to true while the user is signed in.
+  void _setupPremiumSyncListener(String userId) {
+    _cleanupPremiumSyncListener();
+    final premiumService = PremiumService();
+    if (premiumService.isPremium) return; // Already premium — nothing to wait for.
+
+    _premiumSyncListener = () {
+      if (premiumService.isPremium) {
+        _cleanupPremiumSyncListener();
+        debugPrint('Premium confirmed after restore — triggering full sync');
+        FirebaseSyncService().syncNow().catchError((e) {
+          debugPrint('Sync after premium restore failed (non-fatal): $e');
+        });
+      }
+    };
+    premiumService.addListener(_premiumSyncListener!);
+  }
+
+  void _cleanupPremiumSyncListener() {
+    if (_premiumSyncListener != null) {
+      PremiumService().removeListener(_premiumSyncListener!);
+      _premiumSyncListener = null;
     }
   }
 
@@ -461,12 +502,41 @@ class AuthService extends ChangeNotifier {
 
   /// Reset password
   Future<bool> resetPassword(String email) async {
+    if (_isMockMode) {
+      // Firebase is not available on this device/emulator.
+      // We must NOT pretend the email was sent.
+      _setError(
+        'Password reset is not available in offline/development mode. '
+        'Please use a real device with an internet connection.',
+        context: 'password-reset',
+      );
+      return false;
+    }
+    if (_auth == null) {
+      _setError(
+        'Authentication service not available. Please restart the app.',
+        context: 'password-reset',
+      );
+      return false;
+    }
     try {
       _setEmailLoading(true);
       _clearError();
 
-      await _auth!.sendPasswordResetEmail(email: email.trim());
-      debugPrint('Password reset email sent to: $email');
+      // ActionCodeSettings routes the reset link back to the Android app.
+      // If the app isn't installed it falls back to the Firebase hosted page.
+      final actionCodeSettings = ActionCodeSettings(
+        url: 'https://budjar-8d2e9.firebaseapp.com/reset-password',
+        handleCodeInApp: false,
+        androidPackageName: 'com.vaultpath.app',
+        androidInstallApp: false,
+        androidMinimumVersion: '1',
+      );
+      await _auth!.sendPasswordResetEmail(
+        email: email.trim(),
+        actionCodeSettings: actionCodeSettings,
+      );
+      debugPrint('Password reset email requested for: $email');
       return true;
     } on FirebaseAuthException catch (e) {
       String errorMessage = _getErrorMessage(e);

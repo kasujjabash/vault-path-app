@@ -405,61 +405,243 @@ class _ModernLoginScreenState extends State<ModernLoginScreen> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Reset Password'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Enter your email address to receive a password reset link.',
+      barrierDismissible: false,
+      builder: (dialogCtx) {
+        bool isSending = false;
+        bool emailSent = false;
+        String? inlineError;
+
+        return StatefulBuilder(
+          builder: (_, setDialogState) {
+            // ── Success state ─────────────────────────────────────────────
+            if (emailSent) {
+              return AlertDialog(
+                title: Row(
+                  children: [
+                    Icon(Icons.mark_email_read, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    const Text('Check Your Email'),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'If an account exists for:',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      emailController.text.trim(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'you will receive a password reset link shortly.',
+                      style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.amber.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.amber,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Not receiving it?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '• Check your Spam or Junk folder\n'
+                            '• Make sure you used the email you signed up with\n'
+                            '• If you signed up with Google, use "Sign in with Google" instead',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[800],
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(dialogCtx),
+                    child: const Text('Done'),
                   ),
+                ],
+              );
+            }
+
+            // ── Input state ───────────────────────────────────────────────
+            return AlertDialog(
+              title: const Text('Reset Password'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Warn when Firebase isn't available (emulator / no network)
+                  if (authService.isMockMode)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.orange.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.wifi_off_rounded,
+                            color: Colors.orange,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              'Firebase is not connected on this device. '
+                              'Password reset requires an internet connection and a real device.',
+                              style: TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  Text(
+                    'Enter the email address you used to sign up. We\'ll send you a link to reset your password.',
+                    style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    autofocus: true,
+                    onChanged: (_) {
+                      if (inlineError != null) {
+                        setDialogState(() => inlineError = null);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: AppColors.primary,
+                      ),
+                      errorText: inlineError,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.primary,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSending ? null : () => Navigator.pop(dialogCtx),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: isSending
+                      ? null
+                      : () async {
+                          final email = emailController.text.trim();
+                          if (email.isEmpty) {
+                            setDialogState(
+                              () => inlineError = 'Please enter your email',
+                            );
+                            return;
+                          }
+                          if (!RegExp(
+                            r'^[^@]+@[^@]+\.[^@]+',
+                          ).hasMatch(email)) {
+                            setDialogState(
+                              () =>
+                                  inlineError = 'Enter a valid email address',
+                            );
+                            return;
+                          }
+
+                          setDialogState(() {
+                            isSending = true;
+                            inlineError = null;
+                          });
+
+                          final success =
+                              await authService.resetPassword(email);
+
+                          if (!dialogCtx.mounted) return;
+
+                          if (success) {
+                            setDialogState(() {
+                              isSending = false;
+                              emailSent = true;
+                            });
+                          } else {
+                            setDialogState(() {
+                              isSending = false;
+                              inlineError =
+                                  authService.error ??
+                                  'Failed to send reset email. Please try again.';
+                            });
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: isSending
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
+                          ),
+                        )
+                      : const Text('Send Reset Link'),
                 ),
               ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (emailController.text.isNotEmpty) {
-                    try {
-                      final success = await authService.resetPassword(
-                        emailController.text,
-                      );
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        if (success) {
-                          CustomSnackBar.showSuccess(context, 'Password reset email sent! Please check your inbox.');
-                        } else {
-                          CustomSnackBar.showError(context, authService.error ?? 'Failed to send reset email');
-                        }
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        CustomSnackBar.showError(context, 'Error: ${e.toString()}');
-                      }
-                    }
-                  } else {
-                    // Show validation error for empty email
-                    CustomSnackBar.showWarning(context, 'Please enter your email address');
-                  }
-                },
-                child: const Text('Send Reset Email'),
-              ),
-            ],
-          ),
+            );
+          },
+        );
+      },
     );
   }
 }

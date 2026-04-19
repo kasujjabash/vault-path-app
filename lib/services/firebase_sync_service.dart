@@ -42,17 +42,13 @@ class FirebaseSyncService extends ChangeNotifier {
       _currentUserId = userId;
       await _localRepo.initialize();
 
-      // Check premium status first
-      final premiumService = PremiumService();
-      if (!premiumService.canUseFirebaseSync()) {
-        debugPrint('Firebase sync not available - premium feature only');
-        _isInitialized = true;
-        _isOnline = false;
-        notifyListeners();
-        return;
-      }
-
       // Check if Firebase is available before accessing Firestore
+      // NOTE: We intentionally do NOT gate sync on premium status here.
+      // On reinstall SharedPreferences (and the cached premium flag) is wiped,
+      // so premium users would see their data as gone until Google Play
+      // confirms the purchase — which is async. By always allowing the pull
+      // direction we restore Firestore data immediately on login. Push
+      // (local → remote) is still gated on premium inside each merge method.
       try {
         _firestore = FirebaseFirestore.instance;
       } catch (e) {
@@ -271,10 +267,12 @@ class FirebaseSyncService extends ChangeNotifier {
       }
     }
 
-    // Add local-only accounts to remote
-    for (final localAccount in localAccounts) {
-      if (!remoteMap.containsKey(localAccount.id)) {
-        await collection.doc(localAccount.id).set(localAccount.toMap());
+    // Push local-only accounts to remote — premium users only
+    if (PremiumService().isPremium) {
+      for (final localAccount in localAccounts) {
+        if (!remoteMap.containsKey(localAccount.id)) {
+          await collection.doc(localAccount.id).set(localAccount.toMap());
+        }
       }
     }
   }
@@ -342,10 +340,12 @@ class FirebaseSyncService extends ChangeNotifier {
       }
     }
 
-    // Add local-only categories to remote
-    for (final localCategory in localCategories) {
-      if (!remoteMap.containsKey(localCategory.id)) {
-        await collection.doc(localCategory.id).set(localCategory.toMap());
+    // Push local-only categories to remote — premium users only
+    if (PremiumService().isPremium) {
+      for (final localCategory in localCategories) {
+        if (!remoteMap.containsKey(localCategory.id)) {
+          await collection.doc(localCategory.id).set(localCategory.toMap());
+        }
       }
     }
   }
@@ -419,10 +419,12 @@ class FirebaseSyncService extends ChangeNotifier {
       }
     }
 
-    // Add local-only transactions to remote
-    for (final localTransaction in localTransactions) {
-      if (!remoteMap.containsKey(localTransaction.id)) {
-        await collection.doc(localTransaction.id).set(localTransaction.toMap());
+    // Push local-only transactions to remote — premium users only
+    if (PremiumService().isPremium) {
+      for (final localTransaction in localTransactions) {
+        if (!remoteMap.containsKey(localTransaction.id)) {
+          await collection.doc(localTransaction.id).set(localTransaction.toMap());
+        }
       }
     }
   }
@@ -490,10 +492,12 @@ class FirebaseSyncService extends ChangeNotifier {
       }
     }
 
-    // Add local-only budgets to remote
-    for (final localBudget in localBudgets) {
-      if (!remoteMap.containsKey(localBudget.id)) {
-        await collection.doc(localBudget.id).set(localBudget.toMap());
+    // Push local-only budgets to remote — premium users only
+    if (PremiumService().isPremium) {
+      for (final localBudget in localBudgets) {
+        if (!remoteMap.containsKey(localBudget.id)) {
+          await collection.doc(localBudget.id).set(localBudget.toMap());
+        }
       }
     }
   }

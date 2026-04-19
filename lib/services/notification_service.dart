@@ -44,9 +44,10 @@ class NotificationService extends ChangeNotifier {
     try {
       _prefs = await SharedPreferences.getInstance();
       await _loadNotifications();
+      // Local notifications must be ready before anything that calls show/schedule
+      await _initLocalNotifications();
       await _checkBudgetReminder();
       await _checkNewDeviceAndShowWelcome();
-      await _initLocalNotifications();
       await _initFCM();
       _isInitialized = true;
       notifyListeners();
@@ -77,6 +78,42 @@ class NotificationService extends ChangeNotifier {
         ?.createNotificationChannel(channel);
 
     await scheduleMonthlyBudgetReminder();
+    await scheduleDailyReminder();
+  }
+
+  /// Schedule a daily reminder at 8 PM — repeats every day, shows even when app is closed
+  Future<void> scheduleDailyReminder() async {
+    const int dailyReminderId = 1001;
+    await _localNotifications.cancel(dailyReminderId);
+
+    final now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduled = tz.TZDateTime(
+      tz.local, now.year, now.month, now.day, 20, 0,
+    );
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+
+    await _localNotifications.zonedSchedule(
+      dailyReminderId,
+      '💰 Daily Expense Reminder',
+      'Don\'t forget to log your expenses today and stay on top of your budget!',
+      scheduled,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+    debugPrint('Daily reminder scheduled for 8 PM every day');
   }
 
   /// Schedule a local notification on the 28th of every month at 8 PM
@@ -267,11 +304,13 @@ class NotificationService extends ChangeNotifier {
 
   /// Create and add an income notification
   Future<void> addIncomeNotification(double amount, String description) async {
+    final base = 'You have received ${FormatUtils.formatCurrency(amount)}.';
+    final message = description.isNotEmpty ? '$base\nNote: $description' : base;
+
     final notification = AppNotification(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: '💰 Income Added!',
-      message:
-          'You added ${FormatUtils.formatCurrency(amount)} to your income${description.isNotEmpty ? ' for $description' : ''}.',
+      message: message,
       type: NotificationType.income,
       createdAt: DateTime.now(),
       data: {'amount': amount, 'description': description},
@@ -282,17 +321,34 @@ class NotificationService extends ChangeNotifier {
 
   /// Create and add a budget reminder notification
   Future<void> addBudgetReminderNotification() async {
+    const body =
+        'Set up your monthly budget to better track your spending and achieve your financial goals.';
+
     final notification = AppNotification(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: '📊 Time to Create a Budget!',
-      message:
-          'Set up your monthly budget to better track your spending and achieve your financial goals.',
+      message: body,
       type: NotificationType.reminder,
       createdAt: DateTime.now(),
       data: {'action': 'create_budget'},
     );
 
     await addNotification(notification);
+
+    await _localNotifications.show(
+      DateTime.now().millisecondsSinceEpoch % 100000,
+      '📊 Time to Create a Budget!',
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channelId,
+          _channelName,
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+          icon: '@mipmap/ic_launcher',
+        ),
+      ),
+    );
   }
 
   /// Create and add an expense notification
@@ -301,11 +357,13 @@ class NotificationService extends ChangeNotifier {
     String category,
     String description,
   ) async {
+    final base = 'You have spent ${FormatUtils.formatCurrency(amount)} on $category.';
+    final message = description.isNotEmpty ? '$base\nNote: $description' : base;
+
     final notification = AppNotification(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: '💸 Expense Recorded',
-      message:
-          'You spent ${FormatUtils.formatCurrency(amount)} on $category${description.isNotEmpty ? ' for $description' : ''}.',
+      message: message,
       type: NotificationType.expense,
       createdAt: DateTime.now(),
       data: {

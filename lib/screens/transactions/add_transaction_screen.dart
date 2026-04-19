@@ -1356,15 +1356,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
         // Add notification for the new transaction
         if (_transactionType == 'income') {
-          await notificationService.addIncomeNotification(
-            amount,
-            noteText.isEmpty ? categoryName : noteText,
-          );
+          await notificationService.addIncomeNotification(amount, noteText);
         } else {
           await notificationService.addExpenseNotification(
             amount,
             categoryName,
-            noteText.isEmpty ? categoryName : noteText,
+            noteText,
           );
         }
 

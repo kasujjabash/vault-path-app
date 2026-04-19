@@ -16,7 +16,6 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late DateTime _startTime;
 
-  late Animation<double> _orbFade;
   late Animation<double> _titleFade;
   late Animation<double> _titleScale;
   late Animation<double> _taglineFade;
@@ -36,56 +35,48 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3500),
+      duration: const Duration(milliseconds: 3000),
     );
 
-    _orbFade = Tween<double>(begin: 0, end: 1).animate(
+    _titleFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
       ),
     );
 
-    _titleFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.08, 0.32, curve: Curves.easeOut),
-      ),
-    );
-
     _titleScale = Tween<double>(begin: 0.88, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.08, 0.38, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
       ),
     );
 
     _taglineFade = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.3, 0.5, curve: Curves.easeOut),
+        curve: const Interval(0.25, 0.5, curve: Curves.easeOut),
       ),
     );
 
     _taglineSlide = Tween<Offset>(
-      begin: const Offset(0, 0.5),
+      begin: const Offset(0, 0.4),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.3, 0.5, curve: Curves.easeOut),
+        curve: const Interval(0.25, 0.5, curve: Curves.easeOut),
       ),
     );
 
     _barProgress = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.5, 1.0, curve: Curves.easeInOut),
+        curve: const Interval(0.45, 1.0, curve: Curves.easeInOut),
       ),
     );
 
     _controller.forward();
-
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) _navigate();
     });
@@ -102,7 +93,6 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     final authService = context.read<AuthService>();
-
     if (!authService.isInitialized) {
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) _navigate();
@@ -128,11 +118,13 @@ class _SplashScreenState extends State<SplashScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF004D16),
+      backgroundColor: const Color(0xFF003D11),
       body: Stack(
         children: [
           // Gradient background
           Container(
+            width: double.infinity,
+            height: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -147,45 +139,39 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
 
-          // Decorative orb — top right
-          FadeTransition(
-            opacity: _orbFade,
-            child: Positioned(
-              top: -size.width * 0.25,
-              right: -size.width * 0.2,
-              child: Container(
-                width: size.width * 0.75,
-                height: size.width * 0.75,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF00A32E).withValues(alpha: 0.25),
-                      Colors.transparent,
-                    ],
-                  ),
+          // Decorative orb — top right (Positioned is direct child of Stack)
+          Positioned(
+            top: -size.width * 0.25,
+            right: -size.width * 0.2,
+            child: Container(
+              width: size.width * 0.75,
+              height: size.width * 0.75,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF00A32E).withValues(alpha: 0.25),
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
           ),
 
-          // Decorative orb — bottom left
-          FadeTransition(
-            opacity: _orbFade,
-            child: Positioned(
-              bottom: -size.width * 0.3,
-              left: -size.width * 0.25,
-              child: Container(
-                width: size.width * 0.85,
-                height: size.width * 0.85,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFF00A32E).withValues(alpha: 0.18),
-                      Colors.transparent,
-                    ],
-                  ),
+          // Decorative orb — bottom left (Positioned is direct child of Stack)
+          Positioned(
+            bottom: -size.width * 0.3,
+            left: -size.width * 0.25,
+            child: Container(
+              width: size.width * 0.85,
+              height: size.width * 0.85,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF00A32E).withValues(alpha: 0.18),
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
@@ -246,7 +232,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
 
-                // Bottom — fixed, never moves or fades
+                // Bottom bar
                 Padding(
                   padding: const EdgeInsets.only(
                     left: 48,
@@ -256,7 +242,7 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Percentage — fixed right, fixed width so it never shifts
+                      // Percentage label
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -285,7 +271,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                       const SizedBox(height: 6),
 
-                      // Loading bar track — always visible, fill animates left to right
+                      // Loading bar
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: Container(

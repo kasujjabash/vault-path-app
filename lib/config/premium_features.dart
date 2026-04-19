@@ -5,6 +5,7 @@ class PremiumFeatures {
   // FEATURE IDENTIFIERS (used in-app to gate features)
   // ============================================================
   static const String budgetCreation = 'budget_creation';
+  static const String savingsGoals = 'savings_goals';
   static const String pdfExport = 'pdf_export';
   static const String advancedCharts = 'advanced_charts';
   static const String cloudSync = 'cloud_sync';
@@ -30,6 +31,7 @@ class PremiumFeatures {
   // ============================================================
   static const Map<String, String> featureDisplayNames = {
     budgetCreation: 'Budget Creation',
+    savingsGoals: 'Savings Goals',
     pdfExport: 'PDF Export',
     advancedCharts: 'Advanced Charts',
     cloudSync: 'Cloud Sync',
@@ -40,7 +42,7 @@ class PremiumFeatures {
   // PREMIUM BENEFITS LIST (shown in upgrade prompts)
   // ============================================================
   static const List<String> premiumBenefits = [
-    'Create unlimited budgets',
+    'Create unlimited budgets & savings goals',
     'Export transactions as PDF',
     'Advanced charts (line, bar, daily)',
     'Cloud sync across all devices',

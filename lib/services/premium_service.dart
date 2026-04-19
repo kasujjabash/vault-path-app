@@ -178,19 +178,13 @@ class PremiumService extends ChangeNotifier {
     }
   }
 
-  /// Restore previously completed purchases
-  Future<void> restorePurchases() async {
+  /// Silently restore purchases after sign-in (no UI state changes)
+  Future<void> restorePurchasesOnSignIn() async {
     if (!_isStoreAvailable) return;
     try {
-      _isPurchasing = true;
-      _purchaseError = null;
-      notifyListeners();
       await InAppPurchase.instance.restorePurchases();
     } catch (e) {
-      _isPurchasing = false;
-      _purchaseError = 'Restore failed. Please try again.';
-      notifyListeners();
-      debugPrint('Restore error: $e');
+      debugPrint('Silent purchase restore on sign-in failed (non-fatal): $e');
     }
   }
 

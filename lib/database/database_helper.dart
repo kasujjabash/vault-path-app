@@ -6,6 +6,7 @@ import '../models/account.dart';
 import '../models/category.dart';
 import '../models/transaction.dart' as models;
 import '../models/budget.dart';
+import '../models/savings_goal.dart';
 import 'database_interface.dart';
 
 /// Database helper class to manage SQLite database operations
@@ -43,7 +44,7 @@ class DatabaseHelper implements DatabaseInterface {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDatabase,
       onUpgrade: _upgradeDatabase,
     );
@@ -126,6 +127,21 @@ class DatabaseHelper implements DatabaseInterface {
       )
     ''');
 
+    // Create savings goals table
+    await db.execute('''
+      CREATE TABLE savings_goals (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        targetAmount REAL NOT NULL,
+        savedAmount REAL NOT NULL DEFAULT 0,
+        deadline INTEGER,
+        emoji TEXT NOT NULL DEFAULT '🎯',
+        notes TEXT,
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL
+      )
+    ''');
+
     // Create indexes for better performance
     await db.execute(
       'CREATE INDEX idx_transactions_date ON transactions(date)',
@@ -154,8 +170,26 @@ class DatabaseHelper implements DatabaseInterface {
           'ALTER TABLE transactions ADD COLUMN nextDueDate INTEGER',
         );
       } catch (e) {
-        // Column already exists — safe to ignore
         debugPrint('Migration v2: nextDueDate already exists, skipping: $e');
+      }
+    }
+    if (oldVersion < 3) {
+      try {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS savings_goals (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            targetAmount REAL NOT NULL,
+            savedAmount REAL NOT NULL DEFAULT 0,
+            deadline INTEGER,
+            emoji TEXT NOT NULL DEFAULT '🎯',
+            notes TEXT,
+            createdAt INTEGER NOT NULL,
+            updatedAt INTEGER NOT NULL
+          )
+        ''');
+      } catch (e) {
+        debugPrint('Migration v3: savings_goals table error, skipping: $e');
       }
     }
   }
@@ -382,6 +416,34 @@ class DatabaseHelper implements DatabaseInterface {
     return await db.delete('budgets', where: 'id = ?', whereArgs: [id]);
   }
 
+  // SAVINGS GOAL OPERATIONS
+
+  Future<List<SavingsGoal>> getSavingsGoals() async {
+    final db = await database;
+    final maps = await db.query('savings_goals', orderBy: 'createdAt DESC');
+    return maps.map((m) => SavingsGoal.fromMap(m)).toList();
+  }
+
+  Future<void> insertSavingsGoal(SavingsGoal goal) async {
+    final db = await database;
+    await db.insert('savings_goals', goal.toMap());
+  }
+
+  Future<void> updateSavingsGoal(SavingsGoal goal) async {
+    final db = await database;
+    await db.update(
+      'savings_goals',
+      goal.toMap(),
+      where: 'id = ?',
+      whereArgs: [goal.id],
+    );
+  }
+
+  Future<void> deleteSavingsGoal(String id) async {
+    final db = await database;
+    await db.delete('savings_goals', where: 'id = ?', whereArgs: [id]);
+  }
+
   // ANALYTICS OPERATIONS
 
   /// Get total balance across all accounts
@@ -392,7 +454,7 @@ class DatabaseHelper implements DatabaseInterface {
       'SELECT SUM(balance) as total FROM accounts',
     );
     if (result.isEmpty) return 0.0;
-    return result.first['total'] as double? ?? 0.0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   /// Get total expenses for a date range
@@ -401,13 +463,13 @@ class DatabaseHelper implements DatabaseInterface {
     final db = await database;
     final result = await db.rawQuery(
       '''
-      SELECT SUM(amount) as total FROM transactions 
+      SELECT SUM(amount) as total FROM transactions
       WHERE type = 'expense' AND date >= ? AND date <= ?
     ''',
       [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
     );
     if (result.isEmpty) return 0.0;
-    return result.first['total'] as double? ?? 0.0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   /// Get total income for a date range
@@ -416,13 +478,13 @@ class DatabaseHelper implements DatabaseInterface {
     final db = await database;
     final result = await db.rawQuery(
       '''
-      SELECT SUM(amount) as total FROM transactions 
+      SELECT SUM(amount) as total FROM transactions
       WHERE type = 'income' AND date >= ? AND date <= ?
     ''',
       [startDate.millisecondsSinceEpoch, endDate.millisecondsSinceEpoch],
     );
     if (result.isEmpty) return 0.0;
-    return result.first['total'] as double? ?? 0.0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   /// Get spending by category for a date range
@@ -528,7 +590,7 @@ class DatabaseHelper implements DatabaseInterface {
       [categoryId, startDate.toIso8601String(), endDate.toIso8601String()],
     );
 
-    return (result.first['total'] as double?) ?? 0.0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   @override
@@ -547,7 +609,7 @@ class DatabaseHelper implements DatabaseInterface {
 
     final trends = <String, double>{};
     for (final row in result) {
-      trends[row['month'] as String] = row['total'] as double;
+      trends[row['month'] as String] = (row['total'] as num?)?.toDouble() ?? 0.0;
     }
     return trends;
   }
@@ -562,7 +624,7 @@ class DatabaseHelper implements DatabaseInterface {
       [accountId, accountId],
     );
 
-    return (result.first['balance'] as double?) ?? 0.0;
+    return (result.first['balance'] as num?)?.toDouble() ?? 0.0;
   }
 
   @override

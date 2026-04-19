@@ -6,6 +6,7 @@ import '../models/account.dart';
 import '../models/category.dart' as app_models;
 import '../models/transaction.dart' as app_models;
 import '../models/budget.dart';
+import '../models/savings_goal.dart';
 
 /// Repository pattern implementation for data access
 /// Chooses the appropriate database implementation based on platform
@@ -203,6 +204,27 @@ class DataRepository implements DatabaseInterface {
   Future<List<Budget>> getBudgetsByCategory(String categoryId) async {
     await initialize();
     return await _database.getBudgetsByCategory(categoryId);
+  }
+
+  // Savings goal operations
+  Future<List<SavingsGoal>> getSavingsGoals() async {
+    await initialize();
+    return await (_database as DatabaseHelper).getSavingsGoals();
+  }
+
+  Future<void> insertSavingsGoal(SavingsGoal goal) async {
+    await initialize();
+    await (_database as DatabaseHelper).insertSavingsGoal(goal);
+  }
+
+  Future<void> updateSavingsGoal(SavingsGoal goal) async {
+    await initialize();
+    await (_database as DatabaseHelper).updateSavingsGoal(goal);
+  }
+
+  Future<void> deleteSavingsGoal(String id) async {
+    await initialize();
+    await (_database as DatabaseHelper).deleteSavingsGoal(id);
   }
 
   // Analytics operations

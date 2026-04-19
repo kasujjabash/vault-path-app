@@ -16,10 +16,16 @@ class PremiumScreen extends StatefulWidget {
 
 class _PremiumScreenState extends State<PremiumScreen> {
   String _selectedPlan = 'yearly';
-  bool _wasPremium = false;
+  late bool _wasPremium;
+
+  @override
+  void initState() {
+    super.initState();
+    _wasPremium = PremiumService().isPremium;
+  }
 
   final List<Map<String, dynamic>> _premiumFeatures = [
-    {'icon': Icons.all_inclusive, 'title': 'Unlimited budgets & categories'},
+    {'icon': Icons.all_inclusive, 'title': 'Unlimited budgets & savings goals'},
     {'icon': Icons.sync, 'title': 'Cloud sync across all devices'},
     {'icon': Icons.bar_chart, 'title': 'Advanced charts & analytics'},
     {'icon': Icons.picture_as_pdf, 'title': 'Export transactions as PDF'},
@@ -407,21 +413,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
-        // Restore purchases
-        TextButton(
-          onPressed: isLoading
-              ? null
-              : () => premiumService.restorePurchases(),
-          style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF006E1F),
-          ),
-          child: const Text(
-            'Restore Purchases',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          ),
-        ),
-        const SizedBox(height: 4),
 
         // Close
         TextButton(

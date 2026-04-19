@@ -775,15 +775,12 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
         final categoryName = _selectedCategory!.name;
 
         if (_selectedType == 'income') {
-          await notificationService.addIncomeNotification(
-            amount,
-            _description.isEmpty ? categoryName : _description,
-          );
+          await notificationService.addIncomeNotification(amount, _description);
         } else {
           await notificationService.addExpenseNotification(
             amount,
             categoryName,
-            _description.isEmpty ? categoryName : _description,
+            _description,
           );
         }
 
