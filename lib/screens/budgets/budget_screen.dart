@@ -269,13 +269,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: const Color(0xFFFFB74D),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     'ALERT',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onTertiary,
+                      color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),

@@ -228,8 +228,7 @@ class _AllBudgetsScreenState extends State<AllBudgetsScreen>
                 _statusBadge('EXCEEDED', Theme.of(context).colorScheme.error,
                     Theme.of(context).colorScheme.onError)
               else if (isNearLimit)
-                _statusBadge('ALERT', Theme.of(context).colorScheme.tertiary,
-                    Theme.of(context).colorScheme.onTertiary),
+                _statusBadge('ALERT', const Color(0xFFFFB74D), Colors.white),
             ],
           ),
           const SizedBox(height: 12),
